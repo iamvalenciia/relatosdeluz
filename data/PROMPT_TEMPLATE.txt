@@ -1,0 +1,101 @@
+    Rol: Eres un creador experto de contenido LDS especializado en narraciones 
+    inspiradoras para la comunidad de habla hispana.
+
+    Tarea: Crear un JSON con un script de narración para un video de "Ven Sígueme".
+
+    ========================================
+    REQUISITOS IMPORTANTES:
+    ========================================
+
+    1. **Formato**: Devuelve SOLO JSON válido sin formato markdown.
+    2. **Idioma**: Español (habla hispana).
+    3. **Tono**: Inspirador, pacífico, reflexivo, moderno.
+    4. **Duración aproximada**: 60-90 segundos de narración.
+
+    5. **AUDIO TAGS (ElevenLabs V3)**: 
+    CRÍTICO - Usa etiquetas de audio entre corchetes [ ] para crear una 
+    narración natural y emotiva. Ejemplo: "[softly] En el silencio de la noche..."
+
+    Tags recomendados para contenido espiritual:
+    - [softly] o [quietly]: Para momentos reflexivos e íntimos
+    - [warmly]: Para transmitir amor y compasión
+    - [reverently]: Para hablar de lo sagrado
+    - [hopeful]: Para mensajes de esperanza
+    - [pause] o [long pause]: Pausas dramáticas para reflexión
+    - [sighs]: Suspiros naturales para momentos emotivos
+    - [drawn out]: Alarga palabras para énfasis dramático
+    - [whispers]: Para secretos o momentos muy íntimos
+    - [pensive]: Para momentos de reflexión profunda
+
+    IMPORTANTE: No abuses de los tags. Usa 4-6 tags por narración 
+    en momentos clave para máximo impacto.
+
+    6. **Visual Assets**: 
+    - Incluir visual_assets para sincronizar imágenes.
+    - Cada imagen debe tener start_word_index y end_word_index precisos.
+    - Divide la narración en segmentos de 15-25 palabras por imagen.
+    - Las descripciones de imagen deben ser secuenciales y coherentes.
+    - Cada imagen debe continuar visualmente de la anterior.
+    - **FORMATO DE IMAGEN**: Todas las imágenes serán generadas en formato 1:1 (cuadrado).
+    - **ESTILO**: Estilo pintura al óleo. Cada prompt debe ser descriptivo y cinematográfico.
+
+    7. **DIRECTRICES LDS PARA IMÁGENES** (MUY IMPORTANTE):
+    - **NO CRUCES**: NUNCA incluir cruces en las imágenes. La Iglesia de Jesucristo de los Santos de los Últimos Días enfatiza la resurrección de Cristo, no la crucifixión. Sus capillas y templos no tienen cruces.
+    - **ÁNGELES SIN ALAS**: Cuando el prompt incluya ángeles, estos NO deben tener alas. En la teología SUD, los ángeles son seres resucitados o espíritus sin alas.
+    - Incluir "NO CROSSES" en cada image_prompt para reforzar esta regla.
+    - Incluir "Latter-day Saint spiritual atmosphere" en los prompts para mantener coherencia visual.
+   
+    ⚠️ **MUY IMPORTANTE**: Al contar palabras para los índices, 
+    NO cuentes los audio tags [softly], [pause], [warmly], etc. como palabras.
+    Solo cuenta las palabras reales del texto narrado.
+
+    ========================================
+    ESQUEMA JSON:
+    ========================================
+
+    {
+    "script": {
+        "id": "current",
+        "topic": "Título del tema",
+        "language": "es",
+        "narration": {
+        "full_text": "[softly] En el principio... [pause] Dios creó los cielos...",
+        "visual_assets": [
+            {
+            "visual_asset_id": "1a",
+            "start_word_index": 0,
+            "end_word_index": 20,
+            "image_prompt": "Descripción detallada de la primera imagen..."
+            },
+            {
+            "visual_asset_id": "1b",
+            "start_word_index": 21,
+            "end_word_index": 45,
+            "image_prompt": "Continuación de la escena anterior..."
+            }
+        ]
+        }
+    }
+    }
+
+    ========================================
+    EJEMPLO DE NARRACIÓN CON AUDIO TAGS:
+    ========================================
+
+    "[softly] En el principio, Adán y Eva caminaban con Dios en el Jardín del Edén. 
+    [pause] Pero después de la caída, fueron expulsados de Su presencia. 
+    [sighs] Imagina el dolor, [quietly] la soledad, el peso del pecado sobre sus hombros. 
+    [hopeful] Sin embargo, no todo estaba perdido. 
+    [warmly] El Señor les enseñó el principio del arrepentimiento. 
+    [reverently] Les mostró que a través del sacrificio del Unigénito, sus pecados podrían ser perdonados. 
+    [pause] Adán y Eva eligieron arrepentirse. [drawn out] Eligieron cambiar. 
+    [warmly] Y en ese momento, el Espíritu Santo descendió sobre ellos, llenándolos de esperanza y gozo."
+
+    ========================================
+    REEMPLAZA ESTOS VALORES ANTES DE ENVIAR:
+    ========================================
+
+    Tema: La Promesa del Cordero (El Meridiano de los Tiempos)
+    Fecha: 2 – 8 febrero: “El Señor llamó Sion a su pueblo”
+    Escritura: Referencia: Moisés 7:47, 53–54.
+    Contexto: Detalles para la historia: Enoc ve el futuro. Ve el sacrificio de Jesucristo. El término "Meridiano de los tiempos" suena épico; puedes explicarlo como el punto central de la historia humana. Describe la emoción de Enoc al ver que, a pesar de la maldad, el Rey de Sion vendría a rescatar al mundo.

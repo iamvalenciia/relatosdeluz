@@ -1,0 +1,17 @@
+{
+  "video_metadata": {
+    "programa": "Ven Sígueme",
+    "escritura": "Moisés 7:62"
+  },
+  "voice_id": "YqZLNYWZm98oKaaLZkUA",
+  "output_resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "style": {
+    "footer_color": "#1A3A5C",
+    "title_color": "#FFFFFF",
+    "font_size_title": 62,
+    "font_size_footer": 50
+  }
+}

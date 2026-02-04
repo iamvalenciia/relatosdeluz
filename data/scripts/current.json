@@ -1,0 +1,53 @@
+{
+  "script": {
+    "topic": "La Gran Reunión: La Verdad y la Justicia",
+    "scripture_ref": "Moisés 7:62",
+    "narration": {
+      "full_text": "[reverently] Hace miles de años, Dios hizo una promesa extraordinaria. [pause] Justicia enviaré desde los cielos, y verdad enviaré desde la tierra. [warmly] Dos fuerzas sagradas destinadas a encontrarse. [pause] Desde el cielo, ángeles descendieron con revelación y luz. Profetas fueron llamados, visiones fueron abiertas. [softly] Y desde la tierra, un libro antiguo emergió del polvo. [pause] El Libro de Mormón, un testamento de Cristo escondido por siglos, esperando su momento. [reflectively] Estas dos fuerzas no vinieron por accidente. [pause] Vinieron para preparar el camino. [warmly] Para reunir a los justos. Para que la Sion de Enoc y la Sion de los últimos días se encuentren como viejos amigos. [pause] Y juntos, [softly] recibir al Salvador.",
+      "visual_assets": [
+        {
+          "visual_asset_id": "1a",
+          "description": "La promesa antigua",
+          "image_prompt": "An ancient biblical prophet Enoch receiving a divine vision from God, golden heavenly light streaming down through parting clouds, the prophet looks upward in reverence with arms slightly raised, ethereal atmosphere with warm golden tones, NO CROSSES, oil painting style reminiscent of classic religious art, Latter-day Saint spiritual atmosphere, 1:1 aspect ratio",
+          "start_word_index": 0,
+          "end_word_index": 16
+        },
+        {
+          "visual_asset_id": "1b",
+          "description": "Justicia desde los cielos",
+          "image_prompt": "Majestic scene of heavenly messengers descending from golden clouds bringing light and revelation, angels in white robes carrying scrolls of truth, divine rays of light piercing through the heavens, triumphant and sacred atmosphere, NO CROSSES, oil painting style with dramatic celestial lighting, warm gold and white tones, Latter-day Saint spiritual atmosphere, 1:1 aspect ratio",
+          "start_word_index": 17,
+          "end_word_index": 33
+        },
+        {
+          "visual_asset_id": "1c",
+          "description": "Verdad desde la tierra - El Libro de Mormón",
+          "image_prompt": "An ancient golden record emerging from the earth surrounded by soft divine light, the Book of Mormon plates partially visible in a stone box in a hillside, morning light illuminating the sacred scene, sense of discovery and prophecy fulfilled, NO CROSSES, oil painting style with earthy tones and golden highlights, reverent atmosphere, Latter-day Saint spiritual atmosphere, 1:1 aspect ratio",
+          "start_word_index": 34,
+          "end_word_index": 50
+        },
+        {
+          "visual_asset_id": "1d",
+          "description": "Dos fuerzas se preparan",
+          "image_prompt": "Split composition showing heavenly light descending from above and ancient truth rising from the earth below, the two forces of light approaching each other in the middle, symbolic representation of heaven and earth connecting, dramatic lighting with golden and warm tones, NO CROSSES, oil painting style, epic and prophetic atmosphere, Latter-day Saint spiritual atmosphere, 1:1 aspect ratio",
+          "start_word_index": 51,
+          "end_word_index": 67
+        },
+        {
+          "visual_asset_id": "1e",
+          "description": "La reunión de Sion",
+          "image_prompt": "A joyful reunion scene of families and friends embracing after long separation, warm golden light surrounding the gathering, people with expressions of pure joy and tears of happiness, a sense of sacred homecoming, NO CROSSES, oil painting style with warm emotional golden tones, deeply spiritual and hopeful atmosphere, 1:1 aspect ratio",
+          "start_word_index": 68,
+          "end_word_index": 84
+        },
+        {
+          "visual_asset_id": "1f",
+          "description": "Esperando al Salvador",
+          "image_prompt": "A united group of righteous people from both Zions standing together looking toward a magnificent sunrise on the horizon, anticipation of Christ's return, peaceful and triumphant atmosphere, golden morning light washing over the scene, expressions of hope and reverence, NO CROSSES, majestic oil painting style with warm sunrise colors, deeply spiritual finale, Latter-day Saint spiritual atmosphere, 1:1 aspect ratio",
+          "start_word_index": 85,
+          "end_word_index": 103
+        }
+      ]
+    }
+  }
+}

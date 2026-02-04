@@ -1,0 +1,51 @@
+# Environment & secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ============================================
+# ARCHIVOS PESADOS (excluidos del repo)
+# Estos archivos permanecen localmente para
+# que Claude Code pueda analizarlos
+# ============================================
+
+# Contenido archivado (videos anteriores)
+data/archive/
+
+# Audio generado
+data/audio/*.mp3
+data/audio/*.wav
+
+# Imágenes generadas
+data/images/*.png
+data/images/*.jpeg
+data/images/*.jpg
+
+# Videos renderizados
+data/output/*.mp4
+data/output/*.avi
+data/output/*.mov
+
+# Música de fondo (archivos grandes)
+data/music/*.mp3
+data/music/*.wav
+
+# Fuentes (pueden ser pesadas)
+data/fonts/*.ttf
+data/fonts/*.otf
+
+# Timestamps (se regeneran con el audio)
+data/audio/*_timestamps.json
+
+# ============================================
+# OTROS
+# ============================================
+old-videos/
+tests/
+*.log
+.DS_Store
+Thumbs.db

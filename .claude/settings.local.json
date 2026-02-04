@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m src.archive_manager:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(python:*)"
+    ]
+  }
+}
