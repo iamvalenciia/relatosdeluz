@@ -313,17 +313,37 @@ def create_frame(
     total_height = line_height * len(lines) + line_spacing * (len(lines) - 1)
     start_y = image_y - total_height - title_margin_from_image
 
-    # Draw each line centered
+    # Get highlight color from config (gold for emphasized words in CAPS)
+    highlight_color = hex_to_rgb(style.get("title_highlight_color", "#FFD700"))
+    shadow_color_hex = style.get("title_shadow_color", "#000000")
+    shadow_color = hex_to_rgb(shadow_color_hex) + (200,)
+
+    # Draw each line centered with word-level highlighting
     for i, line in enumerate(lines):
         bbox = draw.textbbox((0, 0), line, font=title_font)
         line_width = bbox[2] - bbox[0]
-        x = (VIDEO_WIDTH - line_width) // 2
+        line_x = (VIDEO_WIDTH - line_width) // 2
         y = start_y + i * (line_height + line_spacing)
 
-        # Shadow
-        draw.text((x + 2, y + 2), line, font=title_font, fill=(0, 0, 0, 180))
-        # Text
-        draw.text((x, y), line, font=title_font, fill=(255, 255, 255))
+        # Draw word by word to support highlight colors
+        # Words that are fully UPPERCASE (2+ chars) get highlighted in gold
+        words = line.split(' ')
+        current_x = line_x
+        for wi, word in enumerate(words):
+            # Determine if this word should be highlighted
+            is_highlighted = len(word) >= 2 and word.replace('¿', '').replace('?', '').replace('¡', '').replace('!', '').replace(',', '').replace('.', '').isupper()
+            word_color = highlight_color if is_highlighted else (255, 255, 255)
+
+            display_word = word + (' ' if wi < len(words) - 1 else '')
+
+            # Shadow (stronger for readability)
+            draw.text((current_x + 2, y + 2), display_word, font=title_font, fill=shadow_color)
+            draw.text((current_x + 1, y + 1), display_word, font=title_font, fill=shadow_color)
+            # Main text
+            draw.text((current_x, y), display_word, font=title_font, fill=word_color)
+
+            word_bbox = draw.textbbox((0, 0), display_word, font=title_font)
+            current_x += word_bbox[2] - word_bbox[0]
     
     # Draw header bar (now a footer below the image)
     header_height = 80  # Increased height for better spacing

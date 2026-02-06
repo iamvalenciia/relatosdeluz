@@ -36,11 +36,22 @@ def load_script() -> dict:
 
 
 def format_image_prompt(original_prompt: str) -> str:
-    """Format the image prompt for Gemini."""
+    """Format the image prompt for Gemini with detailed oil painting instructions."""
     return (
-        f"Generate an oil painting image with the following description: "
-        f"{original_prompt}. (family friendly) (SUD/LDS) "
-        f"Square format 1:1 aspect ratio. High quality artwork."
+        f"Create a museum-quality oil painting with the following scene: "
+        f"{original_prompt}. "
+        f"CRITICAL STYLE REQUIREMENTS: "
+        f"Render this as a traditional oil painting with visible brushstrokes, "
+        f"rich color depth, warm golden tones, and dramatic chiaroscuro lighting "
+        f"in the style of the Old Masters (Rembrandt, Caravaggio). "
+        f"All human figures must have anatomically correct proportions, "
+        f"naturalistic facial features with dignified expressions, "
+        f"and realistic skin tones. "
+        f"NO surrealism, NO bizarre elements, NO exaggerated emotions, "
+        f"NO glowing eyes, NO golden tears, NO fantasy elements. "
+        f"NO text, NO letters, NO numbers visible in the image. "
+        f"Family friendly, reverent spiritual atmosphere. "
+        f"Square 1:1 aspect ratio. Ultra-detailed, high resolution artwork."
     )
 
 
