@@ -513,11 +513,13 @@ def render_video(output_path: Path) -> None:
     audio_duration = temp_audio.duration
     temp_audio.close()
     
-    # Minimal buffer for clean loop ending (video ends shortly after narration)
-    video_duration = audio_duration + 0.5  # 0.5 seconds for clean cut, no long fade
+    # Add 2.5 seconds of music-only tail for smooth loop transition
+    # The narration ends, music continues alone for ~2.5s, then video restarts
+    LOOP_TAIL_SECONDS = 2.5
+    video_duration = audio_duration + LOOP_TAIL_SECONDS
     total_frames = int(video_duration * FPS)
-    
-    print(f"Video duration: {audio_duration:.2f} seconds + 3s buffer = {video_duration:.2f}s ({total_frames} frames)")
+
+    print(f"Video duration: {audio_duration:.2f}s narration + {LOOP_TAIL_SECONDS}s loop tail = {video_duration:.2f}s ({total_frames} frames)")
     print(f"Resolution: {VIDEO_WIDTH}x{VIDEO_HEIGHT}")
     print(f"Title: {title}")
     

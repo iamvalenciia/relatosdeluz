@@ -35,11 +35,13 @@ FORMATO DEL TÍTULO:
 CATEGORÍAS DE CONTENIDO (5 videos cada una)
 ========================================
 
-1. HISTORIAS DE PROFETAS Y LÍDERES (5 videos)
-   Experiencias REALES y documentadas de profetas, apóstoles y líderes de la Iglesia.
-   - Momentos de fe extrema, sacrificio, revelación divina
-   - La humanidad del profeta: sus dudas, su dolor, su valentía
-   - Fuentes: Historia de la Iglesia, biografías oficiales, discursos de Conferencia General
+1. HISTORIAS DE PROFETAS Y LÍDERES SUD (5 videos)
+   Experiencias REALES y documentadas de profetas, apóstoles y setentas de La Iglesia de Jesucristo de los Santos de los Últimos Días, Y de profetas bíblicos y del Libro de Mormón.
+   - Profetas SUD: José Smith, Brigham Young, Spencer W. Kimball, Gordon B. Hinckley, Russell M. Nelson, etc.
+   - Profetas bíblicos: Moisés, Abraham, Elías, Enoc, Noé, etc.
+   - Profetas del Libro de Mormón: Nefi, Alma, Mormon, Moroni, Helamán, etc.
+   - NO incluir papas católicos, santos católicos, ni líderes de otras denominaciones.
+   - Fuentes: Historia de la Iglesia SUD, biografías oficiales, discursos de Conferencia General
    - Ejemplo: "José Smith bendijo a 30 personas en un día estando al borde de la muerte"
 
 2. DOCTRINA PURA DE LAS ESCRITURAS (5 videos)
@@ -70,7 +72,7 @@ Para cada una de las 20 ideas, proporciona:
 
 1. TÍTULO VIRAL: El título del video (máximo 60 caracteres, poderoso, honesto)
 2. REFERENCIA: Escritura principal o fuente doctrinal
-3. GANCHO INICIAL: La primera frase después del "..." del loop (una afirmación, NO pregunta)
+3. GANCHO INICIAL: La primera frase del video (una afirmación poderosa, NO pregunta, NO empieza con "...")
 4. RESUMEN: 2-3 oraciones describiendo la historia que se contará
 5. EMOCIÓN DOMINANTE: La emoción principal (fe, asombro, gratitud, esperanza, valentía, amor divino)
 6. MÚSICA SUGERIDA: divinity.mp3, mistery.mp3, o revelations.mp3
