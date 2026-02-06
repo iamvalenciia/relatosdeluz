@@ -5,40 +5,50 @@ Tarea: Crear un JSON con un script de narración diseñado para LOOP NARRATIVO P
 ========================================
 TÉCNICA DE LOOP NARRATIVO (CRÍTICO)
 ========================================
-El loop NO es repetir una pregunta. El loop es una FRASE NARRATIVA que queda incompleta al final y se completa al inicio. El cerebro humano NO detecta el corte porque la frase fluye naturalmente.
+El loop NO es repetir una pregunta. El loop NO es cortar una frase a la mitad.
+El loop es que la ÚLTIMA IDEA del video conecte temáticamente con la PRIMERA IDEA, de forma que cuando el video reinicia después de 2-3 segundos de solo música, el espectador siente que la historia sigue fluyendo y quiere seguir escuchando.
 
 MECÁNICA EXACTA:
-1. La ÚLTIMA frase del video queda CORTADA a mitad de idea con "..."
-2. La PRIMERA frase del video empieza con "..." completando esa idea
-3. Cuando el video reinicia, la frase se completa sola y el espectador sigue escuchando sin darse cuenta
+1. El video TERMINA con una frase COMPLETA reflexiva que deja una idea resonando.
+2. Hay 2-3 segundos de SOLO MÚSICA (el renderer los agrega automáticamente).
+3. El video REINICIA con una frase que conecta temáticamente con la idea final.
+4. El espectador siente que nunca dejó de escuchar. No hay corte abrupto. La música une todo.
 
-EJEMPLO CORRECTO (Loop Narrativo Invisible):
-- FINAL: "...y fue entonces cuando el profeta levantó la mirada y vio..."
-- INICIO: "...la gloria de Dios cubriendo toda la tierra. [pause] Pero antes de esa visión, algo extraordinario tuvo que suceder."
-(El video reinicia y "vio..." se completa con "...la gloria de Dios" - fluye como una sola oración)
+EJEMPLO CORRECTO (Loop con puente musical):
+- FINAL: "...porque esa promesa sigue viva hoy, para cada uno de nosotros."
+- [2-3 segundos de solo música]
+- INICIO: "Hay una historia en las escrituras que muy pocos conocen. [pause] En el año 1839..."
+(El final deja la idea de "promesa viva", la música hace puente, el inicio engancha con una historia nueva que eventualmente vuelve a esa misma promesa.)
 
 EJEMPLO CORRECTO 2:
-- FINAL: "...porque esa promesa no era solo para Enoc. Era para cada uno de nosotros que decide..."
-- INICIO: "...caminar por fe cuando todo parece imposible. [pause] Hay una historia en las escrituras que pocos conocen."
-(Reinicia: "decide..." → "...caminar por fe" - completamente invisible)
+- FINAL: "...y eso es lo que significa caminar por fe, incluso cuando no puedes ver el camino."
+- [2-3 segundos de solo música]
+- INICIO: "Un profeta enfermo se levantó de su cama en medio de la noche. [pause] Lo que hizo después..."
+(El final habla de fe, la música respira, el inicio cuenta una historia de fe que al final vuelve a conectar.)
 
 EJEMPLO INCORRECTO (NO HAGAS ESTO):
 - INICIO: "¿Sabías que Enoc vio el futuro?"
 - FINAL: "¿Sabías que Enoc vio el futuro?"
 (Esto es REPETICIÓN. El cerebro lo detecta como final. Mata la retención. PROHIBIDO.)
 
-EJEMPLO INCORRECTO 2:
+EJEMPLO INCORRECTO 2 (TAMPOCO HAGAS ESTO):
+- FINAL: "...y fue entonces cuando el profeta levantó la mirada y vio..."
+- INICIO: "...la gloria de Dios cubriendo toda la tierra."
+(Cortar una frase a la mitad suena HORRIBLE. El corte de audio se nota. PROHIBIDO.)
+
+EJEMPLO INCORRECTO 3:
 - INICIO: "¿Qué pasó cuando Dios lloró?"
-- FINAL: "...y eso fue lo que pasó cuando Dios lloró..."
+- FINAL: "...y eso fue lo que pasó cuando Dios lloró."
 (Pregunta → Respuesta NO es loop. Es un cierre. El espectador siente el final.)
 
 REGLAS INQUEBRANTABLES DEL LOOP:
-1. INICIO: Siempre empieza con "..." completando la frase del final.
-2. FINAL: Siempre termina con "..." dejando la frase a mitad.
-3. La frase cortada debe ser NARRATIVA, no una pregunta.
-4. La transición debe sonar como UNA SOLA ORACIÓN si pegas el final con el inicio.
-5. NUNCA termines con pregunta. NUNCA inicies con pregunta.
+1. FINAL: Siempre termina con una frase COMPLETA que deje una idea poderosa resonando.
+2. INICIO: Siempre empieza con una afirmación que enganche INMEDIATAMENTE.
+3. La conexión entre final e inicio es TEMÁTICA, no literal. No cortes frases a la mitad.
+4. NUNCA termines con pregunta. NUNCA inicies con pregunta.
+5. La última imagen del video se mantiene durante los 2-3 segundos de música final.
 6. NUNCA digas "Hola", "Bienvenidos", "Gracias", "suscríbete" o despedidas.
+7. NO uses "..." al inicio ni al final. Las frases deben ser COMPLETAS.
 
 ========================================
 STORYTELLING Y CONTENIDO (CORAZÓN DEL VIDEO)
@@ -47,10 +57,10 @@ STORYTELLING Y CONTENIDO (CORAZÓN DEL VIDEO)
 FILOSOFÍA: Este canal NO vende misterio. Este canal PREDICA el Evangelio con historias poderosas.
 
 ESTRUCTURA NARRATIVA (Arco de 3 actos en 80-90 segundos):
-1. ENTRADA + HOOK (0-5s): "..." completa el loop + inmediatamente una AFIRMACIÓN PODEROSA que atrape.
+1. ENTRADA + HOOK (0-5s): Una AFIRMACIÓN PODEROSA que atrape de inmediato.
    - NO uses preguntas como hook. Usa afirmaciones contundentes.
-   - Ejemplo: "...la gloria de Dios cubriendo toda la tierra. [pause] En 1839, un profeta enfermo se levantó de su cama y sanó a todos los que tocó."
-   - Ejemplo: "...caminar por fe cuando todo parece imposible. [pause] Hay un momento en el Libro de Mormón que cambia todo lo que sabemos sobre el sacrificio."
+   - Ejemplo: "En 1839, un profeta enfermo se levantó de su cama y sanó a todos los que tocó."
+   - Ejemplo: "Hay un momento en el Libro de Mormón que cambia todo lo que sabemos sobre el sacrificio."
 
 2. DESARROLLO (5-60s): La historia con TENSIÓN EMOCIONAL REAL.
    - Cuenta historias REALES: experiencias de profetas, líderes, miembros de la Iglesia.
@@ -64,15 +74,33 @@ ESTRUCTURA NARRATIVA (Arco de 3 actos en 80-90 segundos):
    - Conecta con el espectador: "Esto no fue solo para [personaje]. Es para ti."
    - Declaración de doctrina pura, no opinión. Evangelio real.
 
-4. SALIDA AL LOOP (75-90s): Transición emocional que lleva al inicio.
-   - Frase reflexiva que conecta la historia con una verdad mayor.
-   - Queda INCOMPLETA con "..." para conectar con el inicio.
+4. CIERRE REFLEXIVO (75-90s): Frase final completa que resuena.
+   - Conecta la historia con una verdad eterna y universal.
+   - Deja al espectador sintiendo algo profundo.
+   - La frase debe ser COMPLETA, no cortada.
+   - Después de esta frase, el renderer agrega 2-3 segundos de solo música antes de que el video reinicie.
+
+QUIÉNES SON "PROFETAS Y LÍDERES" (DEFINICIÓN ESTRICTA):
+Cuando se menciona profetas, líderes o experiencias de la Iglesia, se refiere EXCLUSIVAMENTE a:
+- Profetas de La Iglesia de Jesucristo de los Santos de los Últimos Días (SUD/LDS): José Smith, Brigham Young, John Taylor, Wilford Woodruff, Lorenzo Snow, Joseph F. Smith, Heber J. Grant, George Albert Smith, David O. McKay, Joseph Fielding Smith, Harold B. Lee, Spencer W. Kimball, Ezra Taft Benson, Howard W. Hunter, Gordon B. Hinckley, Thomas S. Monson, Russell M. Nelson.
+- Apóstoles y Setentas de la Iglesia SUD (actuales e históricos)
+- Profetas bíblicos: Adán, Enoc, Noé, Abraham, Moisés, Isaías, Jeremías, Elías, etc.
+- Profetas del Libro de Mormón: Nefi, Lehi, Alma, Mormon, Moroni, Helamán, Samuel el Lamanita, etc.
+- Profetas de la Perla de Gran Precio
+- Jesucristo (centro de todo)
+- Miembros y misioneros de la Iglesia SUD con experiencias documentadas
+
+NO INCLUYE y está PROHIBIDO:
+- Papas católicos o líderes del Vaticano
+- Líderes de cualquier otra denominación cristiana
+- Santos católicos (San Francisco, Santa Teresa, etc.)
+- Cualquier figura religiosa que NO sea parte del canon SUD
 
 FUENTES OBLIGATORIAS (usa al menos 2 por video):
-- Escrituras: Biblia, Libro de Mormón, Doctrina y Convenios, Perla de Gran Precio
-- Experiencias reales de profetas: José Smith, Brigham Young, Spencer W. Kimball, Gordon B. Hinckley, Russell M. Nelson, etc.
-- Testimonios y experiencias documentadas de líderes y miembros
+- Escrituras: Biblia (Reina-Valera), Libro de Mormón, Doctrina y Convenios, Perla de Gran Precio
+- Historia oficial de La Iglesia de Jesucristo de los Santos de los Últimos Días
 - Discursos de Conferencia General
+- Biografías y relatos documentados de profetas y líderes SUD
 - NO inventes experiencias. NO exageres. NO vendas humo.
 
 LO QUE ESTÁ PROHIBIDO:
@@ -82,6 +110,7 @@ LO QUE ESTÁ PROHIBIDO:
 - Contenido sensacionalista o que roza la apostasía
 - Representaciones irreverentes de Dios (no llora con lágrimas doradas, no tiene expresiones bizarras)
 - Cualquier cosa que un obispo escucharía y diría "esto no es apropiado"
+- Referencias a líderes religiosos de otras iglesias (papas, pastores evangélicos, etc.)
 
 DURACIÓN: 80-90 segundos de narración (1 minuto 20 segundos mínimo). No menos.
 
@@ -96,23 +125,25 @@ TARGET Y TONO
 ========================================
 AUDIO TAGS (ElevenLabs V3)
 ========================================
-Usa estos tags con INTENCIÓN, no mecánicamente. Cada tag debe tener una razón emocional.
+Usa estos tags con INTENCIÓN EMOCIONAL, no mecánicamente. Cada tag debe tener una razón clara de por qué está ahí.
 
 Tags disponibles:
-- [softly] → Para momentos íntimos, sagrados, revelaciones personales
-- [pause] → Silencio dramático ANTES de una verdad importante. Da peso a lo siguiente.
-- [reverently] → Para citar escrituras, hablar de Cristo, momentos de adoración
-- [pensive] → Para reflexión, cuando el narrador procesa algo profundo
-- [warmly] → Para conexión personal, cuando hablas AL espectador directamente
-- [hopeful] → Para el clímax positivo, la resolución, la promesa de Dios
-- [awe] → Para momentos de asombro genuino ante la grandeza de Dios
+- [softly] → Para momentos íntimos, sagrados, revelaciones personales. Como si bajaras la voz para compartir un secreto sagrado.
+- [pause] → Silencio dramático ANTES de una verdad importante. Da peso y gravedad a lo que viene después.
+- [pensive] → Para reflexión profunda, cuando el narrador procesa algo que lo conmueve.
+- [warmly] → Para conexión personal directa con el espectador. Como si le hablaras a un amigo.
+- [hopeful] → Para el clímax positivo, la resolución, la promesa de Dios cumplida.
+- [awe] → Para momentos de asombro genuino ante la grandeza de Dios o un milagro.
+
+TAGS PROHIBIDOS:
+- [reverently] → NO USAR. Distorsiona la voz del modelo. PROHIBIDO.
 
 REGLAS DE USO:
-- Máximo 8 tags por video (más es mejor que menos para 80-90 segundos)
+- Máximo 8 tags por video
 - NUNCA pongas dos tags seguidos ([softly] [pause] → INCORRECTO)
 - El tag va ANTES de la frase que modifica
-- [pause] siempre va solo, separando dos ideas
-- Alterna entre tags. No repitas el mismo tag más de 2 veces.
+- [pause] siempre va solo, separando dos ideas. Nunca combinado con otro tag.
+- Alterna entre tags. No repitas el mismo tag más de 2 veces en todo el video.
 - Los tags deben sentirse como respiraciones naturales del narrador, no como instrucciones robóticas.
 
 ========================================
@@ -188,7 +219,7 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
     "topic": "Título del video (máximo 60 caracteres)",
     "background_music": "divinity.mp3",
     "narration": {
-      "full_text": "...frase que completa el final del loop. [pause] Hook poderoso. [warmly] Desarrollo de la historia con tensión emocional real usando escrituras y experiencias documentadas. [reverently] Clímax espiritual. [hopeful] Resolución que conecta con el espectador. Y la verdad es que esta promesa sigue viva para cada uno de nosotros que decide...",
+      "full_text": "Afirmación poderosa que engancha. [pause] Desarrollo de la historia con tensión emocional real usando escrituras y experiencias documentadas. [warmly] Clímax espiritual con conexión al espectador. [hopeful] Cierre reflexivo con frase completa que resuena y conecta temáticamente con el inicio.",
       "visual_assets": [
         {
           "visual_asset_id": "1a",
@@ -209,6 +240,7 @@ REGLAS DEL JSON:
 - visual_asset_id: "1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h"
 - background_music: Debe ser uno de los tres archivos disponibles
 - El topic es el título que se muestra en pantalla (máximo 60 caracteres, poderoso pero formal)
+- El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
 
 ========================================
 VALORES PARA ESTE VIDEO:
