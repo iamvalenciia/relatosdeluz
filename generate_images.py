@@ -56,7 +56,7 @@ def generate_image(prompt: str, asset_id: str, retry_count: int = 3) -> bool:
             print(f"  Generating {asset_id} (attempt {attempt + 1})...")
 
             response = client.models.generate_content(
-                model="gemini-2.0-flash-exp",
+                model="gemini-2.5-flash-image",
                 contents=formatted_prompt,
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE", "TEXT"]

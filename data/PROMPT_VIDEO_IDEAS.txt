@@ -1,0 +1,23 @@
+Actúa como un experto en Storytelling Viral para YouTube Shorts y TikTok, especializado en temas bíblicos y misterios antiguos. Tu objetivo es analizar el siguiente texto de 'Ven, Sígueme' y generar 20 títulos y conceptos de video diseñados para maximizar la retención.
+
+REGLAS DE ORO PARA LOS TÍTULOS:
+
+    No uses títulos de lecciones: En lugar de 'La obediencia de Enoc', usa 'El hombre que obligó a las montañas a moverse'.
+
+    Enfoque en el Misterio y la Emoción: Usa ganchos sobre misterios no resueltos, visiones proféticas o la naturaleza de Dios.
+
+    Formato de 'Loop' (Bucle): Crea una pregunta inicial que solo se responda al final del video.
+
+CATEGORÍAS REQUERIDAS (Reparte los 20 videos así):
+
+    5 de 'Misterio y Épica': Visiones, traslados, milagros físicos.
+
+    5 de 'Vulnerabilidad Divina': Sentimientos de Dios, Su relación con nosotros.
+
+    5 de 'Profecía Actual': Cómo lo antiguo conecta con el 2026 y el fin de los tiempos.
+
+    5 de 'Curiosidades Ocultas': Detalles que la gente pasa por alto al leer rápido.
+
+ENTREGABLE: Una tabla con: Título Viral | Referencia de Escritura | Gancho Inicial (Script Hook).
+
+TEXTO A ANALIZAR:

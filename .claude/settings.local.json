@@ -4,7 +4,13 @@
       "Bash(python -m src.archive_manager:*)",
       "Bash(PYTHONIOENCODING=utf-8 python:*)",
       "Bash(set PYTHONIOENCODING=utf-8)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: Ven Sígueme video generator\n\n- Script-to-video pipeline for LDS Spanish content\n- Gemini 2.5 Flash for image generation\n- ElevenLabs for narration with audio tags\n- NVENC GPU-accelerated video rendering\n- Word-level timestamp synchronization\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:www.churchofjesuschrist.org)",
+      "WebFetch(domain:www.thechurchnews.com)"
     ]
   }
 }

@@ -276,48 +276,54 @@ def create_frame(
     footer_font_size = style.get("font_size_footer", 22)
     
     # Calculate title position - positioned close to the top edge of the image
-    title_font = get_title_font(title_font_size)
-    title_padding = 40  # Padding from screen edges
-    title_margin_from_image = 60  # Margin between title bottom and image top
+    title_padding = 50  # Padding from screen edges
+    title_margin_from_image = 50  # Margin between title bottom and image top
     max_title_width = VIDEO_WIDTH - (title_padding * 2)
-    
-    title_bbox = draw.textbbox((0, 0), title, font=title_font)
-    title_width = title_bbox[2] - title_bbox[0]
-    title_height = title_bbox[3] - title_bbox[1]
-    
-    if title_width <= max_title_width:
-        # Title fits on one line - position close to image top
-        title_x = (VIDEO_WIDTH - title_width) // 2
-        title_y = image_y - title_height - title_margin_from_image
-        # Title shadow
-        draw.text((title_x + 2, title_y + 2), title, font=title_font, fill=(0, 0, 0, 180))
-        draw.text((title_x, title_y), title, font=title_font, fill=(255, 255, 255))
-    else:
-        # Split title into multiple lines
-        words = title.split()
-        mid = len(words) // 2
-        line1 = ' '.join(words[:mid]) if mid > 0 else words[0]
-        line2 = ' '.join(words[mid:]) if mid > 0 else ' '.join(words[1:])
-        
-        bbox1 = draw.textbbox((0, 0), line1, font=title_font)
-        bbox2 = draw.textbbox((0, 0), line2, font=title_font)
-        line1_width = bbox1[2] - bbox1[0]
-        line2_width = bbox2[2] - bbox2[0]
-        line_height = bbox1[3] - bbox1[1]
-        
-        line_spacing = 15  # Increased spacing between title lines
-        total_height = line_height * 2 + line_spacing
-        # Position so the bottom of line2 is close to image top
-        start_y = image_y - total_height - title_margin_from_image
-        
-        x1 = (VIDEO_WIDTH - line1_width) // 2
-        x2 = (VIDEO_WIDTH - line2_width) // 2
-        
-        # Title shadows
-        draw.text((x1 + 2, start_y + 2), line1, font=title_font, fill=(0, 0, 0, 180))
-        draw.text((x1, start_y), line1, font=title_font, fill=(255, 255, 255))
-        draw.text((x2 + 2, start_y + line_height + line_spacing + 2), line2, font=title_font, fill=(0, 0, 0, 180))
-        draw.text((x2, start_y + line_height + line_spacing), line2, font=title_font, fill=(255, 255, 255))
+
+    # Function to wrap text into lines that fit within max_width
+    def wrap_text(text, font, max_width):
+        words = text.split()
+        lines = []
+        current_line = []
+
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            bbox = draw.textbbox((0, 0), test_line, font=font)
+            if bbox[2] - bbox[0] <= max_width:
+                current_line.append(word)
+            else:
+                if current_line:
+                    lines.append(' '.join(current_line))
+                current_line = [word]
+
+        if current_line:
+            lines.append(' '.join(current_line))
+
+        return lines
+
+    # Use original font size, allow up to 3 lines
+    title_font = get_title_font(title_font_size)
+    lines = wrap_text(title, title_font, max_title_width)
+
+    # Get line height
+    ref_bbox = draw.textbbox((0, 0), "Mg", font=title_font)
+    line_height = ref_bbox[3] - ref_bbox[1]
+    line_spacing = 10
+
+    total_height = line_height * len(lines) + line_spacing * (len(lines) - 1)
+    start_y = image_y - total_height - title_margin_from_image
+
+    # Draw each line centered
+    for i, line in enumerate(lines):
+        bbox = draw.textbbox((0, 0), line, font=title_font)
+        line_width = bbox[2] - bbox[0]
+        x = (VIDEO_WIDTH - line_width) // 2
+        y = start_y + i * (line_height + line_spacing)
+
+        # Shadow
+        draw.text((x + 2, y + 2), line, font=title_font, fill=(0, 0, 0, 180))
+        # Text
+        draw.text((x, y), line, font=title_font, fill=(255, 255, 255))
     
     # Draw header bar (now a footer below the image)
     header_height = 80  # Increased height for better spacing
@@ -487,8 +493,8 @@ def render_video(output_path: Path) -> None:
     audio_duration = temp_audio.duration
     temp_audio.close()
     
-    # Add a buffer to ensure audio doesn't get cut off and music continues
-    video_duration = audio_duration + 3.0  # 3.0 seconds padding at the end per user request
+    # Minimal buffer for clean loop ending (video ends shortly after narration)
+    video_duration = audio_duration + 0.5  # 0.5 seconds for clean cut, no long fade
     total_frames = int(video_duration * FPS)
     
     print(f"Video duration: {audio_duration:.2f} seconds + 3s buffer = {video_duration:.2f}s ({total_frames} frames)")
@@ -578,14 +584,20 @@ def render_video(output_path: Path) -> None:
     from moviepy.editor import VideoFileClip, AudioFileClip, CompositeAudioClip, afx
     
     video_clip = VideoFileClip(str(temp_video_path))
-    # Apply fade out to narration only, as requested
-    narration_clip = AudioFileClip(str(audio_path)).audio_fadeout(0.5)
+    # No fade out - video ends clean for loop effect
+    narration_clip = AudioFileClip(str(audio_path))
     
     # Get duration from validation clip
     video_full_duration = video_clip.duration
     
-    # Look for background music
-    music_path = MUSIC_DIR / "Echoes_of_Starlight.mp3"
+    # Look for background music from script or use default
+    music_filename = script_data.get("background_music", "Echoes_of_Starlight.mp3")
+    music_path = MUSIC_DIR / music_filename
+
+    # Fallback to default if specified music not found
+    if not music_path.exists():
+        print(f"Music '{music_filename}' not found, trying default...")
+        music_path = MUSIC_DIR / "Echoes_of_Starlight.mp3"
     
     if music_path.exists():
         print(f"Adding background music: {music_path.name}")
@@ -614,8 +626,8 @@ def render_video(output_path: Path) -> None:
         # final_audio = final_audio.audio_fadeout(0.3)
     else:
         print("No background music found, using narration only")
-        # Apply fade-out to narration to ensure clean ending
-        final_audio = narration_clip.audio_fadeout(0.3)
+        # No fade out - clean ending for loop
+        final_audio = narration_clip
     
     # Set combined audio
     final_clip = video_clip.set_audio(final_audio)
