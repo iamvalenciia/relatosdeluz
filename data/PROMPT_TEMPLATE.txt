@@ -166,14 +166,24 @@ PROCESO DE SELECCIÓN:
 ========================================
 DIRECTRICES VISUALES PARA IMAGE PROMPTS
 ========================================
-Cada visual_asset debe tener un image_prompt que genere una pintura al óleo HERMOSA y REVERENTE.
+Cada visual_asset debe tener un image_prompt que genere una pintura al óleo HERMOSA y REVERENTE en estilo EXCLUSIVAMENTE SUD (Santos de los Últimos Días).
+
+ESTILO VISUAL: ARTE SUD EN ÓLEO
+La Iglesia SUD tiene su propio estilo artístico, diferente al católico y al evangélico. Piensa en artistas como Greg Olsen, Del Parson, Simon Dewey, Walter Rane, Minerva Teichert, Arnold Friberg, Liz Lemon Swindle, Jeff Hein, Harry Anderson.
 
 ESTILO OBLIGATORIO EN CADA PROMPT:
-"A detailed oil painting in the style of the Old Masters, rendered with rich color depth, visible brushstrokes, warm golden lighting, and dramatic chiaroscuro."
+"A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane, Del Parson), with rich warm color palette, visible brushstrokes, golden lighting, and dramatic chiaroscuro."
+
+CÓMO SE VE EL ARTE SUD vs CATÓLICO/EVANGÉLICO:
+- JESUCRISTO SUD: Cabello castaño oscuro hasta los hombros, barba corta y cuidada, túnica blanca o crema, manto rojo o azul oscuro. Expresión compasiva, fuerte, serena. Manos visibles y limpias. Aspecto de líder amoroso. NO lleva corona de espinas, NO tiene heridas sangrantes, NO está sufriendo gráficamente.
+- JESUCRISTO CATÓLICO (NO HACER): Corona de espinas, sangre, crucifijo, corazón sagrado visible, aureola/halo circular dorado, ojos mirando al cielo con dolor. NADA DE ESTO.
+- ÁNGELES SUD: Personas normales vestidas de blanco, SIN ALAS. Parecen seres humanos glorificados. Túnicas blancas simples. Expresión serena y digna.
+- ÁNGELES CATÓLICOS (NO HACER): Alas de plumas, querubines bebés, aureolas circulares, vestidos con armadura. NADA DE ESTO.
+- PROFETAS SUD: Vestimenta apropiada para su época (túnicas antiguas para profetas bíblicos, traje y corbata para profetas modernos). Aspecto digno, fuerte, accesible.
 
 REGLAS PARA PROMPTS DE IMAGEN:
 1. DESCRIBE LA ESCENA como un párrafo narrativo, no como lista de keywords.
-   - CORRECTO: "A detailed oil painting of an ancient prophet kneeling alone in a moonlit garden, his weathered hands clasped in prayer, wearing simple linen robes. Warm golden light breaks through dark clouds above him, illuminating his face with divine radiance. The garden is filled with olive trees and stone walls. Painted in the style of the Old Masters with rich color depth, visible brushstrokes, and dramatic chiaroscuro."
+   - CORRECTO: "A detailed oil painting in the style of Latter-day Saint sacred art, depicting an ancient prophet kneeling alone in a moonlit olive garden, his weathered hands clasped in prayer, wearing simple linen robes. Warm golden light breaks through dark clouds above him, illuminating his face with divine radiance. The garden has olive trees and stone walls. Rich warm color palette, visible brushstrokes, dramatic chiaroscuro."
    - INCORRECTO: "Cinematic oil painting, prophet, divine light, dramatic sky, mysterious, 1:1"
 
 2. ANATOMÍA HUMANA: Siempre especifica postura, vestimenta, y expresión facial con detalle.
@@ -190,14 +200,23 @@ REGLAS PARA PROMPTS DE IMAGEN:
    - "Golden sunset light filtering through clouds"
    - "Soft diffused morning light"
 
-5. REGLAS SUD ESTRICTAS:
-   - NO CROSSES (NO cruces en ninguna imagen)
-   - ANGELS WITHOUT WINGS (Los ángeles SUD no tienen alas)
-   - Cristo: Siempre con túnica blanca, dignidad absoluta, nunca sufrimiento gráfico
-   - Templos: Arquitectura SUD correcta si se muestran
-   - Familias: Vestimenta modesta, reverente
+5. ICONOGRAFÍA SUD ESTRICTA - CERO CATOLICISMO:
+   - NUNCA cruces, crucifijos, ni símbolos de la cruz en ninguna forma
+   - NUNCA alas en ángeles (los ángeles SUD son personas sin alas)
+   - NUNCA aureolas/halos circulares dorados sobre la cabeza
+   - NUNCA rosarios, relicarios, ni objetos de devoción católica
+   - NUNCA vírgenes con manto azul estilo católico
+   - NUNCA querubines bebés con alas
+   - NUNCA imágenes de sufrimiento gráfico de Cristo (sangre, heridas abiertas, corona de espinas)
+   - NUNCA iconografía ortodoxa o bizantina
+   - NUNCA vitrales de iglesia católica/gótica
+   - NUNCA arquitectura de catedrales católicas (usar templos SUD si se necesita un edificio sagrado)
+   - Cristo: Túnica blanca/crema, manto rojo o azul, expresión de amor y fortaleza, NO sufrimiento
+   - Templos: Solo arquitectura SUD (estilo Templo de Salt Lake, Templo de Nauvoo, etc.)
+   - Familias: Vestimenta modesta y reverente
 
 6. EVITAR SIEMPRE:
+   - Cualquier elemento visual que parezca católico, ortodoxo o evangélico
    - Elementos surrealistas o bizarros
    - Malformaciones faciales o corporales
    - Representaciones grotescas o exageradas de emociones
@@ -206,7 +225,7 @@ REGLAS PARA PROMPTS DE IMAGEN:
    - Números o fechas visibles en la imagen
 
 7. TERMINA CADA PROMPT CON:
-   "Square 1:1 composition, family friendly, Latter-day Saint reverent atmosphere, NO CROSSES, ANGELS WITHOUT WINGS if angels are present."
+   "Latter-day Saint sacred art style. Square 1:1 composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
 
 ========================================
 ESQUEMA JSON (ESTRICTO)

@@ -36,21 +36,28 @@ def load_script() -> dict:
 
 
 def format_image_prompt(original_prompt: str) -> str:
-    """Format the image prompt for Gemini with detailed oil painting instructions."""
+    """Format the image prompt for Gemini with LDS sacred art oil painting style."""
     return (
-        f"Create a museum-quality oil painting with the following scene: "
-        f"{original_prompt}. "
+        f"Create a museum-quality oil painting in the style of Latter-day Saint "
+        f"sacred art (similar to artists Greg Olsen, Del Parson, Walter Rane, "
+        f"Simon Dewey) with the following scene: {original_prompt}. "
         f"CRITICAL STYLE REQUIREMENTS: "
-        f"Render this as a traditional oil painting with visible brushstrokes, "
-        f"rich color depth, warm golden tones, and dramatic chiaroscuro lighting "
-        f"in the style of the Old Masters (Rembrandt, Caravaggio). "
+        f"Traditional oil painting with visible brushstrokes, rich warm color "
+        f"palette, golden lighting, and dramatic chiaroscuro. "
         f"All human figures must have anatomically correct proportions, "
         f"naturalistic facial features with dignified expressions, "
         f"and realistic skin tones. "
+        f"RELIGIOUS STYLE: Exclusively Latter-day Saint (LDS/Mormon) visual tradition. "
+        f"If Jesus Christ appears: brown hair to shoulders, short neat beard, "
+        f"white or cream robe, red or dark blue mantle, compassionate and strong expression. "
+        f"If angels appear: normal human figures in white robes, NO WINGS, no halos. "
+        f"STRICTLY FORBIDDEN: NO crosses, NO crucifixes, NO halos, NO rosaries, "
+        f"NO Catholic imagery, NO Orthodox icons, NO stained glass windows, "
+        f"NO baby cherubs with wings, NO crown of thorns, NO graphic suffering, "
         f"NO surrealism, NO bizarre elements, NO exaggerated emotions, "
-        f"NO glowing eyes, NO golden tears, NO fantasy elements. "
+        f"NO glowing eyes, NO golden tears, NO fantasy elements, "
         f"NO text, NO letters, NO numbers visible in the image. "
-        f"Family friendly, reverent spiritual atmosphere. "
+        f"Family friendly, Latter-day Saint reverent atmosphere. "
         f"Square 1:1 aspect ratio. Ultra-detailed, high resolution artwork."
     )
 
