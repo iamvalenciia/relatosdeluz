@@ -244,7 +244,7 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
           "visual_asset_id": "1a",
           "start_word_index": 0,
           "end_word_index": 20,
-          "image_prompt": "A detailed oil painting of [escena específica], rendered in the style of the Old Masters with rich color depth, visible brushstrokes, warm golden lighting, and dramatic chiaroscuro. [Descripción detallada de personajes, vestimenta, expresión, postura]. [Composición y encuadre]. Anatomically correct proportions, naturalistic facial features. Square 1:1 composition, family friendly, Latter-day Saint reverent atmosphere, NO CROSSES, ANGELS WITHOUT WINGS if angels are present."
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting [escena narrativa con personajes, vestimenta, postura, expresión]. [Composición y encuadre]. [Iluminación específica]. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Square 1:1 composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
         }
       ]
     }
@@ -260,6 +260,26 @@ REGLAS DEL JSON:
 - background_music: Debe ser uno de los tres archivos disponibles
 - El topic es el título que se muestra en pantalla (máximo 60 caracteres, poderoso pero formal)
 - El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
+
+========================================
+CHECKLIST DE VALIDACIÓN (OBLIGATORIO)
+========================================
+ANTES de devolver el JSON, verifica CADA punto. Si alguno falla, CORRIGE antes de devolver:
+
+□ El full_text NO empieza con "..."
+□ El full_text NO termina con "..."
+□ El full_text NO empieza con una pregunta (¿...?)
+□ El full_text NO termina con una pregunta (¿...?)
+□ La primera frase y la última frase NO son iguales ni similares
+□ El tag [reverently] NO aparece en ninguna parte del texto
+□ Ningún image_prompt usa "Cinematic oil painting" (debe ser "Latter-day Saint sacred art")
+□ Ningún image_prompt dice "ANGELS WITHOUT WINGS" (debe ser "NO WINGS on angels")
+□ Todos los image_prompts terminan con "NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery"
+□ El full_text tiene al menos 200 palabras (80-90 segundos)
+□ Hay entre 6 y 8 visual_assets
+□ Los word indices son consecutivos sin saltos ni huecos
+
+SI ALGUNO FALLA: No devuelvas el JSON. Corrige primero.
 
 ========================================
 VALORES PARA ESTE VIDEO:

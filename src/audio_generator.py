@@ -4,6 +4,7 @@ Generates narration audio from script and creates word-level timestamps with Whi
 """
 
 import os
+import re
 import json
 from pathlib import Path
 from dotenv import load_dotenv
@@ -18,6 +19,89 @@ DATA_DIR = BASE_DIR / "data"
 SCRIPTS_DIR = DATA_DIR / "scripts"
 AUDIO_DIR = DATA_DIR / "audio"
 CONFIG_PATH = DATA_DIR / "config.json"
+
+# Tags that are known to distort the voice - strip them before sending to ElevenLabs
+FORBIDDEN_TAGS = ["[reverently]"]
+
+# Tags that are allowed
+ALLOWED_TAGS = ["[softly]", "[pause]", "[pensive]", "[warmly]", "[hopeful]", "[awe]"]
+
+
+def sanitize_narration(text: str) -> str:
+    """
+    Sanitize narration text before sending to ElevenLabs.
+    Fixes common script generation errors that cause audio glitches.
+
+    Fixes applied:
+    1. Strip leading "..." (causes garbled start)
+    2. Strip trailing "..." (causes garbled trailing syllable)
+    3. Remove forbidden tags like [reverently] (distorts voice)
+    4. Ensure text ends with clean punctuation (not ellipsis)
+    5. Remove duplicate start/end text (broken loop attempts)
+    """
+    original = text
+    fixes = []
+
+    # 1. Strip leading "..."
+    if text.startswith("..."):
+        text = text[3:].lstrip()
+        fixes.append("Stripped leading '...'")
+
+    # 2. Strip trailing "..."
+    if text.endswith("..."):
+        text = text[:-3].rstrip()
+        fixes.append("Stripped trailing '...'")
+
+    # Also catch "?..." or "!..." patterns at the end
+    text = re.sub(r'([.!?])\.\.\.$', r'\1', text)
+    text = re.sub(r'\.\.\.\s*$', '', text)
+
+    # 3. Remove forbidden tags
+    for tag in FORBIDDEN_TAGS:
+        if tag in text:
+            text = text.replace(tag, "")
+            fixes.append(f"Removed forbidden tag {tag}")
+
+    # 4. Clean up double spaces left by tag removal
+    text = re.sub(r'  +', ' ', text)
+
+    # 5. Ensure text ends with clean punctuation
+    text = text.rstrip()
+    if text and text[-1] not in '.!?':
+        text += '.'
+        fixes.append("Added period at end for clean audio cutoff")
+
+    # 6. Detect if the last sentence is a near-duplicate of the first sentence
+    # (broken loop where AI repeated the opening line at the end)
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    if len(sentences) >= 3:
+        # Clean tags for comparison
+        def strip_tags(s):
+            return re.sub(r'\[.*?\]', '', s).strip().lower()
+
+        first = strip_tags(sentences[0])
+        last = strip_tags(sentences[-1])
+
+        # Check similarity - if last sentence is >70% similar to first, remove it
+        if first and last:
+            # Simple word overlap check
+            first_words = set(first.split())
+            last_words = set(last.split())
+            if first_words and last_words:
+                overlap = len(first_words & last_words) / max(len(first_words), len(last_words))
+                if overlap > 0.7:
+                    text = '. '.join(sentences[:-1])
+                    if not text.endswith('.') and not text.endswith('!') and not text.endswith('?'):
+                        text += '.'
+                    fixes.append(f"Removed duplicate ending ('{sentences[-1][:40]}...')")
+
+    if fixes:
+        print("\n  SANITIZER FIXES APPLIED:")
+        for fix in fixes:
+            print(f"    - {fix}")
+        print()
+
+    return text.strip()
 
 
 def load_config() -> dict:
@@ -166,16 +250,19 @@ def main():
     # Extract narration text
     narration = script.get("script", {}).get("narration", {})
     text = narration.get("full_text", "")
-    
+
     if not text:
         raise ValueError("No narration text found in script. Check 'script.narration.full_text'")
-    
+
+    # Sanitize text to prevent audio glitches
+    text = sanitize_narration(text)
+
     voice_id = config.get("voice_id", "YqZLNYWZm98oKaaLZkUA")
-    
+
     # Paths
     audio_path = AUDIO_DIR / "current.mp3"
     timestamps_path = AUDIO_DIR / "current_timestamps.json"
-    
+
     # Generate audio
     generate_audio(text, voice_id, audio_path)
     
