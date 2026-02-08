@@ -166,62 +166,74 @@ def apply_ken_burns(
     image: Image.Image,
     progress: float,
     zoom_start: float = 1.0,
-    zoom_end: float = 1.08,  # Subtle zoom for smooth effect
+    zoom_end: float = 1.08,
     pan_direction: str = "center"
 ) -> Image.Image:
     """
     Apply Ken Burns effect using affine transform for sub-pixel smooth animation.
-    No integer rounding = no jitter.
-    
+
+    Uses PIL's Image.transform with AFFINE mode to avoid integer rounding artifacts
+    that cause visible jitter/shaking. All coordinates stay in floating-point space
+    until the final bicubic interpolation handles sub-pixel positioning natively.
+
     Args:
         image: Source image (1080x1080)
         progress: Animation progress (0.0 to 1.0)
         zoom_start: Initial zoom level
         zoom_end: Final zoom level
         pan_direction: Direction of pan ("center", "left", "right")
-    
+
     Returns:
         Transformed image at 1080x1080
     """
-    # Smooth easing function (ease-in-out)
+    # Smooth easing function (ease-in-out cosine)
     ease_progress = 0.5 - 0.5 * math.cos(progress * math.pi)
-    
-    # Calculate current zoom
+
+    # Current zoom level (fully floating-point, no rounding)
     current_zoom = zoom_start + (zoom_end - zoom_start) * ease_progress
-    
-    # Target size after scaling
+
     target_size = 1080
-    
-    # Scale the image up by the zoom factor
-    scaled_size = int(target_size * current_zoom)
-    
-    # Scale image using high-quality resampling
-    scaled_image = image.resize((scaled_size, scaled_size), Image.Resampling.LANCZOS)
-    
-    # Calculate crop position to center
-    offset = (scaled_size - target_size) / 2.0
-    
-    # Apply panning offset
+    img_w, img_h = image.size
+
+    # The visible region in source-image coordinates:
+    # At zoom=1.0 we see the full image; at zoom=1.08 we see a smaller crop (zoomed in).
+    # crop_size = image_size / zoom  (how many source pixels map to the output)
+    crop_w = img_w / current_zoom
+    crop_h = img_h / current_zoom
+
+    # Center the crop region by default
+    cx = (img_w - crop_w) / 2.0
+    cy = (img_h - crop_h) / 2.0
+
+    # Apply panning offset (shift within the available margin)
+    max_pan_x = (img_w - crop_w) / 2.0
     if pan_direction == "left":
-        pan_offset = offset * (1.0 - ease_progress)
+        cx += max_pan_x * (1.0 - ease_progress)
     elif pan_direction == "right":
-        pan_offset = offset * ease_progress
-    else:
-        pan_offset = 0
-    
-    # Calculate crop box (use floats, PIL handles sub-pixel with good interpolation)
-    left = offset + pan_offset
-    top = offset
-    right = left + target_size
-    bottom = top + target_size
-    
-    # Crop to final size - PIL handles sub-pixel cropping smoothly
-    result = scaled_image.crop((int(left), int(top), int(right), int(bottom)))
-    
-    # Ensure exact size
-    if result.size != (target_size, target_size):
-        result = result.resize((target_size, target_size), Image.Resampling.LANCZOS)
-    
+        cx -= max_pan_x * (1.0 - ease_progress)
+
+    # Build affine transform coefficients:
+    # PIL AFFINE maps output (x,y) -> source (x',y') as:
+    #   x' = a*x + b*y + c
+    #   y' = d*x + e*y + f
+    # We want: source_x = cx + x * (crop_w / target_size)
+    #          source_y = cy + y * (crop_h / target_size)
+    scale_x = crop_w / target_size
+    scale_y = crop_h / target_size
+
+    affine_coeffs = (
+        scale_x, 0.0, cx,
+        0.0, scale_y, cy,
+    )
+
+    # BICUBIC resampling gives smooth sub-pixel interpolation with no jitter
+    result = image.transform(
+        (target_size, target_size),
+        Image.AFFINE,
+        affine_coeffs,
+        resample=Image.Resampling.BICUBIC,
+    )
+
     return result
 
 
