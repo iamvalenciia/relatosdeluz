@@ -5,78 +5,78 @@
     "output_path": "data/output/thumbnail.png",
 
     "image": {
-      "source": "auto",
-      "asset_id": null,
+      "source": "asset",
+      "asset_id": "1a",
       "custom_path": null,
-      "zoom": 1.15,
+      "zoom": 1.05,
       "pan_x": 0.0,
-      "pan_y": -0.05
+      "pan_y": 0.15
     },
 
     "gradient_overlay": {
       "enabled": true,
-      "start_y_percent": 35,
-      "max_opacity": 225,
-      "color": [10, 22, 40],
-      "curve_exponent": 1.5
+      "start_y_percent": 25,
+      "max_opacity": 250,
+      "color": [5, 5, 5],
+      "curve_exponent": 1.4
     },
 
     "title": {
-      "text": "auto",
-      "custom_text": null,
+      "text": "custom",
+      "custom_text": "Los Días de NOÉ\nYa LLEGARON",
       "font": "Montserrat-ExtraBold.ttf",
-      "font_size": 82,
+      "font_size": 100,
       "color": "#FFFFFF",
-      "highlight_color": "#FFD700",
-      "stroke_width": 5,
-      "stroke_color": "#0A1628",
-      "shadow_offset": [3, 3],
-      "shadow_color": "#00000080",
-      "max_width_percent": 85,
-      "position_y_percent": 62,
+      "highlight_color": "#FF4444",
+      "stroke_width": 0,
+      "stroke_color": "#000000",
+      "shadow_offset": [4, 4],
+      "shadow_color": "#000000CC",
+      "max_width_percent": 90,
+      "position_y_percent": 48,
       "align": "left",
-      "margin_left": 60,
-      "line_spacing": 14,
+      "margin_left": 55,
+      "line_spacing": 8,
       "max_lines": 3
     },
 
     "scripture_badge": {
       "enabled": true,
-      "text": "auto",
-      "custom_text": null,
+      "text": "custom",
+      "custom_text": "Moisés 8",
       "font": "Montserrat-Bold.ttf",
-      "font_size": 32,
-      "text_color": "#FFFFFF",
-      "background_color": "#E87722",
-      "padding_h": 20,
-      "padding_v": 8,
-      "margin_left": 60,
-      "margin_bottom": 40,
-      "corner_radius": 6
+      "font_size": 28,
+      "text_color": "#AAAAAA",
+      "background_color": "#00000000",
+      "padding_h": 0,
+      "padding_v": 0,
+      "margin_left": 58,
+      "margin_bottom": 30,
+      "corner_radius": 0
     },
 
     "branding": {
       "enabled": true,
       "text": "VEN SÍGUEME",
       "font": "Montserrat-Bold.ttf",
-      "font_size": 26,
-      "text_color": "#FFFFFF",
-      "background_color": "#005DA6",
-      "padding_h": 16,
-      "padding_v": 6,
+      "font_size": 28,
+      "text_color": "#FFD700",
+      "background_color": "#00000000",
+      "padding_h": 0,
+      "padding_v": 0,
       "position": "bottom_right",
-      "margin_right": 40,
-      "margin_bottom": 40,
-      "corner_radius": 6
+      "margin_right": 35,
+      "margin_bottom": 30,
+      "corner_radius": 0
     },
 
     "accent_line": {
       "enabled": true,
-      "color": "#FFD700",
-      "height": 4,
-      "margin_left": 60,
-      "width_percent": 25,
-      "margin_bottom_from_title": 12
+      "color": "#FF4444",
+      "height": 5,
+      "margin_left": 55,
+      "width_percent": 20,
+      "margin_bottom_from_title": 14
     }
   }
 }

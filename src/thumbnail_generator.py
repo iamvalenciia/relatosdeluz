@@ -265,56 +265,39 @@ def wrap_title_lines(
 ) -> List[str]:
     """
     Wrap title text into lines that fit within max_width.
+    Respects explicit newlines (\\n) in the text as forced line breaks.
 
     Returns up to max_lines lines. If text exceeds max_lines,
     the last line is truncated with '...'.
     """
-    words = text.split()
+    # Split by explicit newlines first, then word-wrap each segment
+    segments = text.split('\n')
     lines = []
-    current_line = []
 
-    for word in words:
-        test_line = ' '.join(current_line + [word])
-        bbox = draw.textbbox((0, 0), test_line, font=font)
-        if bbox[2] - bbox[0] <= max_width:
-            current_line.append(word)
-        else:
-            if current_line:
-                lines.append(' '.join(current_line))
-            current_line = [word]
+    for segment in segments:
+        if len(lines) >= max_lines:
+            break
 
-            # Check if we've exceeded max lines
-            if len(lines) >= max_lines:
-                break
+        words = segment.split()
+        if not words:
+            continue
 
-    if current_line and len(lines) < max_lines:
-        lines.append(' '.join(current_line))
+        current_line = []
 
-    # If we still have words left, truncate the last line
-    if len(lines) >= max_lines and current_line:
-        remaining = ' '.join(current_line)
-        last = lines[-1] if lines else remaining
-        # Add remaining words if any
-        if lines and remaining != last:
-            last = last + ' ' + remaining
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            bbox = draw.textbbox((0, 0), test_line, font=font)
+            if bbox[2] - bbox[0] <= max_width:
+                current_line.append(word)
+            else:
+                if current_line:
+                    lines.append(' '.join(current_line))
+                current_line = [word]
+                if len(lines) >= max_lines:
+                    break
 
-        # Truncate with ellipsis
-        ellipsis = "..."
-        ew = draw.textbbox((0, 0), ellipsis, font=font)[2]
-        avail = max_width - ew
-
-        while len(last) > 1:
-            bbox = draw.textbbox((0, 0), last, font=font)
-            if bbox[2] - bbox[0] <= avail:
-                break
-            last = last[:-1]
-
-        # Break at word boundary
-        sp = last.rfind(' ')
-        if sp > len(last) * 0.5:
-            last = last[:sp]
-
-        lines[-1] = last.rstrip() + ellipsis
+        if current_line and len(lines) < max_lines:
+            lines.append(' '.join(current_line))
 
     return lines[:max_lines]
 
@@ -577,7 +560,16 @@ def generate_thumbnail(
 
     # Get metadata
     script_data = script.get("script", {})
-    title = title_override or script_data.get("topic", "Ven Sígueme")
+    title_cfg = thumb_cfg.get("title", {})
+
+    # Title priority: CLI override > custom_text in config > title_youtube > topic
+    if title_override:
+        title = title_override
+    elif title_cfg.get("text") == "custom" and title_cfg.get("custom_text"):
+        title = title_cfg["custom_text"]
+    else:
+        title = script_data.get("title_youtube", script_data.get("topic", "Ven Sígueme"))
+
     metadata = config.get("video_metadata", {})
     escritura = metadata.get("escritura", "")
 

@@ -143,17 +143,37 @@ def resize_cover(image: Image.Image, target_width: int, target_height: int) -> I
     return cropped
 
 
-def get_title_font(size: int) -> ImageFont.FreeTypeFont:
-    """Get font for title - EBGaramond Bold"""
+def get_font(size: int, weight: str = "bold") -> ImageFont.FreeTypeFont:
+    """
+    Get Montserrat font at the specified size and weight.
+
+    Args:
+        size: Font size in pixels
+        weight: 'bold', 'semibold', or 'medium'
+    """
     fonts_dir = DATA_DIR / "fonts"
-    
-    title_fonts = [
-        fonts_dir / "EBGaramond-Bold.ttf",
-        fonts_dir / "PlayfairDisplay-Bold.ttf",
-        "C:/Windows/Fonts/georgiab.ttf",
-    ]
-    
-    for font_path in title_fonts:
+
+    weight_map = {
+        "bold": [
+            fonts_dir / "Montserrat-Bold.ttf",
+            fonts_dir / "EBGaramond-Bold.ttf",
+            "C:/Windows/Fonts/arialbd.ttf",
+        ],
+        "semibold": [
+            fonts_dir / "Montserrat-SemiBold.ttf",
+            fonts_dir / "Montserrat-Bold.ttf",
+            "C:/Windows/Fonts/arialbd.ttf",
+        ],
+        "medium": [
+            fonts_dir / "Montserrat-Medium.ttf",
+            fonts_dir / "Montserrat-SemiBold.ttf",
+            "C:/Windows/Fonts/arial.ttf",
+        ],
+    }
+
+    font_list = weight_map.get(weight, weight_map["bold"])
+
+    for font_path in font_list:
         path = str(font_path) if hasattr(font_path, 'exists') else font_path
         try:
             if (hasattr(font_path, 'exists') and font_path.exists()) or \
@@ -161,8 +181,12 @@ def get_title_font(size: int) -> ImageFont.FreeTypeFont:
                 return ImageFont.truetype(path, size)
         except:
             continue
-    
+
     return ImageFont.load_default()
+
+
+# Keep backward compatibility alias
+get_title_font = get_font
 
 
 def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
@@ -257,90 +281,97 @@ def draw_professional_lower_third(
     Features an opening animation and smart text truncation.
     """
     # Colors (LDS Branding)
-    CHURCH_BLUE = (0, 46, 93, 255)      # LDS Navy Blue
-    CHURCH_ORANGE = (242, 169, 0, 255)  # Professional Gold/Orange
-    TITLE_BG = (255, 255, 255, 220)     # Semi-transparent white
-    TEXT_COLOR = (0, 0, 0, 255)
-    
+    CHURCH_BLUE = (0, 46, 93, 255)         # LDS Navy Blue
+    BADGE_BG = (242, 169, 0, 255)           # Orange/Gold for badge
+    TITLE_BG = (255, 255, 255, 230)        # Semi-transparent white
+    SCRIPTURE_BG = (0, 46, 93, 240)        # Deep navy blue for scriptures
+    TEXT_COLOR = (20, 20, 20, 255)          # Near black for title
+
     # Metadata from config
     metadata = config.get("video_metadata", {})
     programa = metadata.get("programa", "Ven Sígueme")
     escritura = metadata.get("escritura", "")
-    
-    # Animation Parameters
-    # Animation lasts for the first 2 seconds (60 frames at 30fps)
+
+    # Format scripture: add separator between references, Title Case
+    if escritura:
+        # Replace ; with  |  separator for readability
+        escritura_display = escritura.replace(";", "  |")
+    else:
+        escritura_display = ""
+
+    # Animation Parameters — lasts 2 seconds (60 frames at 30fps)
     ANIM_DURATION = 60
-    
-    # Animation progress (0.0 to 1.0)
     anim_progress = min(1.0, frame_num / ANIM_DURATION)
-    # Easing for smooth sweep
-    ease_progress = 1.0 - math.pow(1.0 - anim_progress, 3) 
-    
+    ease_progress = 1.0 - math.pow(1.0 - anim_progress, 3)
+
     # Dimensions
     MARGIN_LEFT = 80
     BASE_Y = VIDEO_HEIGHT - 220
-    
-    LOGO_W, LOGO_H = 180, 50
-    TITLE_W, TITLE_H = 1300, 70
-    SCRIPTURE_W, SCRIPTURE_H = 1300, 45
-    
-    # Horizontal Offset based on animation
-    # The whole block "unfolds" or "sweeps" from the left
+
+    BADGE_W, BADGE_H = 200, 46
+    TITLE_W, TITLE_H = 1600, 70
+    SCRIPTURE_W, SCRIPTURE_H = 1600, 42
+
+    # Horizontal sweep offset
     offset_x = -1500 * (1.0 - ease_progress)
-    
-    # 1. SCRIPTURE BOX (Background/Bottom layer)
-    if escritura:
+
+    # 1. SCRIPTURE BAR (bottom layer)
+    if escritura_display:
         s_x = MARGIN_LEFT + offset_x
         s_y = BASE_Y + TITLE_H
-        scripture_bg = Image.new("RGBA", (SCRIPTURE_W, SCRIPTURE_H), CHURCH_BLUE)
+        scripture_bg = Image.new("RGBA", (SCRIPTURE_W, SCRIPTURE_H), SCRIPTURE_BG)
         frame.paste(scripture_bg, (int(s_x), int(s_y)), scripture_bg)
-        
-        # Scripture Text
-        s_font = get_title_font(28)
-        draw.text((s_x + 20, s_y + 8), escritura.upper(), font=s_font, fill=(255, 255, 255, 255))
 
-    # 2. TITLE BOX (Middle layer)
+        s_font = get_font(22, "medium")
+        draw.text((s_x + 20, s_y + 10), escritura_display, font=s_font, fill=(255, 255, 255, 255))
+
+    # 2. TITLE BAR (middle layer — white background)
     t_x = MARGIN_LEFT + offset_x
     t_y = BASE_Y
     title_bg = Image.new("RGBA", (TITLE_W, TITLE_H), TITLE_BG)
     frame.paste(title_bg, (int(t_x), int(t_y)), title_bg)
-    
-    # Truncate title if too long
-    t_font = get_title_font(42)
+
+    # Auto-scale font to fit title — try sizes from 40 down to 28
     display_title = title
     max_w = TITLE_W - 40
-    
+    t_font_size = 40
+
+    for try_size in range(40, 27, -2):
+        t_font = get_font(try_size, "bold")
+        bbox = draw.textbbox((0, 0), display_title, font=t_font)
+        if bbox[2] - bbox[0] <= max_w:
+            t_font_size = try_size
+            break
+
+    # If still too wide after scaling down, truncate as last resort
     bbox = draw.textbbox((0, 0), display_title, font=t_font)
     if bbox[2] - bbox[0] > max_w:
         while bbox[2] - bbox[0] > max_w - 40:
             display_title = display_title[:-1]
             bbox = draw.textbbox((0, 0), display_title, font=t_font)
         display_title += "..."
-        
-    # Draw shadow
-    draw.text((t_x + 22, t_y + 12), display_title, font=t_font, fill=(0, 0, 0, 60))
-    draw.text((t_x + 20, t_y + 10), display_title, font=t_font, fill=TEXT_COLOR)
 
-    # 3. LOGO BOX (Top layer / Badge)
+    # Subtle shadow + main text
+    draw.text((t_x + 21, t_y + 14), display_title, font=t_font, fill=(0, 0, 0, 40))
+    draw.text((t_x + 20, t_y + 13), display_title, font=t_font, fill=TEXT_COLOR)
+
+    # 3. BADGE (top layer — "Ven Sígueme")
     l_x = MARGIN_LEFT + offset_x
-    l_y = BASE_Y - LOGO_H
-    logo_bg = Image.new("RGBA", (LOGO_W, LOGO_H), CHURCH_ORANGE)
-    frame.paste(logo_bg, (int(l_x), int(l_y)), logo_bg)
-    
-    # "Ven Sígueme" Text for Logo
-    l_font = get_title_font(24)
-    l_bbox = draw.textbbox((0, 0), programa.upper(), font=l_font)
+    l_y = BASE_Y - BADGE_H
+    badge_bg = Image.new("RGBA", (BADGE_W, BADGE_H), BADGE_BG)
+    frame.paste(badge_bg, (int(l_x), int(l_y)), badge_bg)
+
+    l_font = get_font(20, "semibold")
+    badge_text = programa.upper()
+    l_bbox = draw.textbbox((0, 0), badge_text, font=l_font)
     l_text_w = l_bbox[2] - l_bbox[0]
     l_text_h = l_bbox[3] - l_bbox[1]
-    draw.text((l_x + (LOGO_W - l_text_w)//2, l_y + (LOGO_H - l_text_h)//2 - 2), 
-              programa.upper(), font=l_font, fill=(255, 255, 255, 255))
+    draw.text(
+        (l_x + (BADGE_W - l_text_w) // 2, l_y + (BADGE_H - l_text_h) // 2 - 1),
+        badge_text, font=l_font, fill=(20, 20, 20, 255)
+    )
 
-    # 4. SWEEP ANIMATION SQUARE
-    if anim_progress < 1.0:
-        sweep_w = 40
-        sweep_x = MARGIN_LEFT + offset_x + (TITLE_W * ease_progress)
-        sweep_rect = [(sweep_x, BASE_Y - 20), (sweep_x + sweep_w, BASE_Y + TITLE_H + SCRIPTURE_H + 20)]
-        draw.rectangle(sweep_rect, fill=CHURCH_ORANGE)
+    # (Sweep animation square removed — served no purpose)
 
 
 def create_frame(
@@ -439,37 +470,54 @@ def render_video(output_path: Path) -> None:
     audio_duration = temp_audio.duration
     temp_audio.close()
     
-    LOOP_TAIL_SECONDS = 2.5
+    LOOP_TAIL_SECONDS = 5.0
     video_duration = audio_duration + LOOP_TAIL_SECONDS
     total_frames = int(video_duration * FPS)
 
     print(f"Resolution: {VIDEO_WIDTH}x{VIDEO_HEIGHT} (16:9 Horizontal)")
-    
+    print(f"Duration: {video_duration:.1f}s | Frames: {total_frames} | FPS: {FPS}")
+    print()
+
     temp_video_path = output_path.with_suffix(".temp.mp4")
     container = av.open(str(temp_video_path), mode='w')
-    
+
     try:
         stream = container.add_stream('hevc_nvenc', rate=FPS)
         stream.options = {'preset': 'p4', 'tune': 'hq', 'rc': 'vbr', 'cq': '23'}
+        print("Encoder: NVIDIA NVENC (GPU)")
     except:
         stream = container.add_stream('libx264', rate=FPS)
         stream.options = {'preset': 'medium', 'crf': '23'}
-    
+        print("Encoder: libx264 (CPU)")
+
     stream.width = VIDEO_WIDTH
     stream.height = VIDEO_HEIGHT
     stream.pix_fmt = 'yuv420p'
-    
+
+    import time as _time
+    render_start = _time.time()
+
     for frame_num in range(total_frames):
         frame_time = frame_num / FPS
         img_idx, img_progress = get_current_image_index(frame_time, images, timestamps)
         current_image = images[img_idx][1]
-        
+
         frame_array = create_frame(current_image, config, title, img_progress, 1.0, None, frame_num, total_frames)
         video_frame = av.VideoFrame.from_ndarray(frame_array, format='rgb24')
         video_frame = video_frame.reformat(format='yuv420p')
-        
+
         for packet in stream.encode(video_frame):
             container.mux(packet)
+
+        # Progress indicator every 30 frames (1 second of video)
+        if frame_num % 30 == 0 or frame_num == total_frames - 1:
+            pct = (frame_num + 1) / total_frames * 100
+            elapsed = _time.time() - render_start
+            fps_real = (frame_num + 1) / elapsed if elapsed > 0 else 0
+            eta = (total_frames - frame_num - 1) / fps_real if fps_real > 0 else 0
+            print(f"\r  Rendering: {pct:5.1f}% | Frame {frame_num+1}/{total_frames} | {fps_real:.1f} fps | ETA: {eta:.0f}s  ", end="", flush=True)
+
+    print()  # newline after progress
     
     for packet in stream.encode():
         container.mux(packet)
@@ -487,15 +535,41 @@ def render_video(output_path: Path) -> None:
     if music_path.exists():
         music_clip = AudioFileClip(str(music_path))
         if music_clip.duration < video_clip.duration:
-            music_clip = afx.audio_loop(music_clip, nloops=int(video_clip.duration/music_clip.duration)+1)
-        music_clip = music_clip.subclip(0, video_clip.duration).volumex(0.20)
-        final_audio = CompositeAudioClip([music_clip, narration_clip]).set_duration(video_clip.duration)
+            music_clip = afx.audio_loop(music_clip, nloops=int(video_clip.duration / music_clip.duration) + 1)
+        music_clip = music_clip.subclip(0, video_clip.duration)
+
+        # Volume calibration:
+        # - During narration: music at 15% (subtle background)
+        # - After narration ends: music rises to 40% then fades out
+        # - Narration boosted to 1.15x for clarity
+        narration_boosted = narration_clip.volumex(1.15)
+
+        # Music: low during voice, rises after voice ends, fade out last 3 seconds
+        # Uses np.where because moviepy passes t as numpy arrays
+        fade_start = video_duration - 3.0
+
+        def music_volume(t):
+            vol = np.where(
+                t < audio_duration,
+                0.15,                                         # During narration
+                np.where(
+                    t < fade_start,
+                    0.40,                                     # After narration, before fade
+                    0.40 * np.maximum(0, (video_duration - t) / 3.0)  # Fade out
+                )
+            )
+            return vol
+
+        music_dynamic = music_clip.fl(lambda gf, t: gf(t) * music_volume(t), keep_duration=True)
+
+        final_audio = CompositeAudioClip([music_dynamic, narration_boosted]).set_duration(video_clip.duration)
     else:
         final_audio = narration_clip
-    
+
+    print("Merging audio...")
     final_clip = video_clip.set_audio(final_audio)
     final_clip.write_videofile(str(output_path), codec='libx264', audio_codec='aac', logger=None)
-    
+
     video_clip.close()
     narration_clip.close()
     if music_path.exists(): music_clip.close()
