@@ -11,72 +11,84 @@
                     "visual_asset_id": "1a",
                     "start_word_index": 0,
                     "end_word_index": 28,
+                    "narration_summary": "En los días de Noé, la tierra estaba corrompida... violencia y maldad",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a dramatic panoramic view of an ancient world consumed by chaos, with distant cities burning under a dark stormy sky at sunset. In the foreground, people in ancient robes engage in violent conflict while others look on with indifference. The scene conveys moral decay and societal collapse. Rich warm color palette with deep oranges and reds contrasting with dark shadows, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1b",
                     "start_word_index": 29,
                     "end_word_index": 42,
+                    "narration_summary": "Y Jesucristo mismo nos advirtió que veríamos exactamente lo mismo",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting the prophet Noah as a dignified elderly man with a long gray beard, wearing simple linen robes, standing alone on a hillside preaching to an indifferent crowd. His arms are outstretched in a gesture of warning and pleading. The crowd of ancient people in the background turns away dismissively. Dramatic golden sunset light illuminates Noah while the crowd remains in shadow. Wide landscape composition with Noah positioned in the left third. Anatomically correct proportions, naturalistic facial features, expression of compassionate urgency. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1c",
                     "start_word_index": 43,
                     "end_word_index": 70,
+                    "narration_summary": "Moisés 8 describe la tierra llena de violencia... cada intención era solo maldad",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a scene of ancient violence and moral decay. Armed men in ancient clothing engage in conflict in a dusty marketplace, while city walls crumble in the background under a blood-red sky. Expressions of anger and despair on the faces of those involved. The atmosphere conveys the complete corruption of society. Rich warm color palette with crimson and ochre tones, visible brushstrokes, dramatic chiaroscuro lighting from a setting sun. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1d",
                     "start_word_index": 71,
                     "end_word_index": 116,
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a crowd of ancient people mocking an elderly prophet (Noah) who stands near the massive wooden frame of the ark under construction. The people wear fine ancient robes and jewelry, laughing and pointing at the prophet. Noah stands dignified with an expression of sorrowful determination, wearing simple worker's clothing. The ark towers behind him, half-constructed from massive wooden beams. Golden afternoon light creates strong shadows. Wide composition showing both the crowd and the ark structure. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+                    "narration_summary": "Primera señal: VIOLENCIA generalizada. Guerras, crímenes, desprecio por la vida humana",
+                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a dramatic panoramic view of an ancient world consumed by chaos, with distant cities burning under a dark stormy sky at sunset. In the foreground, people in ancient robes engage in violent conflict while others look on with indifference. The scene conveys moral decay and societal collapse. Rich warm color palette with deep oranges and reds contrasting with dark shadows, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1e",
                     "start_word_index": 117,
                     "end_word_index": 165,
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting an ancient feast scene with wealthy people in ornate robes eating and drinking at a long table, completely absorbed in their celebration. Through an open window behind them, storm clouds gather ominously but they pay no attention. Their expressions show indulgence and willful ignorance. The contrast between their revelry and the threatening sky creates tension. Rich warm candlelight illuminates the feast while cold blue threatens from outside. Wide landscape composition. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+                    "narration_summary": "Segunda señal: CORRUPCIÓN MORAL. Se burlaron de Noé mientras construía el arca",
+                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a crowd of ancient people mocking an elderly prophet (Noah) who stands near the massive wooden frame of the ark under construction. The people wear fine ancient robes and jewelry, laughing and pointing at the prophet. Noah stands dignified with an expression of sorrowful determination, wearing simple worker's clothing. The ark towers behind him, half-constructed from massive wooden beams. Golden afternoon light creates strong shadows. Wide composition showing both the crowd and the ark structure. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1f",
                     "start_word_index": 166,
                     "end_word_index": 215,
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting Noah and his family (wife, three sons with their wives) boarding the completed ark as the first raindrops begin to fall. Noah leads the way wearing simple robes, his expression peaceful and resolute. The massive wooden ark dominates the background. Animals can be seen entering in orderly pairs. Dark storm clouds gather overhead but divine golden light breaks through to illuminate the ark's entrance. Wide panoramic composition showing the scale of the ark. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+                    "narration_summary": "Tercera señal: INDIFERENCIA espiritual. Comiendo, bebiendo, casándose... ajenos al juicio que se acercaba",
+                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting an ancient feast scene with wealthy people in ornate robes eating and drinking at a long table, completely absorbed in their celebration. Through an open window behind them, storm clouds gather ominously but they pay no attention. Their expressions show indulgence and willful ignorance. The contrast between their revelry and the threatening sky creates tension. Rich warm candlelight illuminates the feast while cold blue threatens from outside. Wide landscape composition. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1g",
                     "start_word_index": 216,
-                    "end_word_index": 255,
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a beautiful modern Latter-day Saint temple (Salt Lake Temple style architecture) standing majestic on a hill at golden hour. Families in modest modern Sunday attire walk toward the temple entrance on a tree-lined path. The temple spires reach toward a glorious sunset sky with golden and pink clouds. The scene conveys peace, safety, and divine refuge. Warm golden lighting bathes the entire scene. Wide landscape composition with the temple centered. Anatomically correct proportions, naturalistic facial features on the people. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+                    "end_word_index": 246,
+                    "narration_summary": "Pero aquí está la esperanza. Noé halló gracia ante los ojos del Señor. Él construyó un arca",
+                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting Noah and his family (wife, three sons with their wives) boarding the completed ark as the first raindrops begin to fall. Noah leads the way wearing simple robes, his expression peaceful and resolute. The massive wooden ark dominates the background. Animals can be seen entering in orderly pairs. Dark storm clouds gather overhead but divine golden light breaks through to illuminate the ark's entrance. Wide panoramic composition showing the scale of the ark. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1h",
-                    "start_word_index": 256,
+                    "start_word_index": 247,
                     "end_word_index": 269,
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a warm, faithful Latter-day Saint family gathered in their living room for home evening. Parents and children of various ages sit together with scriptures open, expressions of love and peace on their faces. Soft warm lamplight creates an intimate atmosphere. A framed picture of Jesus Christ by Del Parson hangs on the wall. The home is modest but filled with warmth. The scene conveys the home as a spiritual sanctuary. Wide composition showing the whole family group. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+                    "narration_summary": "Hoy, el Señor nos ha dado nuestras propias arcas. Los templos sagrados. Nuestros hogares convertidos en santuarios de fe",
+                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a beautiful modern Latter-day Saint temple (Salt Lake Temple style architecture) standing majestic on a hill at golden hour. Families in modest modern Sunday attire walk toward the temple entrance on a tree-lined path. The temple spires reach toward a glorious sunset sky with golden and pink clouds. The scene conveys peace, safety, and divine refuge. Warm golden lighting bathes the entire scene. Wide landscape composition with the temple centered. Anatomically correct proportions, naturalistic facial features on the people. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1i",
                     "start_word_index": 270,
                     "end_word_index": 287,
+                    "narration_summary": "El Profeta Russell M. Nelson ha enseñado que nuestros hogares pueden ser lugares de refugio del mundo",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting President Russell M. Nelson, an elderly man with white hair and kind eyes, wearing a dark business suit, speaking at a general conference pulpit. His expression is warm, loving, and prophetic. Behind him is the iconic conference center interior with soft lighting. His hands are raised in a gesture of teaching. Divine light seems to illuminate his face. The composition conveys prophetic authority and loving guidance. Anatomically correct proportions, naturalistic facial features, dignified expression. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1j",
                     "start_word_index": 288,
                     "end_word_index": 307,
+                    "narration_summary": "El patrón se repite, pero también la promesa. Dios prepara un camino de escape para los fieles",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a powerful symbolic scene of Noah's completed ark floating safely on turbulent flood waters under a stormy sky, with divine light breaking through the clouds above the ark. The ark is massive and made of dark wood, riding the waves safely. In the distance, the silhouettes of mountain peaks are barely visible above the water. The contrast between the safety of the ark and the chaos of the waters conveys divine protection. Dramatic lighting with golden rays piercing dark storm clouds. Wide panoramic composition. Anatomically correct proportions on any visible figures. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1k",
                     "start_word_index": 308,
                     "end_word_index": 337,
+                    "narration_summary": "¿Estamos construyendo nuestra arca? El arca de la fe, del arrepentimiento, de los convenios sagrados",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a person kneeling in sincere prayer in a quiet, simple room. Soft morning light streams through a window, illuminating their peaceful, humble expression. They are dressed in modest modern clothing. Scriptures lie open nearby. The atmosphere conveys personal repentance, faith, and covenant-making with God. Warm golden tones dominate. The person is positioned in the left portion of the composition with the light source from the right. Anatomically correct proportions, naturalistic facial features, expression of humble devotion. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 },
                 {
                     "visual_asset_id": "1l",
                     "start_word_index": 338,
                     "end_word_index": 355,
+                    "narration_summary": "Cuando las aguas suban, solo aquellos en el arca del Señor estarán a salvo",
                     "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a glorified vision of a Latter-day Saint temple standing as a beacon of light amid symbolic dark waters. The temple glows with divine golden light, its spires reaching toward heaven. Faithful families are gathered safely at the temple doors, looking up with expressions of hope and gratitude. Above, the sky parts to reveal celestial light and peace. The scene symbolizes divine protection and the safety of sacred covenants. Rich warm color palette with gold and white against deep blues. Wide landscape composition. Anatomically correct proportions, naturalistic facial features on the people. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
                 }
             ]
