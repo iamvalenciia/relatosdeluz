@@ -5,7 +5,7 @@ Uses NVIDIA GPU acceleration (hevc_nvenc) for RTX 3060 TI.
 Features:
 - Ken Burns effect (zoom + pan)
 - Centered 1080x1080 images in 1080x1920 frame
-- Blue footer with program, date, scripture
+- TV news lower third overlay with program and scripture
 - Title overlay at top
 - Image sync with audio timestamps
 """
@@ -162,6 +162,180 @@ def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
+def truncate_for_lower_third(
+    text: str,
+    font: ImageFont.FreeTypeFont,
+    max_width: int,
+    draw: ImageDraw.Draw
+) -> str:
+    """Truncate text with '...' if it exceeds max_width in pixels."""
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+
+    if text_width <= max_width:
+        return text
+
+    ellipsis = "..."
+    ellipsis_bbox = draw.textbbox((0, 0), ellipsis, font=font)
+    ellipsis_width = ellipsis_bbox[2] - ellipsis_bbox[0]
+    available_width = max_width - ellipsis_width
+
+    truncated = text
+    while len(truncated) > 1:
+        truncated = truncated[:-1]
+        bbox = draw.textbbox((0, 0), truncated, font=font)
+        if bbox[2] - bbox[0] <= available_width:
+            break
+
+    # Try to break at a word boundary
+    last_space = truncated.rfind(' ')
+    if last_space > len(truncated) * 0.6:
+        truncated = truncated[:last_space]
+
+    return truncated.rstrip() + ellipsis
+
+
+def draw_lower_third(
+    draw: ImageDraw.Draw,
+    config: dict,
+    title: str,
+    programa: str,
+    escritura: str,
+    image_y: int,
+    image_height: int = 1080
+) -> None:
+    """
+    Draw a TV news-style lower third overlay on the frame.
+
+    Features a two-tier design:
+    - Top bar (blue): Video title, truncated with '...' if needed
+    - Bottom bar (orange): Program name + scripture reference
+    - White accent line between bars
+
+    Positioned in the bottom-left of the frame, overlaying the image.
+    """
+    style = config.get("style", {})
+    lt_config = style.get("lower_third", {})
+
+    if not lt_config.get("enabled", True):
+        return
+
+    # --- Dimensions ---
+    width_percent = lt_config.get("width_percent", 70)
+    lt_width = int(VIDEO_WIDTH * width_percent / 100)
+    lt_left = lt_config.get("left_margin", 30)
+    lt_right = lt_left + lt_width
+    bottom_margin = lt_config.get("bottom_margin", 20)
+
+    # Top bar config
+    top_cfg = lt_config.get("top_bar", {})
+    top_height = top_cfg.get("height", 60)
+    top_color = hex_to_rgb(top_cfg.get("color", "#005DA6"))
+    top_font_size = top_cfg.get("font_size", 32)
+    top_text_color = hex_to_rgb(top_cfg.get("text_color", "#FFFFFF"))
+    top_padding_h = top_cfg.get("padding_h", 20)
+
+    # Accent config
+    accent_cfg = lt_config.get("accent_line", {})
+    accent_height = accent_cfg.get("height", 4)
+    accent_color = hex_to_rgb(accent_cfg.get("color", "#FFFFFF"))
+
+    # Bottom bar config
+    bot_cfg = lt_config.get("bottom_bar", {})
+    bot_height = bot_cfg.get("height", 44)
+    bot_color = hex_to_rgb(bot_cfg.get("color", "#E87722"))
+    bot_font_size = bot_cfg.get("font_size", 24)
+    bot_text_color = hex_to_rgb(bot_cfg.get("text_color", "#FFFFFF"))
+    bot_padding_h = bot_cfg.get("padding_h", 20)
+
+    # --- Vertical position ---
+    image_bottom = image_y + image_height
+    total_height = top_height + accent_height + bot_height
+    lt_bottom = image_bottom - bottom_margin
+    lt_top = lt_bottom - total_height
+
+    top_bar_y = lt_top
+    top_bar_bottom = top_bar_y + top_height
+    accent_y = top_bar_bottom
+    accent_bottom = accent_y + accent_height
+    bot_bar_y = accent_bottom
+    bot_bar_bottom = bot_bar_y + bot_height
+
+    # --- Fonts ---
+    top_font = get_footer_font(top_font_size)
+    bot_font = get_footer_font(bot_font_size)
+
+    # --- Draw top bar (blue) ---
+    draw.rectangle(
+        [(lt_left, top_bar_y), (lt_right, top_bar_bottom)],
+        fill=top_color
+    )
+
+    # --- Draw accent line ---
+    draw.rectangle(
+        [(lt_left, accent_y), (lt_right, accent_bottom)],
+        fill=accent_color
+    )
+
+    # --- Draw bottom bar (orange) ---
+    draw.rectangle(
+        [(lt_left, bot_bar_y), (lt_right, bot_bar_bottom)],
+        fill=bot_color
+    )
+
+    # --- Title text (top bar) with truncation ---
+    available_text_width = lt_width - (2 * top_padding_h)
+    display_title = truncate_for_lower_third(title, top_font, available_text_width, draw)
+
+    # Vertically center in the top bar
+    ref_bbox = draw.textbbox((0, 0), "Mg", font=top_font)
+    text_height = ref_bbox[3] - ref_bbox[1]
+    text_y = top_bar_y + (top_height - text_height) // 2
+    text_x = lt_left + top_padding_h
+
+    draw.text((text_x, text_y), display_title, font=top_font, fill=top_text_color)
+
+    # --- Bottom bar text ---
+    programa_upper = programa.upper()
+
+    # Calculate space division (~55% programa, ~45% escritura)
+    usable_width = lt_width - (2 * bot_padding_h)
+    programa_zone_width = int(usable_width * 0.55)
+    divider_x = lt_left + bot_padding_h + programa_zone_width
+
+    # Draw vertical divider on bottom bar
+    if escritura:
+        divider_padding = 8
+        draw.line(
+            [(divider_x, bot_bar_y + divider_padding),
+             (divider_x, bot_bar_bottom - divider_padding)],
+            fill=bot_text_color,
+            width=1
+        )
+
+    # Draw programa text (left-aligned in its zone)
+    bot_ref_bbox = draw.textbbox((0, 0), "Mg", font=bot_font)
+    bot_text_height = bot_ref_bbox[3] - bot_ref_bbox[1]
+    bot_text_y = bot_bar_y + (bot_height - bot_text_height) // 2
+
+    draw.text(
+        (lt_left + bot_padding_h, bot_text_y),
+        programa_upper,
+        font=bot_font,
+        fill=bot_text_color
+    )
+
+    # Draw escritura text (after divider)
+    if escritura:
+        escritura_x = divider_x + 12
+        draw.text(
+            (escritura_x, bot_text_y),
+            escritura,
+            font=bot_font,
+            fill=bot_text_color
+        )
+
+
 def apply_ken_burns(
     image: Image.Image,
     progress: float,
@@ -246,7 +420,7 @@ def create_frame(
     next_image: Optional[Image.Image] = None
 ) -> np.ndarray:
     """
-    Create a single video frame with Ken Burns effect, title, and footer.
+    Create a single video frame with Ken Burns effect, title, and lower third overlay.
     
     Args:
         image: Current image to display
@@ -283,9 +457,7 @@ def create_frame(
     
     # Get style config
     style = config.get("style", {})
-    footer_color = hex_to_rgb(style.get("footer_color", "#1A3A5C"))
     title_font_size = style.get("font_size_title", 62)
-    footer_font_size = style.get("font_size_footer", 22)
     
     # Calculate title position - positioned close to the top edge of the image
     title_padding = 50  # Padding from screen edges
@@ -357,83 +529,12 @@ def create_frame(
             word_bbox = draw.textbbox((0, 0), display_word, font=title_font)
             current_x += word_bbox[2] - word_bbox[0]
     
-    # Draw header bar (now a footer below the image)
-    header_height = 80  # Increased height for better spacing
-    header_y = image_y + 1080  # Position immediately below the image
-
-    # Header background
-    draw.rectangle(
-        [(0, header_y), (VIDEO_WIDTH, header_y + header_height)],
-        fill=footer_color
-    )
-
-    # Single divider in the center (2 sections: programa | escritura)
-    divider_x = VIDEO_WIDTH // 2
-    draw.line(
-        [(divider_x, header_y + 10), (divider_x, header_y + header_height - 10)],
-        fill=(255, 255, 255, 100),
-        width=1
-    )
-
-    # Get header metadata (only programa and escritura, no fecha)
+    # Draw TV news-style lower third overlay
     metadata = config.get("video_metadata", {})
     programa = metadata.get("programa", "Ven Sígueme")
     escritura = metadata.get("escritura", "")
 
-    footer_font = get_footer_font(footer_font_size)
-
-    # Draw header text - centered in each section with text wrapping
-    section_width = VIDEO_WIDTH // 2
-    section_padding = 30  # Padding from dividers
-    max_text_width = section_width - (section_padding * 2)
-
-    def draw_wrapped_text(text, center_x, available_width, bar_y, bar_height):
-        """Draw text, wrapping to two lines if needed"""
-        # Get consistent line height using a reference character
-        ref_bbox = draw.textbbox((0, 0), "Mg", font=footer_font)  # Use chars with ascender/descender
-        line_height = ref_bbox[3] - ref_bbox[1]
-
-        bbox = draw.textbbox((0, 0), text, font=footer_font)
-        text_width = bbox[2] - bbox[0]
-
-        # Ajuste visual para centrar mejor el texto (compensar descenders)
-        vertical_offset = -6
-
-        if text_width <= available_width:
-            # Text fits on one line - center vertically using consistent height
-            x = center_x - text_width // 2
-            y = bar_y + (bar_height - line_height) // 2 + vertical_offset
-            draw.text((x, y), text, font=footer_font, fill=(255, 255, 255))
-        else:
-            # Split text into two lines
-            words = text.split()
-            mid = len(words) // 2
-            line1 = ' '.join(words[:mid]) if mid > 0 else words[0]
-            line2 = ' '.join(words[mid:]) if mid > 0 else ' '.join(words[1:])
-
-            # Calculate positions for two lines
-            bbox1 = draw.textbbox((0, 0), line1, font=footer_font)
-            bbox2 = draw.textbbox((0, 0), line2, font=footer_font)
-            line1_width = bbox1[2] - bbox1[0]
-            line2_width = bbox2[2] - bbox2[0]
-
-            line_spacing = 3
-            total_height = line_height * 2 + line_spacing
-            text_start_y = bar_y + (bar_height - total_height) // 2 + vertical_offset
-
-            x1 = center_x - line1_width // 2
-            x2 = center_x - line2_width // 2
-
-            draw.text((x1, text_start_y), line1, font=footer_font, fill=(255, 255, 255))
-            draw.text((x2, text_start_y + line_height + line_spacing), line2, font=footer_font, fill=(255, 255, 255))
-
-    # Program (left section) - center of first half
-    section1_center = section_width // 2
-    draw_wrapped_text(programa, section1_center, max_text_width, header_y, header_height)
-
-    # Scripture (right section) - center of second half
-    section2_center = divider_x + section_width // 2
-    draw_wrapped_text(escritura, section2_center, max_text_width, header_y, header_height)
+    draw_lower_third(draw, config, title, programa, escritura, image_y)
     
     return np.array(frame)
 
