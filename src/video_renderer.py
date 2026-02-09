@@ -96,7 +96,7 @@ def load_images(visual_assets: List[dict]) -> List[Tuple[str, Image.Image, int, 
         img_path = find_image(asset_id)
         
         if img_path:
-            img = Image.open(img_path).convert("RGBA")
+            img = Image.open(img_path).convert("RGB")
             # Resize to 1920x1080 (16:9) if needed
             if img.size != (VIDEO_WIDTH, VIDEO_HEIGHT):
                 # Use cover resize to maintain aspect ratio
@@ -228,6 +228,10 @@ def apply_ken_burns(
         scale_x, 0.0, cx,
         0.0, scale_y, cy,
     )
+
+    # Convert to RGB before transform - RGBA affine transforms are extremely slow
+    if image.mode == "RGBA":
+        image = image.convert("RGB")
 
     # BICUBIC resampling gives smooth sub-pixel interpolation with no jitter
     result = image.transform(
