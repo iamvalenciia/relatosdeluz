@@ -560,7 +560,15 @@ def render_video(output_path: Path) -> None:
             )
             return vol
 
-        music_dynamic = music_clip.fl(lambda gf, t: gf(t) * music_volume(t), keep_duration=True)
+        def apply_music_volume(gf, t):
+            audio_data = gf(t)
+            vol = music_volume(t)
+            # Reshape volume for broadcasting with stereo audio (N,2)
+            if isinstance(vol, np.ndarray) and vol.ndim == 1 and audio_data.ndim == 2:
+                vol = vol[:, np.newaxis]
+            return audio_data * vol
+
+        music_dynamic = music_clip.fl(apply_music_volume, keep_duration=True)
 
         final_audio = CompositeAudioClip([music_dynamic, narration_boosted]).set_duration(video_clip.duration)
     else:
