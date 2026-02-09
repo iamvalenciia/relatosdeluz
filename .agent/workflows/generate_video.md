@@ -117,11 +117,45 @@ python render_video.py
 The renderer:
 - Applies Ken Burns effect to images
 - Renders title with gold (#FFD700) highlight on UPPERCASE words
-- Adds navy blue footer bar with program name and scripture reference
+- Draws TV news-style lower third overlay (blue title bar + orange program/scripture bar)
 - Adds **2.5 seconds of music-only tail** after narration ends for smooth loop transition
 - Encodes with NVIDIA NVENC (GPU) or falls back to libx264
 
-### 8. Verify Output
+### 8. Generate Thumbnail
+```bash
+python generate_thumbnail.py
+```
+The thumbnail generator creates a professional YouTube thumbnail (1280x720):
+- Uses the most impactful image from the video (auto-selects first visual asset)
+- Applies dark navy gradient overlay for text readability
+- Renders title with Montserrat ExtraBold font, UPPERCASE words in gold
+- Adds orange scripture badge (bottom-left) and blue "VEN SÍGUEME" badge (bottom-right)
+- Gold accent line above title
+
+**AI Agent should determine the best configuration:**
+1. Review all generated images in `data/images/` and select the most visually dramatic one
+2. Update `data/thumbnail_config.json`:
+   - Set `image.source` to `"asset"` and `image.asset_id` to the chosen image ID (e.g., `"1a"`)
+   - Adjust `image.zoom` (1.0-1.3) and `image.pan_x`/`image.pan_y` (-0.5 to 0.5) for best framing
+   - Optionally customize `title.custom_text` for a shorter/punchier thumbnail title (3-5 words max)
+   - Set `title.text` to `"custom"` if using custom text, or `"auto"` to use script topic
+3. Run `python generate_thumbnail.py`
+4. Review output at `data/output/thumbnail.png`
+
+**Thumbnail Title Best Practices:**
+- Maximum 3-5 words (shorter than video title for CTR)
+- Use question format or bold declaration
+- UPPERCASE 1-2 key words for gold highlighting
+- Example: video title "El día que José Smith SANÓ a un pueblo entero" → thumbnail: "JOSÉ SMITH Sanó un Pueblo"
+
+**Required Fonts** (download from Google Fonts → `data/fonts/`):
+- `Montserrat-ExtraBold.ttf` — primary headline font
+- `Montserrat-Bold.ttf` — badge text font
+- Alternative: `Oswald-SemiBold.ttf` for longer Spanish text
+
+Configuration: `data/thumbnail_config.json`
+
+### 9. Verify Output
 Check `data/output/current.mp4`:
 - [ ] Audio syncs with images correctly
 - [ ] Title is readable, gold highlight words are visible
@@ -131,6 +165,15 @@ Check `data/output/current.mp4`:
 - [ ] Images look like LDS sacred art (no Catholic imagery, no deformations)
 - [ ] No audio bleeding or distortion
 
+Check `data/output/thumbnail.png`:
+- [ ] Image is visually dramatic and clear at small sizes
+- [ ] Title text is readable on mobile (large, high contrast)
+- [ ] UPPERCASE words highlighted in gold
+- [ ] Scripture badge visible (orange, bottom-left)
+- [ ] "VEN SÍGUEME" badge visible (blue, bottom-right)
+- [ ] No text overlapping or cut off
+- [ ] Overall professional appearance
+
 ## Content Ideas Generation
 To generate 20 video ideas from Ven Sígueme text:
 1. Read `data/PROMPT_VIDEO_IDEAS.txt`
@@ -139,7 +182,8 @@ To generate 20 video ideas from Ven Sígueme text:
 4. Categories: Prophets/Leaders SUD, Doctrine, Testimonies, Christ's Mission
 
 ## Output
-Final video: `data/output/current.mp4`
+- Final video: `data/output/current.mp4`
+- Thumbnail: `data/output/thumbnail.png` (1280x720)
 
 ## Common Issues & Solutions
 
@@ -156,3 +200,6 @@ Final video: `data/output/current.mp4`
 | Images have Catholic elements | image_generator.py enforces "NO CROSSES, NO HALOS, NO WINGS" |
 | Loop feels like repetition | Use thematic connection, not question-repeat or mid-sentence cut |
 | Video too short | Script must be 80-90 seconds (200+ words) |
+| Thumbnail text too small | Increase `title.font_size` in thumbnail_config.json (recommended: 72-90) |
+| Thumbnail fonts not found | Download Montserrat from Google Fonts → `data/fonts/` |
+| Thumbnail image not found | Run `generate_images.py` first, or set `image.custom_path` |

@@ -1,0 +1,82 @@
+{
+  "thumbnail": {
+    "width": 1280,
+    "height": 720,
+    "output_path": "data/output/thumbnail.png",
+
+    "image": {
+      "source": "auto",
+      "asset_id": null,
+      "custom_path": null,
+      "zoom": 1.15,
+      "pan_x": 0.0,
+      "pan_y": -0.05
+    },
+
+    "gradient_overlay": {
+      "enabled": true,
+      "start_y_percent": 35,
+      "max_opacity": 225,
+      "color": [10, 22, 40],
+      "curve_exponent": 1.5
+    },
+
+    "title": {
+      "text": "auto",
+      "custom_text": null,
+      "font": "Montserrat-ExtraBold.ttf",
+      "font_size": 82,
+      "color": "#FFFFFF",
+      "highlight_color": "#FFD700",
+      "stroke_width": 5,
+      "stroke_color": "#0A1628",
+      "shadow_offset": [3, 3],
+      "shadow_color": "#00000080",
+      "max_width_percent": 85,
+      "position_y_percent": 62,
+      "align": "left",
+      "margin_left": 60,
+      "line_spacing": 14,
+      "max_lines": 3
+    },
+
+    "scripture_badge": {
+      "enabled": true,
+      "text": "auto",
+      "custom_text": null,
+      "font": "Montserrat-Bold.ttf",
+      "font_size": 32,
+      "text_color": "#FFFFFF",
+      "background_color": "#E87722",
+      "padding_h": 20,
+      "padding_v": 8,
+      "margin_left": 60,
+      "margin_bottom": 40,
+      "corner_radius": 6
+    },
+
+    "branding": {
+      "enabled": true,
+      "text": "VEN SÍGUEME",
+      "font": "Montserrat-Bold.ttf",
+      "font_size": 26,
+      "text_color": "#FFFFFF",
+      "background_color": "#005DA6",
+      "padding_h": 16,
+      "padding_v": 6,
+      "position": "bottom_right",
+      "margin_right": 40,
+      "margin_bottom": 40,
+      "corner_radius": 6
+    },
+
+    "accent_line": {
+      "enabled": true,
+      "color": "#FFD700",
+      "height": 4,
+      "margin_left": 60,
+      "width_percent": 25,
+      "margin_bottom_from_title": 12
+    }
+  }
+}
