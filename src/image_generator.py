@@ -58,7 +58,7 @@ def format_image_prompt(original_prompt: str) -> str:
         f"NO glowing eyes, NO golden tears, NO fantasy elements, "
         f"NO text, NO letters, NO numbers visible in the image. "
         f"Family friendly, Latter-day Saint reverent atmosphere. "
-        f"Square 1:1 aspect ratio. Ultra-detailed, high resolution artwork."
+        f"Horizontal 16:9 aspect ratio. Ultra-detailed, high resolution artwork."
     )
 
 
@@ -104,7 +104,7 @@ def generate_image_with_gemini(prompt: str, asset_id: str, retry_count: int = 3)
                 config=types.GenerateContentConfig(
                     response_modalities=['IMAGE'],
                     image_config=types.ImageConfig(
-                        aspect_ratio="1:1",
+                        aspect_ratio="16:9",
                     )
                 )
             )
