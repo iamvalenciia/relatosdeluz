@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "helamans-videos": {
+      "command": "python",
+      "args": ["C:/Users/juanf/OneDrive/Escritorio/helamans-videos/mcp_server.py"],
+      "env": {
+        "ELEVEN_LABS_API_KEY": "tu_eleven_labs_api_key_aqui",
+        "GEMINI_API_KEY": "tu_gemini_api_key_aqui"
+      }
+    }
+  }
+}

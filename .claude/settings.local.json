@@ -10,7 +10,9 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "WebFetch(domain:www.churchofjesuschrist.org)",
-      "WebFetch(domain:www.thechurchnews.com)"
+      "WebFetch(domain:www.thechurchnews.com)",
+      "Bash(python3:*)",
+      "Bash(git add:*)"
     ]
   }
 }
