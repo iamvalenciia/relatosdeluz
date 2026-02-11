@@ -82,35 +82,56 @@ def find_image(visual_asset_id: str) -> Optional[Path]:
     return None
 
 
-def load_images(visual_assets: List[dict]) -> List[Tuple[str, Image.Image, int, int]]:
+def _time_from_word_index(word_index: int, whisper_words: list, field: str = "start") -> float:
+    """Legacy helper: look up a time from a word index in Whisper words."""
+    for w in whisper_words:
+        if w.get("index", -1) == word_index:
+            return w.get(field, 0.0)
+    return 0.0
+
+
+def load_images(
+    visual_assets: List[dict],
+    timestamps_words: list = None,
+) -> List[Tuple[str, Image.Image, float, float]]:
     """
     Load all images referenced in visual_assets.
     Images are resized to 1920x1080 (16:9) for horizontal video.
-    
+
     Returns:
-        List of (asset_id, PIL Image, start_word_index, end_word_index)
+        List of (asset_id, PIL Image, start_time, end_time)
+
+    If assets have start_time/end_time (set by align_timestamps), uses those directly.
+    Otherwise falls back to computing time from start_word_index/end_word_index + Whisper.
     """
     images = []
     for asset in visual_assets:
         asset_id = asset.get("visual_asset_id")
         img_path = find_image(asset_id)
-        
+
         if img_path:
             img = Image.open(img_path).convert("RGB")
             # Resize to 1920x1080 (16:9) if needed
             if img.size != (VIDEO_WIDTH, VIDEO_HEIGHT):
-                # Use cover resize to maintain aspect ratio
                 img = resize_cover(img, VIDEO_WIDTH, VIDEO_HEIGHT)
-            images.append((
-                asset_id,
-                img,
-                asset.get("start_word_index", 0),
-                asset.get("end_word_index", 0)
-            ))
-            print(f"Loaded image: {asset_id} ({img_path.name})")
+
+            # Prefer direct time ranges (set by content-based aligner)
+            if "start_time" in asset and "end_time" in asset:
+                start_t = float(asset["start_time"])
+                end_t = float(asset["end_time"])
+            elif timestamps_words:
+                # Legacy fallback: compute from word indices
+                start_t = _time_from_word_index(asset.get("start_word_index", 0), timestamps_words, "start")
+                end_t = _time_from_word_index(asset.get("end_word_index", 0), timestamps_words, "end")
+            else:
+                start_t = 0.0
+                end_t = 0.0
+
+            images.append((asset_id, img, start_t, end_t))
+            print(f"Loaded image: {asset_id} ({img_path.name}) [{start_t:.1f}s - {end_t:.1f}s]")
         else:
             print(f"WARNING: Image not found for asset_id: {asset_id}")
-    
+
     return images
 
 
@@ -406,31 +427,26 @@ def create_frame(
 
 def get_current_image_index(
     frame_time: float,
-    images: List[Tuple[str, Image.Image, int, int]],
+    images: List[Tuple[str, Image.Image, float, float]],
     timestamps: dict
 ) -> Tuple[int, float]:
-    """Determine which image should be shown at a given time."""
-    words = timestamps.get("words", [])
-    if not images or not words:
+    """
+    Determine which image should be shown at a given frame time.
+
+    Uses start_time/end_time stored directly on each image tuple.
+    The timestamps parameter is kept for signature compatibility but
+    is no longer used when assets have direct time ranges.
+    """
+    if not images:
         return 0, 0.5
-    
-    time_ranges = []
-    for i, (asset_id, img, start_idx, end_idx) in enumerate(images):
-        image_end_time = 0.0
-        for word in words:
-            if word.get("index", 0) == end_idx:
-                image_end_time = word.get("end", 0.0)
-                break
-        time_ranges.append(image_end_time)
-    
-    prev_end = 0.0
-    for i, end_time in enumerate(time_ranges):
-        if prev_end <= frame_time <= end_time:
-            duration = end_time - prev_end
-            progress = (frame_time - prev_end) / duration if duration > 0 else 0.5
+
+    for i, (asset_id, img, start_time, end_time) in enumerate(images):
+        if start_time <= frame_time <= end_time:
+            duration = end_time - start_time
+            progress = (frame_time - start_time) / duration if duration > 0 else 0.5
             return i, max(0.0, min(1.0, progress))
-        prev_end = end_time
-    
+
+    # Past all images -> show last one
     return len(images) - 1, 1.0
 
 
@@ -460,7 +476,7 @@ def render_video(output_path: Path) -> None:
     narration = script_data.get("narration", {})
     visual_assets = narration.get("visual_assets", [])
     
-    images = load_images(visual_assets)
+    images = load_images(visual_assets, timestamps.get("words", []))
     if not images:
         raise ValueError("No images found.")
     

@@ -248,6 +248,8 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
 REGLAS DEL JSON:
 - visual_assets: Mínimo 10, máximo 14 imágenes para cubrir 2-3 minutos
 - Cada imagen cubre 25-40 palabras de narración (NO cuentes audio tags como palabras)
+- IMPORTANTE: Para contar los word indices, primero quita mentalmente todos los audio tags ([softly], [pause], etc.) del texto. Los word indices se basan SOLO en las palabras habladas, no en los tags.
+- Ejemplo: "[softly] En los días de Noé [pause] la tierra" -> "En"=0, "los"=1, "días"=2, "de"=3, "Noé"=4, "la"=5, "tierra"=6
 - start_word_index y end_word_index son consecutivos sin saltos
 - Los word indices empiezan en 0 y cubren TODO el full_text sin huecos
 - visual_asset_id: "1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j", "1k", "1l", "1m", "1n"

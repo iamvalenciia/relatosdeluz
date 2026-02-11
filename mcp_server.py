@@ -353,11 +353,10 @@ async def list_tools() -> list[Tool]:
             name="align_timestamps",
             description=(
                 "CRITICAL STEP: Run this AFTER generate_audio and BEFORE render_video. "
-                "Compares script word indices with Whisper timestamp indices and fixes mismatches. "
-                "The sanitizer may modify the narration text before ElevenLabs, and Whisper may "
-                "tokenize words differently than the script. This tool fuzzy-matches each script "
-                "word to its Whisper equivalent and remaps all visual_assets start/end_word_index. "
-                "Use auto_fix=true to automatically save the corrected script, or false for dry-run report."
+                "Uses content-based matching to find where each visual asset's narration "
+                "appears in the Whisper transcript, then sets start_time/end_time (seconds) "
+                "directly on each asset. This eliminates fragile word-index remapping. "
+                "Use auto_fix=true to save the corrected script, or false for a dry-run report."
             ),
             inputSchema={
                 "type": "object",
@@ -680,6 +679,11 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
 
         text = sanitize_narration(text)
         voice_id = config.get("voice_id", "YqZLNYWZm98oKaaLZkUA")
+
+        # Save sanitized text for alignment reference
+        sanitized_path = AUDIO_DIR / "current_sanitized.txt"
+        with open(sanitized_path, "w", encoding="utf-8") as f:
+            f.write(text)
 
         audio_path = AUDIO_DIR / "current.mp3"
         timestamps_path = AUDIO_DIR / "current_timestamps.json"
