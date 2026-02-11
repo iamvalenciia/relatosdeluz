@@ -1,18 +1,20 @@
 """
 Thumbnail Generator - Professional YouTube thumbnails for LDS Ven Sígueme content.
 
+Supports 7 layout presets for visual variety:
+  luminoso, dramatico, celestial, profeta, esperanza, impacto, minimalista
+
 Design principles (research-backed for 45-65+ Spanish-speaking LDS audience):
-- Full-bleed sacred art image with dark navy gradient overlay (bottom 35-45%)
-- Large Montserrat ExtraBold text (72-90px), UPPERCASE words highlighted in gold
-- Scripture badge (orange) + "VEN SÍGUEME" brand badge (blue)
-- Gold accent line above title for visual separation
+- Full-bleed sacred art image with configurable gradient overlays
+- Large text with UPPERCASE words highlighted in accent color
+- Scripture badge + "VEN SÍGUEME" brand badge
 - High contrast (7:1+) for older demographic readability
 - 3-5 words max in title for CTR optimization
 
 Fonts recommended (download from Google Fonts → data/fonts/):
   - Montserrat-ExtraBold.ttf (primary headline)
   - Montserrat-Bold.ttf (badges, secondary text)
-  - Oswald-SemiBold.ttf (alternative for longer Spanish text)
+  - Cinzel-Bold.ttf (elegant serif alternative)
 """
 
 import json
@@ -200,20 +202,37 @@ def crop_to_thumbnail(
     return cropped.resize((THUMB_WIDTH, THUMB_HEIGHT), Image.Resampling.LANCZOS)
 
 
-def apply_gradient_overlay(
-    image: Image.Image,
-    config: dict
-) -> Image.Image:
-    """
-    Apply a bottom-to-transparent gradient overlay for text readability.
+# ── Overlay Effects ──────────────────────────────────────────────────
 
-    Uses a dark navy blue gradient with configurable opacity and curve.
+def apply_color_wash(image: Image.Image, config: dict) -> Image.Image:
+    """Apply a subtle color tint over the entire image."""
+    wash_cfg = config.get("color_wash", {})
+    if not wash_cfg.get("enabled", False):
+        return image
+
+    color = tuple(wash_cfg.get("color", [255, 200, 120]))
+    opacity = wash_cfg.get("opacity", 25)
+
+    rgba = image.convert("RGBA")
+    overlay = Image.new("RGBA", rgba.size, (*color, opacity))
+    return Image.alpha_composite(rgba, overlay)
+
+
+def apply_gradient_overlay(image: Image.Image, config: dict) -> Image.Image:
+    """
+    Apply a gradient overlay for text readability.
+
+    Supports multiple directions:
+    - bottom_to_top: dark at bottom, transparent at top (default/classic)
+    - top_to_bottom: color at top, transparent at bottom
+    - left_to_right: color at left, transparent at right
     """
     grad_cfg = config.get("gradient_overlay", {})
     if not grad_cfg.get("enabled", True):
         return image
 
-    start_y_pct = grad_cfg.get("start_y_percent", 35)
+    direction = grad_cfg.get("direction", "bottom_to_top")
+    start_pct = grad_cfg.get("start_y_percent", 35)
     max_opacity = grad_cfg.get("max_opacity", 225)
     color = tuple(grad_cfg.get("color", [10, 22, 40]))
     curve = grad_cfg.get("curve_exponent", 1.5)
@@ -221,19 +240,116 @@ def apply_gradient_overlay(
     rgba = image.convert("RGBA")
     overlay = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
+    width, height = rgba.size
+
+    if direction == "bottom_to_top":
+        start_y = int(height * start_pct / 100)
+        span = height - start_y
+        if span <= 0:
+            return image
+        for y in range(start_y, height):
+            progress = (y - start_y) / span
+            alpha = min(int(max_opacity * (progress ** curve)), 255)
+            draw.rectangle([0, y, width, y + 1], fill=(*color, alpha))
+
+    elif direction == "top_to_bottom":
+        end_y = int(height * (100 - start_pct) / 100)
+        if end_y <= 0:
+            return image
+        for y in range(0, end_y):
+            progress = 1.0 - (y / end_y)
+            alpha = min(int(max_opacity * (progress ** curve)), 255)
+            draw.rectangle([0, y, width, y + 1], fill=(*color, alpha))
+
+    elif direction == "left_to_right":
+        end_x = int(width * (100 - start_pct) / 100)
+        if end_x <= 0:
+            return image
+        for x in range(0, end_x):
+            progress = 1.0 - (x / end_x)
+            alpha = min(int(max_opacity * (progress ** curve)), 255)
+            draw.rectangle([x, 0, x + 1, height], fill=(*color, alpha))
+
+    return Image.alpha_composite(rgba, overlay)
+
+
+def apply_bottom_band(image: Image.Image, config: dict) -> Image.Image:
+    """Apply a solid semi-transparent band at the bottom of the image."""
+    band_cfg = config.get("bottom_band", {})
+    if not band_cfg.get("enabled", False):
+        return image
+
+    height_pct = band_cfg.get("height_percent", 20)
+    color = tuple(band_cfg.get("color", [255, 255, 255]))
+    opacity = band_cfg.get("opacity", 180)
+
+    rgba = image.convert("RGBA")
+    overlay = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
 
     width, height = rgba.size
-    start_y = int(height * start_y_pct / 100)
+    band_y = int(height * (100 - height_pct) / 100)
 
-    for y in range(start_y, height):
-        progress = (y - start_y) / (height - start_y)
-        alpha = int(max_opacity * (progress ** curve))
-        alpha = min(alpha, 255)
+    draw.rectangle([0, band_y, width, height], fill=(*color, opacity))
+
+    # Optional top line on the band
+    top_line = band_cfg.get("top_line", {})
+    if top_line.get("enabled", False):
+        line_color = hex_to_rgb(top_line.get("color", "#FFFFFF"))
+        line_height = top_line.get("height", 2)
+        if len(line_color) == 3:
+            line_color = (*line_color, 255)
+        draw.rectangle([0, band_y, width, band_y + line_height], fill=line_color)
+
+    return Image.alpha_composite(rgba, overlay)
+
+
+def apply_vignette(image: Image.Image, config: dict) -> Image.Image:
+    """Darken the edges of the image for a cinematic vignette effect."""
+    vig_cfg = config.get("vignette", {})
+    if not vig_cfg.get("enabled", False):
+        return image
+
+    strength = vig_cfg.get("strength", 0.4)
+    color = tuple(vig_cfg.get("color", [0, 0, 0]))
+
+    rgba = image.convert("RGBA")
+    overlay = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+    width, height = rgba.size
+
+    edge_size_x = int(width * 0.2)
+    edge_size_y = int(height * 0.2)
+    max_alpha = int(255 * strength)
+
+    # Top edge
+    for y in range(edge_size_y):
+        progress = 1.0 - (y / edge_size_y)
+        alpha = int(max_alpha * (progress ** 2))
         draw.rectangle([0, y, width, y + 1], fill=(*color, alpha))
 
-    composited = Image.alpha_composite(rgba, overlay)
-    return composited
+    # Bottom edge
+    for y in range(height - edge_size_y, height):
+        progress = (y - (height - edge_size_y)) / edge_size_y
+        alpha = int(max_alpha * (progress ** 2))
+        draw.rectangle([0, y, width, y + 1], fill=(*color, alpha))
 
+    # Left edge
+    for x in range(edge_size_x):
+        progress = 1.0 - (x / edge_size_x)
+        alpha = int(max_alpha * (progress ** 2))
+        draw.rectangle([x, 0, x + 1, height], fill=(*color, alpha))
+
+    # Right edge
+    for x in range(width - edge_size_x, width):
+        progress = (x - (width - edge_size_x)) / edge_size_x
+        alpha = int(max_alpha * (progress ** 2))
+        draw.rectangle([x, 0, x + 1, height], fill=(*color, alpha))
+
+    return Image.alpha_composite(rgba, overlay)
+
+
+# ── Drawing Elements ─────────────────────────────────────────────────
 
 def draw_rounded_rectangle(
     draw: ImageDraw.Draw,
@@ -244,6 +360,10 @@ def draw_rounded_rectangle(
     """Draw a rectangle with rounded corners."""
     x1, y1, x2, y2 = xy
     r = min(radius, (x2 - x1) // 2, (y2 - y1) // 2)
+
+    if r <= 0:
+        draw.rectangle([x1, y1, x2, y2], fill=fill)
+        return
 
     # Main rectangle minus corners
     draw.rectangle([x1 + r, y1, x2 - r, y2], fill=fill)
@@ -306,16 +426,14 @@ def draw_title_text(
     image: Image.Image,
     title: str,
     config: dict
-) -> Image.Image:
+) -> Tuple[Image.Image, int, int, int]:
     """
-    Draw the title text with word-level gold highlighting on UPPERCASE words.
+    Draw the title text with word-level highlighting on UPPERCASE words.
 
-    Features:
-    - Large bold font (Montserrat ExtraBold)
-    - White text with gold highlights on CAPS words
-    - Dark stroke outline for readability
-    - Subtle drop shadow
-    - Left-aligned, positioned in lower portion over gradient
+    Supports left, center, and right alignment.
+
+    Returns (image, title_top_y, title_bottom_y, title_center_x) for accent
+    element positioning.
     """
     title_cfg = config.get("title", {})
     font_name = title_cfg.get("font", "Montserrat-ExtraBold.ttf")
@@ -331,6 +449,7 @@ def draw_title_text(
     margin_left = title_cfg.get("margin_left", 60)
     line_spacing = title_cfg.get("line_spacing", 14)
     max_lines = title_cfg.get("max_lines", 3)
+    align = title_cfg.get("align", "left")
 
     # Use custom text if provided
     custom_text = title_cfg.get("custom_text")
@@ -352,14 +471,31 @@ def draw_title_text(
     line_height = ref_bbox[3] - ref_bbox[1]
 
     # Position: start_y based on percent
-    total_text_height = line_height * len(lines) + line_spacing * (len(lines) - 1)
     start_y = int(THUMB_HEIGHT * pos_y_pct / 100)
+
+    # Track title bounds for accent element positioning
+    title_top_y = start_y
+    title_bottom_y = start_y
+    title_center_x = THUMB_WIDTH // 2
 
     # Draw each line with word-level highlighting
     for i, line in enumerate(lines):
         y = start_y + i * (line_height + line_spacing)
+        title_bottom_y = y + line_height
+
         words = line.split(' ')
-        current_x = margin_left
+
+        # Calculate line width for alignment
+        line_bbox = draw.textbbox((0, 0), line, font=font)
+        line_width = line_bbox[2] - line_bbox[0]
+
+        if align == "center":
+            current_x = (THUMB_WIDTH - line_width) // 2
+        elif align == "right":
+            margin_right = title_cfg.get("margin_right", 60)
+            current_x = THUMB_WIDTH - line_width - margin_right
+        else:  # left
+            current_x = margin_left
 
         for wi, word in enumerate(words):
             # Check if word is highlighted (UPPERCASE, 2+ chars)
@@ -373,10 +509,11 @@ def draw_title_text(
 
             # Shadow layer
             sx, sy = shadow_offset
-            draw.text(
-                (current_x + sx, y + sy), display_word,
-                font=font, fill=shadow_color
-            )
+            if sx != 0 or sy != 0:
+                draw.text(
+                    (current_x + sx, y + sy), display_word,
+                    font=font, fill=shadow_color
+                )
 
             # Stroke + main text
             draw.text(
@@ -389,15 +526,197 @@ def draw_title_text(
             wbbox = draw.textbbox((0, 0), display_word, font=font)
             current_x += wbbox[2] - wbbox[0]
 
-    return Image.alpha_composite(rgba, txt_layer)
+    result = Image.alpha_composite(rgba, txt_layer)
+    return result, title_top_y, title_bottom_y, title_center_x
 
+
+# ── Accent Elements ──────────────────────────────────────────────────
+
+def draw_accent_element(
+    image: Image.Image,
+    title_config: dict,
+    config: dict,
+    title_top_y: int,
+    title_bottom_y: int
+) -> Image.Image:
+    """
+    Draw accent elements based on type. Supports multiple styles.
+
+    Falls back to legacy accent_line config if accent_element is not present.
+    """
+    # Check for new accent_element config first
+    accent_cfg = config.get("accent_element", {})
+
+    # Fall back to legacy accent_line if accent_element not present
+    if not accent_cfg:
+        accent_cfg = config.get("accent_line", {})
+        if accent_cfg.get("enabled", False):
+            accent_cfg["type"] = "line_above"
+        else:
+            return image
+
+    if not accent_cfg.get("enabled", True):
+        return image
+
+    element_type = accent_cfg.get("type", "line_above")
+
+    if element_type == "line_above":
+        return _draw_line_above(image, title_config, accent_cfg, title_top_y)
+    elif element_type == "divider_below":
+        return _draw_divider_below(image, title_config, accent_cfg, title_bottom_y)
+    elif element_type == "frame":
+        return _draw_frame(image, title_config, accent_cfg, title_top_y, title_bottom_y)
+    elif element_type == "vertical_line":
+        return _draw_vertical_line(image, accent_cfg)
+    elif element_type == "diamond":
+        return _draw_diamond(image, title_config, accent_cfg, title_top_y, title_bottom_y)
+    return image
+
+
+def _draw_line_above(
+    image: Image.Image, title_cfg: dict, accent_cfg: dict, title_top_y: int
+) -> Image.Image:
+    """Draw a horizontal accent line above the title."""
+    color = hex_to_rgb(accent_cfg.get("color", "#FFD700"))
+    height = accent_cfg.get("height", 4)
+    margin_left = accent_cfg.get("margin_left", 60)
+    width_pct = accent_cfg.get("width_percent", 25)
+    margin_below = accent_cfg.get("margin_bottom_from_title", 12)
+
+    line_y = title_top_y - margin_below - height
+    line_width = int(THUMB_WIDTH * width_pct / 100)
+
+    align = title_cfg.get("align", "left")
+    if align == "center":
+        line_x = (THUMB_WIDTH - line_width) // 2
+    else:
+        line_x = margin_left
+
+    rgba = image.convert("RGBA")
+    draw = ImageDraw.Draw(rgba)
+    draw.rectangle(
+        [line_x, line_y, line_x + line_width, line_y + height],
+        fill=color
+    )
+    return rgba
+
+
+def _draw_divider_below(
+    image: Image.Image, title_cfg: dict, accent_cfg: dict, title_bottom_y: int
+) -> Image.Image:
+    """Draw a horizontal divider line below the title."""
+    color = hex_to_rgb(accent_cfg.get("color", "#B8860B"))
+    height = accent_cfg.get("height", 2)
+    width_pct = accent_cfg.get("width_percent", 30)
+    margin_from_title = accent_cfg.get("margin_from_title", 12)
+
+    line_width = int(THUMB_WIDTH * width_pct / 100)
+    line_y = title_bottom_y + margin_from_title
+
+    align = title_cfg.get("align", "left")
+    if align == "center":
+        line_x = (THUMB_WIDTH - line_width) // 2
+    else:
+        margin_left = title_cfg.get("margin_left", 60)
+        line_x = margin_left
+
+    rgba = image.convert("RGBA")
+    draw = ImageDraw.Draw(rgba)
+    draw.rectangle(
+        [line_x, line_y, line_x + line_width, line_y + height],
+        fill=color
+    )
+    return rgba
+
+
+def _draw_frame(
+    image: Image.Image, title_cfg: dict, accent_cfg: dict,
+    title_top_y: int, title_bottom_y: int
+) -> Image.Image:
+    """Draw two lines (above and below) the title as an elegant frame."""
+    color = hex_to_rgb(accent_cfg.get("color", "#FFD700"))
+    height = accent_cfg.get("height", 2)
+    width_pct = accent_cfg.get("width_percent", 45)
+    margin = accent_cfg.get("margin_from_title", 16)
+
+    line_width = int(THUMB_WIDTH * width_pct / 100)
+
+    align = title_cfg.get("align", "left")
+    if align == "center":
+        line_x = (THUMB_WIDTH - line_width) // 2
+    else:
+        margin_left = title_cfg.get("margin_left", 60)
+        line_x = margin_left
+
+    rgba = image.convert("RGBA")
+    draw = ImageDraw.Draw(rgba)
+
+    # Line above
+    top_y = title_top_y - margin - height
+    draw.rectangle([line_x, top_y, line_x + line_width, top_y + height], fill=color)
+
+    # Line below
+    bot_y = title_bottom_y + margin
+    draw.rectangle([line_x, bot_y, line_x + line_width, bot_y + height], fill=color)
+
+    return rgba
+
+
+def _draw_vertical_line(image: Image.Image, accent_cfg: dict) -> Image.Image:
+    """Draw a vertical accent bar on the left side."""
+    color = hex_to_rgb(accent_cfg.get("color", "#F0A030"))
+    width = accent_cfg.get("width", 4)
+    margin_left = accent_cfg.get("margin_left", 40)
+    start_y_pct = accent_cfg.get("start_y_percent", 25)
+    height_pct = accent_cfg.get("height_percent", 50)
+
+    start_y = int(THUMB_HEIGHT * start_y_pct / 100)
+    line_height = int(THUMB_HEIGHT * height_pct / 100)
+
+    rgba = image.convert("RGBA")
+    draw = ImageDraw.Draw(rgba)
+    draw.rectangle(
+        [margin_left, start_y, margin_left + width, start_y + line_height],
+        fill=color
+    )
+    return rgba
+
+
+def _draw_diamond(
+    image: Image.Image, title_cfg: dict, accent_cfg: dict,
+    title_top_y: int, title_bottom_y: int
+) -> Image.Image:
+    """Draw a small rotated diamond shape next to the title."""
+    color = hex_to_rgb(accent_cfg.get("color", "#FFD700"))
+    size = accent_cfg.get("size", 18)
+    margin_left = accent_cfg.get("margin_left", 60)
+
+    # Position diamond to the left of and vertically centered on the title
+    cx = margin_left - size - 10
+    cy = (title_top_y + title_bottom_y) // 2
+
+    # Diamond is a rotated square
+    points = [
+        (cx, cy - size),      # top
+        (cx + size, cy),      # right
+        (cx, cy + size),      # bottom
+        (cx - size, cy),      # left
+    ]
+
+    rgba = image.convert("RGBA")
+    draw = ImageDraw.Draw(rgba)
+    draw.polygon(points, fill=color)
+    return rgba
+
+
+# ── Legacy accent_line (backwards compatibility) ─────────────────────
 
 def draw_accent_line(
     image: Image.Image,
     title_config: dict,
     accent_config: dict
 ) -> Image.Image:
-    """Draw a gold accent line above the title area."""
+    """Draw a gold accent line above the title area. Legacy function."""
     if not accent_config.get("enabled", True):
         return image
 
@@ -423,14 +742,14 @@ def draw_accent_line(
     return rgba
 
 
+# ── Badges ───────────────────────────────────────────────────────────
+
 def draw_scripture_badge(
     image: Image.Image,
     escritura: str,
     config: dict
 ) -> Image.Image:
-    """
-    Draw a scripture reference badge (orange pill) at the bottom left.
-    """
+    """Draw a scripture reference badge. Supports left, center, right alignment."""
     badge_cfg = config.get("scripture_badge", {})
     if not badge_cfg.get("enabled", True) or not escritura:
         return image
@@ -448,7 +767,9 @@ def draw_scripture_badge(
     pad_v = badge_cfg.get("padding_v", 8)
     margin_left = badge_cfg.get("margin_left", 60)
     margin_bottom = badge_cfg.get("margin_bottom", 40)
+    margin_right = badge_cfg.get("margin_right", 40)
     radius = badge_cfg.get("corner_radius", 6)
+    align = badge_cfg.get("align", "left")
 
     font = get_font(font_name, font_size)
     rgba = image.convert("RGBA")
@@ -459,11 +780,20 @@ def draw_scripture_badge(
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
 
-    # Badge position (bottom-left)
-    bx1 = margin_left
+    badge_w = tw + 2 * pad_h
+    badge_h = th + 2 * pad_v
+
     by2 = THUMB_HEIGHT - margin_bottom
-    by1 = by2 - th - 2 * pad_v
-    bx2 = bx1 + tw + 2 * pad_h
+    by1 = by2 - badge_h
+
+    if align == "center":
+        bx1 = (THUMB_WIDTH - badge_w) // 2
+    elif align == "right":
+        bx1 = THUMB_WIDTH - badge_w - margin_right
+    else:  # left
+        bx1 = margin_left
+
+    bx2 = bx1 + badge_w
 
     draw_rounded_rectangle(draw, (bx1, by1, bx2, by2), fill=bg_color, radius=radius)
 
@@ -480,7 +810,8 @@ def draw_branding_badge(
     config: dict
 ) -> Image.Image:
     """
-    Draw the 'VEN SÍGUEME' branding badge (blue pill) at bottom right.
+    Draw the 'VEN SÍGUEME' branding badge.
+    Supports positions: bottom_right, top_right, top_left, bottom_left.
     """
     brand_cfg = config.get("branding", {})
     if not brand_cfg.get("enabled", True):
@@ -495,7 +826,10 @@ def draw_branding_badge(
     pad_v = brand_cfg.get("padding_v", 6)
     margin_right = brand_cfg.get("margin_right", 40)
     margin_bottom = brand_cfg.get("margin_bottom", 40)
+    margin_left = brand_cfg.get("margin_left", 40)
+    margin_top = brand_cfg.get("margin_top", 30)
     radius = brand_cfg.get("corner_radius", 6)
+    position = brand_cfg.get("position", "bottom_right")
 
     font = get_font(font_name, font_size)
     rgba = image.convert("RGBA")
@@ -506,11 +840,34 @@ def draw_branding_badge(
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
 
-    # Badge position (bottom-right)
-    bx2 = THUMB_WIDTH - margin_right
-    bx1 = bx2 - tw - 2 * pad_h
-    by2 = THUMB_HEIGHT - margin_bottom
-    by1 = by2 - th - 2 * pad_v
+    badge_w = tw + 2 * pad_h
+    badge_h = th + 2 * pad_v
+
+    if position == "bottom_right":
+        bx2 = THUMB_WIDTH - margin_right
+        bx1 = bx2 - badge_w
+        by2 = THUMB_HEIGHT - margin_bottom
+        by1 = by2 - badge_h
+    elif position == "top_right":
+        bx2 = THUMB_WIDTH - margin_right
+        bx1 = bx2 - badge_w
+        by1 = margin_top
+        by2 = by1 + badge_h
+    elif position == "top_left":
+        bx1 = margin_left
+        bx2 = bx1 + badge_w
+        by1 = margin_top
+        by2 = by1 + badge_h
+    elif position == "bottom_left":
+        bx1 = margin_left
+        bx2 = bx1 + badge_w
+        by2 = THUMB_HEIGHT - margin_bottom
+        by1 = by2 - badge_h
+    else:  # default bottom_right
+        bx2 = THUMB_WIDTH - margin_right
+        bx1 = bx2 - badge_w
+        by2 = THUMB_HEIGHT - margin_bottom
+        by1 = by2 - badge_h
 
     draw_rounded_rectangle(draw, (bx1, by1, bx2, by2), fill=bg_color, radius=radius)
 
@@ -521,6 +878,8 @@ def draw_branding_badge(
 
     return rgba
 
+
+# ── Main Pipeline ────────────────────────────────────────────────────
 
 def generate_thumbnail(
     output_path: Optional[Path] = None,
@@ -533,17 +892,15 @@ def generate_thumbnail(
     Pipeline:
     1. Load image (from video assets or custom)
     2. Crop to 1280x720 with zoom/pan
-    3. Apply gradient overlay
-    4. Draw gold accent line
-    5. Draw title with CAPS highlights
-    6. Draw scripture badge (orange)
-    7. Draw branding badge (blue)
-    8. Save as PNG
-
-    Args:
-        output_path: Override output file path
-        title_override: Override title text
-        image_path_override: Override source image
+    3. Apply color wash (if enabled)
+    4. Apply gradient overlay
+    5. Apply bottom band (if enabled)
+    6. Apply vignette (if enabled)
+    7. Draw title with CAPS highlights
+    8. Draw accent element
+    9. Draw scripture badge
+    10. Draw branding badge
+    11. Save as PNG
 
     Returns:
         Path to the generated thumbnail
@@ -573,6 +930,9 @@ def generate_thumbnail(
     metadata = config.get("video_metadata", {})
     escritura = metadata.get("escritura", "")
 
+    # Check for layout name in config (for logging)
+    layout_name = thumb_cfg.get("_layout_name", "custom")
+    print(f"Layout: {layout_name}")
     print(f"Title: {title}")
     print(f"Scripture: {escritura}")
 
@@ -601,24 +961,44 @@ def generate_thumbnail(
     )
     print(f"Cropped to {THUMB_WIDTH}x{THUMB_HEIGHT}")
 
-    # 3. Gradient overlay
+    # 3. Color wash (subtle tint over entire image)
+    thumb = apply_color_wash(thumb, thumb_cfg)
+
+    # 4. Gradient overlay
     thumb = apply_gradient_overlay(thumb, thumb_cfg)
 
-    # 4. Accent line
+    # 5. Bottom band (solid color block)
+    thumb = apply_bottom_band(thumb, thumb_cfg)
+
+    # 6. Vignette (darken edges)
+    thumb = apply_vignette(thumb, thumb_cfg)
+
+    # 7. Title text (returns image + position info for accent elements)
     title_cfg = thumb_cfg.get("title", {})
-    accent_cfg = thumb_cfg.get("accent_line", {})
-    thumb = draw_accent_line(thumb, title_cfg, accent_cfg)
+    thumb, title_top_y, title_bottom_y, title_center_x = draw_title_text(
+        thumb, title, thumb_cfg
+    )
 
-    # 5. Title text
-    thumb = draw_title_text(thumb, title, thumb_cfg)
+    # 8. Accent element (uses title position for alignment)
+    # Check if new accent_element system is configured; otherwise use legacy accent_line
+    has_accent_element = "accent_element" in thumb_cfg
+    has_legacy_accent = "accent_line" in thumb_cfg
 
-    # 6. Scripture badge
+    if has_accent_element:
+        thumb = draw_accent_element(
+            thumb, title_cfg, thumb_cfg, title_top_y, title_bottom_y
+        )
+    elif has_legacy_accent:
+        accent_cfg = thumb_cfg.get("accent_line", {})
+        thumb = draw_accent_line(thumb, title_cfg, accent_cfg)
+
+    # 9. Scripture badge
     thumb = draw_scripture_badge(thumb, escritura, thumb_cfg)
 
-    # 7. Branding badge
+    # 10. Branding badge
     thumb = draw_branding_badge(thumb, thumb_cfg)
 
-    # 8. Save
+    # 11. Save
     if output_path is None:
         out_str = thumb_cfg.get("output_path", "data/output/thumbnail.png")
         output_path = BASE_DIR / out_str
