@@ -158,7 +158,7 @@ def generate_audio(text: str, voice_id: str, output_path: Path) -> None:
         voice_id=voice_id,
         text=text,
         model_id="eleven_v3",  # V3 model supports audio tags
-        output_format="mp3_44100_192"  # Higher quality: 192kbps
+        output_format="mp3_44100_128"  # Higher quality: 128kbps
     )
     
     # Write audio to file
