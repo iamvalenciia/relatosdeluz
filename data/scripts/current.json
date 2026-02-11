@@ -1,123 +1,106 @@
 {
-    "script": {
-        "id": "current",
-        "title_youtube": "3 Señales de los \"Días de Noé\" que ves HOY",
-        "title_internal": "Las Tres Señales de los Días de Noé que se Cumplen en Nuestro Tiempo",
-        "background_music": "revelations.mp3",
-        "narration": {
-            "full_text": "En los días de Noé, la tierra entera estaba corrompida. No era solo una ciudad, no era solo un pueblo. Era todo el mundo sumergido en violencia y maldad. [pause] Y Jesucristo mismo nos advirtió que antes de Su regreso, veríamos exactamente lo mismo. [pensive] Moisés 8 describe que la tierra estaba llena de violencia, y que la maldad dominaba el corazón de los hombres continuamente. Cada pensamiento, cada intención, era solo maldad. [pause] La primera señal es la violencia generalizada. En tiempos de Noé, la tierra estaba tan corrompida que Dios declaró que había llegado el fin de toda carne. Hoy vemos guerras, crímenes, y un desprecio creciente por la vida humana que habría sido impensable hace pocas décadas. [warmly] La segunda señal es la corrupción moral. Moisés 8 nos dice que los hombres no escuchaban la voz de Dios. Rechazaron a los profetas. Se burlaron de Noé mientras construía el arca. Hoy, las voces proféticas son igualmente ignoradas y ridiculizadas por un mundo que prefiere sus propios caminos. [pause] La tercera señal es la indiferencia espiritual. En José Smith—Mateo 1:41, el Señor advierte que como en los días antes del diluvio, la gente estaba comiendo, bebiendo, casándose, sin saber lo que vendría hasta que fue demasiado tarde. [pensive] Vivían sus vidas normales, completamente ajenos al juicio que se acercaba. [pause] Pero aquí está la esperanza que Noé encontró. Mientras el mundo se hundía en las tinieblas, él halló gracia ante los ojos del Señor. Él construyó un arca. [warmly] Hoy, el Señor nos ha dado nuestras propias arcas. Los templos sagrados donde hacemos convenios eternos. Nuestros hogares convertidos en santuarios de fe. [hopeful] El Profeta Russell M. Nelson ha enseñado que nuestros hogares pueden ser lugares de refugio del mundo. [awe] El patrón se repite, pero también se repite la promesa. Dios siempre prepara un camino de escape para los fieles. [warmly] La pregunta no es si las señales se están cumpliendo. La pregunta es si estamos construyendo nuestra arca. El arca de la fe, del arrepentimiento, de los convenios sagrados. [hopeful] Porque cuando las aguas suban, solo aquellos que hayan entrado en el arca del Señor estarán a salvo.",
-            "visual_assets": [
-                {
-                    "visual_asset_id": "1a",
-                    "start_word_index": 0,
-                    "end_word_index": 28,
-                    "narration_summary": "En los días de Noé, la tierra estaba corrompida... violencia y maldad",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a dramatic panoramic view of an ancient world consumed by chaos, with distant cities burning under a dark stormy sky at sunset. In the foreground, people in ancient robes engage in violent conflict while others look on with indifference. The scene conveys moral decay and societal collapse. Rich warm color palette with deep oranges and reds contrasting with dark shadows, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1b",
-                    "start_word_index": 29,
-                    "end_word_index": 42,
-                    "narration_summary": "Y Jesucristo mismo nos advirtió que veríamos exactamente lo mismo",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting the prophet Noah as a dignified elderly man with a long gray beard, wearing simple linen robes, standing alone on a hillside preaching to an indifferent crowd. His arms are outstretched in a gesture of warning and pleading. The crowd of ancient people in the background turns away dismissively. Dramatic golden sunset light illuminates Noah while the crowd remains in shadow. Wide landscape composition with Noah positioned in the left third. Anatomically correct proportions, naturalistic facial features, expression of compassionate urgency. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1c",
-                    "start_word_index": 43,
-                    "end_word_index": 70,
-                    "narration_summary": "Moisés 8 describe la tierra llena de violencia... cada intención era solo maldad",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a scene of ancient violence and moral decay. Armed men in ancient clothing engage in conflict in a dusty marketplace, while city walls crumble in the background under a blood-red sky. Expressions of anger and despair on the faces of those involved. The atmosphere conveys the complete corruption of society. Rich warm color palette with crimson and ochre tones, visible brushstrokes, dramatic chiaroscuro lighting from a setting sun. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1d",
-                    "start_word_index": 71,
-                    "end_word_index": 116,
-                    "narration_summary": "Primera señal: VIOLENCIA generalizada. Guerras, crímenes, desprecio por la vida humana",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a dramatic panoramic view of an ancient world consumed by chaos, with distant cities burning under a dark stormy sky at sunset. In the foreground, people in ancient robes engage in violent conflict while others look on with indifference. The scene conveys moral decay and societal collapse. Rich warm color palette with deep oranges and reds contrasting with dark shadows, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1e",
-                    "start_word_index": 117,
-                    "end_word_index": 165,
-                    "narration_summary": "Segunda señal: CORRUPCIÓN MORAL. Se burlaron de Noé mientras construía el arca",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a crowd of ancient people mocking an elderly prophet (Noah) who stands near the massive wooden frame of the ark under construction. The people wear fine ancient robes and jewelry, laughing and pointing at the prophet. Noah stands dignified with an expression of sorrowful determination, wearing simple worker's clothing. The ark towers behind him, half-constructed from massive wooden beams. Golden afternoon light creates strong shadows. Wide composition showing both the crowd and the ark structure. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1f",
-                    "start_word_index": 166,
-                    "end_word_index": 215,
-                    "narration_summary": "Tercera señal: INDIFERENCIA espiritual. Comiendo, bebiendo, casándose... ajenos al juicio que se acercaba",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting an ancient feast scene with wealthy people in ornate robes eating and drinking at a long table, completely absorbed in their celebration. Through an open window behind them, storm clouds gather ominously but they pay no attention. Their expressions show indulgence and willful ignorance. The contrast between their revelry and the threatening sky creates tension. Rich warm candlelight illuminates the feast while cold blue threatens from outside. Wide landscape composition. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1g",
-                    "start_word_index": 216,
-                    "end_word_index": 246,
-                    "narration_summary": "Pero aquí está la esperanza. Noé halló gracia ante los ojos del Señor. Él construyó un arca",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting Noah and his family (wife, three sons with their wives) boarding the completed ark as the first raindrops begin to fall. Noah leads the way wearing simple robes, his expression peaceful and resolute. The massive wooden ark dominates the background. Animals can be seen entering in orderly pairs. Dark storm clouds gather overhead but divine golden light breaks through to illuminate the ark's entrance. Wide panoramic composition showing the scale of the ark. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1h",
-                    "start_word_index": 247,
-                    "end_word_index": 269,
-                    "narration_summary": "Hoy, el Señor nos ha dado nuestras propias arcas. Los templos sagrados. Nuestros hogares convertidos en santuarios de fe",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a beautiful modern Latter-day Saint temple (Salt Lake Temple style architecture) standing majestic on a hill at golden hour. Families in modest modern Sunday attire walk toward the temple entrance on a tree-lined path. The temple spires reach toward a glorious sunset sky with golden and pink clouds. The scene conveys peace, safety, and divine refuge. Warm golden lighting bathes the entire scene. Wide landscape composition with the temple centered. Anatomically correct proportions, naturalistic facial features on the people. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1i",
-                    "start_word_index": 270,
-                    "end_word_index": 287,
-                    "narration_summary": "El Profeta Russell M. Nelson ha enseñado que nuestros hogares pueden ser lugares de refugio del mundo",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting President Russell M. Nelson, an elderly man with white hair and kind eyes, wearing a dark business suit, speaking at a general conference pulpit. His expression is warm, loving, and prophetic. Behind him is the iconic conference center interior with soft lighting. His hands are raised in a gesture of teaching. Divine light seems to illuminate his face. The composition conveys prophetic authority and loving guidance. Anatomically correct proportions, naturalistic facial features, dignified expression. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1j",
-                    "start_word_index": 288,
-                    "end_word_index": 307,
-                    "narration_summary": "El patrón se repite, pero también la promesa. Dios prepara un camino de escape para los fieles",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a powerful symbolic scene of Noah's completed ark floating safely on turbulent flood waters under a stormy sky, with divine light breaking through the clouds above the ark. The ark is massive and made of dark wood, riding the waves safely. In the distance, the silhouettes of mountain peaks are barely visible above the water. The contrast between the safety of the ark and the chaos of the waters conveys divine protection. Dramatic lighting with golden rays piercing dark storm clouds. Wide panoramic composition. Anatomically correct proportions on any visible figures. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1k",
-                    "start_word_index": 308,
-                    "end_word_index": 337,
-                    "narration_summary": "¿Estamos construyendo nuestra arca? El arca de la fe, del arrepentimiento, de los convenios sagrados",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a person kneeling in sincere prayer in a quiet, simple room. Soft morning light streams through a window, illuminating their peaceful, humble expression. They are dressed in modest modern clothing. Scriptures lie open nearby. The atmosphere conveys personal repentance, faith, and covenant-making with God. Warm golden tones dominate. The person is positioned in the left portion of the composition with the light source from the right. Anatomically correct proportions, naturalistic facial features, expression of humble devotion. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                },
-                {
-                    "visual_asset_id": "1l",
-                    "start_word_index": 338,
-                    "end_word_index": 355,
-                    "narration_summary": "Cuando las aguas suban, solo aquellos en el arca del Señor estarán a salvo",
-                    "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a glorified vision of a Latter-day Saint temple standing as a beacon of light amid symbolic dark waters. The temple glows with divine golden light, its spires reaching toward heaven. Faithful families are gathered safely at the temple doors, looking up with expressions of hope and gratitude. Above, the sky parts to reveal celestial light and peace. The scene symbolizes divine protection and the safety of sacred covenants. Rich warm color palette with gold and white against deep blues. Wide landscape composition. Anatomically correct proportions, naturalistic facial features on the people. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
-                }
-            ]
+  "script": {
+    "id": "current",
+    "title_youtube": "El PLAN SECRETO detrás de la Torre de Babel",
+    "title_internal": "La Torre de Babel: La Imitación Satánica del Templo de Dios",
+    "background_music": "mistery.mp3",
+    "narration": {
+      "full_text": "La Torre de Babel no era solo un edificio alto. Era un templo falso, diseñado para llegar al cielo sin pasar por Dios. [pause] En la llanura de Sinar, después del diluvio, los descendientes de Noé se reunieron con un propósito claro. Génesis capítulo once, versículo cuatro dice que querían edificar una torre cuya cúspide llegase al cielo, y hacerse un nombre. [softly] No buscaban a Dios. Se buscaban a sí mismos. [pause] Pero hay algo que muchos no saben. El Libro de Mormón revela quién estaba realmente detrás de este plan. Helamán capítulo seis, versículo veintiocho enseña que el diablo, desde el principio, inspiró combinaciones secretas para destruir las almas de los hombres. Y la torre fue una de sus primeras obras maestras. [pause] Piénsalo así. Dios siempre ha invitado a Su pueblo a construir templos, lugares sagrados donde el hombre asciende hacia el cielo por medio de convenios, humildad y sacrificio. [warmly] El templo es el camino de Dios. Es Su forma de decir: ven a mí, y yo te llevaré más alto de lo que jamás podrías llegar solo. [pause] Pero Satanás siempre imita. Y su imitación fue la torre. Un edificio que prometía alcanzar el cielo, pero por el camino del orgullo, de la autosuficiencia y de la rebelión contra Dios. [pensive] El templo requiere obediencia. La torre prometía gloria sin convenio. El templo exalta el nombre de Dios. La torre buscaba que los hombres se hicieran un nombre propio. [pause] Nimrod, el líder de aquella generación, quiso unir al pueblo no bajo la voluntad de Dios, sino bajo la voluntad del hombre. Y Dios, al ver aquella rebelión, confundió sus lenguas y los esparció sobre la faz de toda la tierra. [awe] Fue un acto de misericordia disfrazado de juicio. Porque si Dios no los hubiera detenido, habrían seguido edificando un reino de oscuridad con apariencia de luz. [pause] [warmly] Hoy las torres de Babel no son de ladrillos. Son cualquier camino que nos promete llegar al cielo sin pasar por Dios, sin convenios, sin sacrificio, sin humildad. [hopeful] Pero el templo sigue en pie. Y su invitación sigue siendo la misma: ven, asciende por el camino verdadero, el camino del Señor.",
+      "visual_assets": [
+        {
+          "visual_asset_id": "1a",
+          "start_word_index": 0,
+          "end_word_index": 31,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting a massive ancient tower under construction on a flat desert plain, seen from a dramatic low angle. The tower is made of dark mud bricks and stretches ominously toward stormy clouds. Workers carry bricks up ramps in the foreground. The sky is dark and turbulent with faint red undertones suggesting divine displeasure. Rich warm color palette with dark undertones, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
         },
-        "metadata": {
-            "description": "En este video exploramos las tres señales proféticas de los \"días de Noé\" que Jesucristo dijo se repetirían antes de Su Segunda Venida. Basándonos en Moisés 8 y José Smith—Mateo 1:41, analizamos cómo la violencia generalizada, la corrupción moral y la indiferencia espiritual del mundo antiguo se reflejan en nuestra época actual. Pero más importante aún, descubrimos la esperanza: así como Noé construyó un arca para salvar a su familia, hoy tenemos nuestras propias arcas de seguridad. Los templos sagrados y nuestros hogares convertidos en santuarios de fe son los refugios que el Señor ha preparado para los últimos días. El Profeta Russell M. Nelson nos ha invitado a fortalecer nuestros hogares como lugares de protección espiritual. Este video te invitará a reflexionar sobre si estás construyendo tu propia arca de convenios sagrados. Suscríbete a Relatos de Luz para más contenido que fortalece la fe.",
-            "tags": [
-                "días de Noé",
-                "Segunda Venida",
-                "profecías últimos días",
-                "Moisés 8",
-                "José Smith Mateo",
-                "señales de los tiempos",
-                "templos SUD",
-                "Russell M Nelson",
-                "Ven Sígueme",
-                "Santos de los Últimos Días",
-                "arca de Noé",
-                "convenios sagrados",
-                "refugio espiritual",
-                "hogar santo"
-            ],
-            "hashtags": [
-                "#RelatosDeLuz",
-                "#VenSigueme",
-                "#SegundaVenida",
-                "#DíasDeNoé",
-                "#SUD"
-            ]
+        {
+          "visual_asset_id": "1b",
+          "start_word_index": 32,
+          "end_word_index": 68,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Walter Rane, Arnold Friberg), depicting a large gathering of ancient people on the plain of Shinar, dressed in simple linen robes and tunics. They stand before the base of a great tower, faces filled with ambition and pride. A leader stands elevated, gesturing toward the sky with authority. Golden-brown desert landscape stretches behind them. Warm sunset light illuminates the scene with amber tones. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1c",
+          "start_word_index": 69,
+          "end_word_index": 97,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Del Parson), depicting a dark shadowy figure lurking behind ancient men who are reviewing construction plans on a stone table. The shadowy presence is subtle and menacing, barely visible in the darkness behind them. The men wear ancient Mesopotamian robes and appear scheming. Dim torchlight casts long shadows across their faces. The atmosphere is secretive and ominous. Rich dark color palette, visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1d",
+          "start_word_index": 98,
+          "end_word_index": 133,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Simon Dewey, Greg Olsen), depicting a beautiful ancient temple on a hilltop bathed in golden celestial light breaking through clouds above. The temple has clean white stone architecture with simple elegant lines, reminiscent of ancient Israelite sacred buildings. A path leads upward through green gardens toward the temple entrance. The sky is brilliant with golden and soft blue hues. Warm radiant light fills the scene with a feeling of peace and holiness. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1e",
+          "start_word_index": 134,
+          "end_word_index": 164,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Del Parson, Walter Rane), depicting a humble man in white robes kneeling at the entrance of an ancient temple with arms raised in prayer, golden divine light descending upon him from above. The scene conveys covenant, humility, and sacred ascent. The temple interior is simple and clean with stone columns. Warm golden light fills the space. The man's expression is one of reverent peace and devotion. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features, dignified expression. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1f",
+          "start_word_index": 165,
+          "end_word_index": 200,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Arnold Friberg, Walter Rane), depicting a split composition contrasting two scenes side by side. On the left, the dark Tower of Babel rises with proud men climbing its ramps under stormy skies. On the right, a radiant white temple on a hill with humble worshippers ascending a path under golden sunlight. The contrast between darkness and light is dramatic and clear. Rich warm and cool color palettes on each side. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1g",
+          "start_word_index": 201,
+          "end_word_index": 236,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Minerva Teichert, Arnold Friberg), depicting the powerful figure of Nimrod standing atop a platform before a massive crowd on the plain of Shinar. He wears ornate ancient robes and a commanding expression, one arm raised directing the people. The crowd below looks up at him with mixed expressions of awe and submission. The unfinished tower looms in the background. Warm amber and ochre tones dominate the scene. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features, dignified expression. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1h",
+          "start_word_index": 237,
+          "end_word_index": 267,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Walter Rane), depicting the moment God confuses the languages at Babel. People on the construction site of the tower are shown in confusion, dropping bricks, gesturing with bewilderment at each other, unable to understand one another. A brilliant shaft of white divine light descends from dark dramatic clouds above the tower. The scene captures chaos and divine intervention simultaneously. Rich contrasting color palette with dramatic light and shadow. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1i",
+          "start_word_index": 268,
+          "end_word_index": 302,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Simon Dewey, Del Parson), depicting groups of ancient people walking away from the abandoned Tower of Babel in different directions across a vast desert plain. The tower stands crumbling and incomplete in the background under a clearing sky with hints of golden light breaking through. Families carry their belongings, some looking back with sorrow, others walking forward with hope. The scene conveys scattering but also mercy and a new beginning. Warm golden-brown color palette. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1j",
+          "start_word_index": 303,
+          "end_word_index": 336,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Greg Olsen, Jeff Hein), depicting a modern-day scene of a person standing at a crossroads in a symbolic landscape. One path leads toward a glittering but hollow city skyline with cold blue artificial lights. The other path leads toward a radiant Latter-day Saint temple on a green hill bathed in warm golden sunlight. The person stands contemplatively between both paths, dressed in modern casual clothing. The contrast between artificial cold light and divine warm light is clear. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+        },
+        {
+          "visual_asset_id": "1k",
+          "start_word_index": 337,
+          "end_word_index": 369,
+          "image_prompt": "A detailed oil painting in the style of Latter-day Saint sacred art (similar to Simon Dewey, Greg Olsen), depicting a beautiful Latter-day Saint temple in full glory, standing majestically against a brilliant golden sunrise sky. The temple is white and luminous with clean architectural lines. A wide path leads to its doors, and a few reverent figures in white clothing walk toward the entrance. The surrounding landscape is green and peaceful with flowering gardens. The sky radiates hope and divine invitation with warm golden, peach, and soft blue hues. Visible brushstrokes, dramatic chiaroscuro. Anatomically correct proportions. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
         }
+      ]
+    },
+    "metadata": {
+      "description": "La Torre de Babel no era simplemente un edificio alto. Era una imitación satánica del templo de Dios, un intento de alcanzar el cielo por el camino del orgullo y la rebelión. En este video exploramos lo que Génesis 11 y Helamán 6:28 revelan sobre el verdadero propósito detrás de la construcción de la torre, y cómo Satanás, desde el principio, ha inspirado combinaciones secretas para destruir las almas de los hombres. Descubre el contraste poderoso entre la torre, el camino del hombre, y el templo, el camino de Dios. Mientras la torre prometía gloria sin convenio, el templo ofrece exaltación eterna por medio de la humildad y el sacrificio. Esta lección sigue siendo urgente hoy. Las torres de Babel modernas no son de ladrillos, pero siguen prometiendo lo mismo: llegar al cielo sin pasar por Dios. Únete a nosotros en Relatos de Luz para descubrir las verdades ocultas de las escrituras que fortalecen tu testimonio y tu fe en Jesucristo. Suscríbete y activa la campana para no perderte ningún video.",
+      "tags": [
+        "Torre de Babel",
+        "Génesis 11",
+        "Helamán 6:28",
+        "Templo de Dios",
+        "Nimrod",
+        "combinaciones secretas",
+        "Libro de Mormón",
+        "Ven Sígueme",
+        "Santos de los Últimos Días",
+        "SUD",
+        "escrituras",
+        "Antiguo Testamento",
+        "plan de salvación",
+        "Satanás",
+        "Relatos de Luz"
+      ],
+      "hashtags": [
+        "#RelatosDeLuz",
+        "#VenSigueme",
+        "#SUD",
+        "#TorreDeBabel",
+        "#IglesiaDeCristo"
+      ]
     }
+  }
 }
