@@ -13,8 +13,9 @@ Tools:
   - generate_images: Generate images with Gemini 2.5 Flash
   - generate_audio: Generate narration audio with ElevenLabs V3
   - render_video: Render final video with Ken Burns + lower third
-  - generate_thumbnail: Generate YouTube thumbnail
+  - generate_thumbnail: Generate YouTube thumbnail (with layout presets!)
   - configure_thumbnail: Update thumbnail_config.json settings
+  - list_thumbnail_layouts: List available thumbnail layout presets
   - get_metadata: Get video metadata (title, description, tags, hashtags)
   - list_archives: List all archived projects
   - get_prompt_template: Get the script generation prompt template
@@ -75,6 +76,15 @@ def save_json(path: Path, data: dict) -> None:
 
 def file_exists(path: Path) -> bool:
     return path.exists() and path.is_file()
+
+
+def deep_merge(base: dict, update: dict) -> None:
+    """Deep merge update into base dict, modifying base in place."""
+    for key, value in update.items():
+        if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+            deep_merge(base[key], value)
+        else:
+            base[key] = value
 
 
 def count_files(directory: Path, extensions: list[str] = None) -> int:
@@ -384,13 +394,25 @@ async def list_tools() -> list[Tool]:
             name="generate_thumbnail",
             description=(
                 "Generate a professional YouTube thumbnail (1280x720 PNG). "
-                "Features: gradient overlay, gold-highlighted UPPERCASE words, "
-                "scripture badge, VEN SIGUEME branding badge. "
-                "Configure via data/thumbnail_config.json or pass overrides."
+                "Choose a LAYOUT PRESET for visual variety! Available layouts: "
+                "luminoso (bright/hopeful), dramatico (dark/intense), celestial (elegant/sacred), "
+                "profeta (split/character focus), esperanza (warm/devotional), "
+                "impacto (bold/modern), minimalista (clean/quiet). "
+                "Each layout changes gradient, text position, fonts, colors, and accents. "
+                "Use list_thumbnail_layouts to see details. "
+                "Pass overrides (asset_id, custom_title, zoom, pan) on top of any layout."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
+                    "layout": {
+                        "type": "string",
+                        "description": (
+                            "Layout preset name for visual variety. One of: luminoso, dramatico, "
+                            "celestial, profeta, esperanza, impacto, minimalista. "
+                            "Each produces a dramatically different thumbnail style."
+                        ),
+                    },
                     "asset_id": {
                         "type": "string",
                         "description": "Visual asset ID to use as image (e.g. '1a', '1c'). Default: auto-select.",
@@ -431,6 +453,15 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["config_updates"],
             },
+        ),
+        Tool(
+            name="list_thumbnail_layouts",
+            description=(
+                "List all available thumbnail layout presets with names, descriptions, "
+                "and mood tags. Use this to choose the right layout for a video's tone/theme. "
+                "Each layout produces a dramatically different thumbnail style for visual variety."
+            ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="get_metadata",
@@ -733,30 +764,49 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
 
     # ── generate_thumbnail ────────────────────────────────────────
     elif name == "generate_thumbnail":
-        # Apply overrides to thumbnail config if provided
-        if any(k in args for k in ["asset_id", "custom_title", "zoom", "pan_x", "pan_y"]):
-            thumb_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
-            tc = thumb_cfg.get("thumbnail", {})
+        layout_name = args.get("layout")
 
-            if "asset_id" in args:
-                tc.setdefault("image", {})["source"] = "asset"
-                tc["image"]["asset_id"] = args["asset_id"]
-            if "custom_title" in args:
-                tc.setdefault("title", {})["text"] = "custom"
-                tc["title"]["custom_text"] = args["custom_title"]
-            if "zoom" in args:
-                tc.setdefault("image", {})["zoom"] = args["zoom"]
-            if "pan_x" in args:
-                tc.setdefault("image", {})["pan_x"] = args["pan_x"]
-            if "pan_y" in args:
-                tc.setdefault("image", {})["pan_y"] = args["pan_y"]
+        # Start with existing config or empty
+        thumb_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
 
-            thumb_cfg["thumbnail"] = tc
-            save_json(THUMBNAIL_CONFIG_PATH, thumb_cfg)
+        # If layout is specified, apply it as the base
+        if layout_name:
+            from src.thumbnail_layouts import get_layout_config, LAYOUTS
+            if layout_name not in LAYOUTS:
+                available = ", ".join(LAYOUTS.keys())
+                return f"ERROR: Unknown layout '{layout_name}'. Available: {available}"
+
+            layout_config = get_layout_config(layout_name)
+            deep_merge(thumb_cfg, layout_config)
+            # Store layout name for logging
+            thumb_cfg.setdefault("thumbnail", {})["_layout_name"] = layout_name
+
+        tc = thumb_cfg.get("thumbnail", {})
+
+        # Apply explicit overrides on top of layout
+        if "asset_id" in args:
+            tc.setdefault("image", {})["source"] = "asset"
+            tc["image"]["asset_id"] = args["asset_id"]
+        if "custom_title" in args:
+            tc.setdefault("title", {})["text"] = "custom"
+            tc["title"]["custom_text"] = args["custom_title"]
+        if "zoom" in args:
+            tc.setdefault("image", {})["zoom"] = args["zoom"]
+        if "pan_x" in args:
+            tc.setdefault("image", {})["pan_x"] = args["pan_x"]
+        if "pan_y" in args:
+            tc.setdefault("image", {})["pan_y"] = args["pan_y"]
+
+        thumb_cfg["thumbnail"] = tc
+        save_json(THUMBNAIL_CONFIG_PATH, thumb_cfg)
 
         from src.thumbnail_generator import generate_thumbnail as do_thumbnail
         output = do_thumbnail()
-        return f"Thumbnail generated: {output}"
+
+        result = f"Thumbnail generated: {output}"
+        if layout_name:
+            result += f"\nLayout used: {layout_name}"
+        return result
 
     # ── configure_thumbnail ───────────────────────────────────────
     elif name == "configure_thumbnail":
@@ -770,18 +820,24 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
         else:
             existing = {"thumbnail": {}}
 
-        # Deep merge
-        def deep_merge(base, update):
-            for key, value in update.items():
-                if key in base and isinstance(base[key], dict) and isinstance(value, dict):
-                    deep_merge(base[key], value)
-                else:
-                    base[key] = value
-
         deep_merge(existing, config_updates)
         save_json(THUMBNAIL_CONFIG_PATH, existing)
 
         return f"Thumbnail config updated:\n{json.dumps(existing, indent=2, ensure_ascii=False)}"
+
+    # ── list_thumbnail_layouts ─────────────────────────────────────
+    elif name == "list_thumbnail_layouts":
+        from src.thumbnail_layouts import list_layouts
+        layouts = list_layouts()
+        lines = ["AVAILABLE THUMBNAIL LAYOUTS:", ""]
+        for layout in layouts:
+            tags = ", ".join(layout["mood_tags"][:5])
+            lines.append(f"  {layout['id'].upper()} ({layout['name']})")
+            lines.append(f"    {layout['description']}")
+            lines.append(f"    Mood tags: {tags}")
+            lines.append("")
+        lines.append("Usage: generate_thumbnail(layout='esperanza', custom_title='MI TÍTULO')")
+        return "\n".join(lines)
 
     # ── get_metadata ──────────────────────────────────────────────
     elif name == "get_metadata":
