@@ -779,6 +779,7 @@ def draw_scripture_badge(
     bbox = draw.textbbox((0, 0), escritura, font=font)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
+    text_offset_y = bbox[1]  # vertical offset from textbbox origin
 
     badge_w = tw + 2 * pad_h
     badge_h = th + 2 * pad_v
@@ -797,9 +798,9 @@ def draw_scripture_badge(
 
     draw_rounded_rectangle(draw, (bx1, by1, bx2, by2), fill=bg_color, radius=radius)
 
-    # Center text in badge
+    # Center text in badge (account for textbbox offset to truly center)
     tx = bx1 + pad_h
-    ty = by1 + pad_v - 2  # slight visual adjustment
+    ty = by1 + (badge_h - th) // 2 - text_offset_y
     draw.text((tx, ty), escritura, font=font, fill=text_color)
 
     return rgba
