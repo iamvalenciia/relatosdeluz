@@ -234,25 +234,45 @@ def validate_script_data(script_json: dict) -> dict:
 
     # Metadata
     metadata = script.get("metadata", {})
-    description = metadata.get("description", "")
+    desc_hook = metadata.get("description_hook", "")
+    desc_body = metadata.get("description_body", "")
+    desc_bullets = metadata.get("description_bullets", [])
+    escrituras = metadata.get("escrituras_mencionadas", [])
     tags = metadata.get("tags", [])
     hashtags = metadata.get("hashtags", [])
 
-    if not description:
-        errors.append("Missing metadata.description")
-    else:
-        desc_words = len(description.split())
-        if desc_words < 150:
-            warnings.append(f"Description has {desc_words} words (recommended 150-200)")
+    # Support legacy single "description" field
+    legacy_desc = metadata.get("description", "")
+    if legacy_desc and not desc_hook:
+        warnings.append("Using legacy 'description' field. New scripts should use 'description_hook' + 'description_body' + 'description_bullets'")
 
-    if len(tags) < 10:
-        warnings.append(f"Only {len(tags)} tags (recommended 10-15)")
+    if not desc_hook and not legacy_desc:
+        errors.append("Missing metadata.description_hook (or legacy metadata.description)")
+    elif desc_hook and len(desc_hook) > 150:
+        warnings.append(f"description_hook has {len(desc_hook)} chars (max 150 recommended for 'mostrar más' visibility)")
+
+    if not desc_body and not legacy_desc:
+        warnings.append("Missing metadata.description_body")
+
+    if len(desc_bullets) < 3 and not legacy_desc:
+        warnings.append(f"Only {len(desc_bullets)} description_bullets (recommended 3-5)")
+
+    if len(escrituras) < 1 and not legacy_desc:
+        warnings.append("Missing metadata.escrituras_mencionadas")
+
+    if len(tags) < 20:
+        warnings.append(f"Only {len(tags)} tags (recommended 30-40 search phrases)")
     if len(hashtags) < 5:
         warnings.append(f"Only {len(hashtags)} hashtags (recommended 5)")
     if "#RelatosDeLuz" not in hashtags:
         warnings.append("Missing #RelatosDeLuz hashtag")
     if "#VenSigueme" not in hashtags and "#VenSígueme" not in hashtags:
         warnings.append("Missing #VenSigueme hashtag")
+
+    # Check title has search context (pipe separator)
+    title_yt = script.get("title_youtube", "")
+    if title_yt and "|" not in title_yt:
+        warnings.append("title_youtube missing ' | search context' suffix for SEO (e.g. 'Hook Title | Topic Libro de Mormón')")
 
     return {
         "valid": len(errors) == 0,
@@ -849,21 +869,85 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
         sd = script.get("script", {})
         metadata = sd.get("metadata", {})
 
-        result = {
-            "title_youtube": sd.get("title_youtube", ""),
-            "title_internal": sd.get("title_internal", ""),
-            "description": metadata.get("description", ""),
-            "tags": metadata.get("tags", []),
-            "hashtags": metadata.get("hashtags", []),
-        }
+        title_youtube = sd.get("title_youtube", "")
+        hashtags = metadata.get("hashtags", [])
+        tags = metadata.get("tags", [])
+        desc_hook = metadata.get("description_hook", "")
+        desc_body = metadata.get("description_body", "")
+        desc_bullets = metadata.get("description_bullets", [])
+        escrituras = metadata.get("escrituras_mencionadas", [])
+        legacy_desc = metadata.get("description", "")
 
-        # Format for easy copy-paste
-        output = f"YOUTUBE TITLE:\n{result['title_youtube']}\n\n"
-        output += f"DESCRIPTION:\n{result['description']}\n\n"
-        output += f"TAGS:\n{', '.join(result['tags'])}\n\n"
-        output += f"HASHTAGS:\n{' '.join(result['hashtags'])}"
+        sep = "=" * 45
+        line = "─" * 30
 
-        return output
+        parts = []
+        parts.append(sep)
+        parts.append("YOUTUBE TITLE:")
+        parts.append(sep)
+        parts.append(title_youtube)
+
+        parts.append(sep)
+        parts.append("DESCRIPTION:")
+        parts.append(sep)
+
+        if desc_hook:
+            parts.append(desc_hook)
+            parts.append("")
+            if desc_body:
+                parts.append(desc_body)
+                parts.append("")
+            parts.append("En este video exploramos:")
+            for bullet in desc_bullets:
+                parts.append(bullet)
+            parts.append("")
+            parts.append(line)
+            if escrituras:
+                parts.append("📌 RECURSOS MENCIONADOS:")
+                for esc in escrituras:
+                    parts.append(f"• {esc}")
+                parts.append(line)
+                parts.append("")
+            parts.append("Si este mensaje te tocó el corazón, compártelo con alguien que necesite escucharlo. 💛")
+            parts.append("")
+            parts.append("🔔 SUSCRÍBETE a Relatos de Luz para más historias del Evangelio que fortalecen tu fe cada semana.")
+            parts.append("💬 Deja tu comentario contándonos tu experiencia.")
+            parts.append("👍 Dale LIKE si quieres más videos como este.")
+            parts.append("")
+            parts.append(line)
+            parts.append("📱 Síguenos:")
+            parts.append("Canal: @RelatosDeLuz")
+            parts.append(line)
+            parts.append("")
+            parts.append(" ".join(hashtags))
+        else:
+            parts.append(legacy_desc)
+            parts.append("")
+            parts.append(" ".join(hashtags))
+
+        parts.append("")
+        parts.append(sep)
+        parts.append("TAGS (copiar y pegar en YouTube Studio):")
+        parts.append(sep)
+        parts.append(",".join(tags))
+
+        parts.append("")
+        parts.append(sep)
+        parts.append("HASHTAGS (ya incluidos en descripción):")
+        parts.append(sep)
+        parts.append(" ".join(hashtags))
+
+        parts.append("")
+        parts.append(sep)
+        parts.append("NOTAS SEO:")
+        parts.append(sep)
+        if "|" in title_youtube:
+            parts.append("- El título usa HOOK + contexto de búsqueda separado por '|'")
+        parts.append("- Tags incluyen variaciones con y sin acentos para capturar más búsquedas")
+        parts.append("- Las primeras 2 líneas de la descripción son visibles antes del 'mostrar más'")
+        parts.append("- Emojis en descripción mejoran CTR")
+
+        return "\n".join(parts)
 
     # ── list_archives ─────────────────────────────────────────────
     elif name == "list_archives":

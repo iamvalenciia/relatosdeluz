@@ -451,16 +451,93 @@ def get_current_image_index(
 
 
 def save_metadata(script_data: dict, output_dir: Path) -> None:
-    """Save video metadata to a text file."""
+    """Save video metadata as a full YouTube-ready text file."""
     metadata_path = output_dir / "metadata.txt"
     title_youtube = script_data.get("title_youtube", script_data.get("topic", ""))
     metadata = script_data.get("metadata", {})
-    description = metadata.get("description", "")
     hashtags = metadata.get("hashtags", [])
-    
-    content = f"TITLE: {title_youtube}\n\nDESCRIPTION:\n{description}\n\n{' '.join(hashtags)}"
+    tags = metadata.get("tags", [])
+
+    # Build description from new structured fields or legacy
+    desc_hook = metadata.get("description_hook", "")
+    desc_body = metadata.get("description_body", "")
+    desc_bullets = metadata.get("description_bullets", [])
+    escrituras = metadata.get("escrituras_mencionadas", [])
+    legacy_desc = metadata.get("description", "")
+
+    sep = "=" * 45
+    line = "─" * 30
+
+    lines = []
+    lines.append(sep)
+    lines.append("YOUTUBE TITLE:")
+    lines.append(sep)
+    lines.append(title_youtube)
+
+    lines.append(sep)
+    lines.append("DESCRIPTION:")
+    lines.append(sep)
+
+    if desc_hook:
+        # New structured format
+        lines.append(desc_hook)
+        lines.append("")
+        if desc_body:
+            lines.append(desc_body)
+            lines.append("")
+        lines.append("En este video exploramos:")
+        for bullet in desc_bullets:
+            lines.append(bullet)
+        lines.append("")
+        lines.append(line)
+        if escrituras:
+            lines.append("📌 RECURSOS MENCIONADOS:")
+            for esc in escrituras:
+                lines.append(f"• {esc}")
+            lines.append(line)
+            lines.append("")
+        lines.append("Si este mensaje te tocó el corazón, compártelo con alguien que necesite escucharlo. 💛")
+        lines.append("")
+        lines.append("🔔 SUSCRÍBETE a Relatos de Luz para más historias del Evangelio que fortalecen tu fe cada semana.")
+        lines.append("💬 Deja tu comentario contándonos tu experiencia.")
+        lines.append("👍 Dale LIKE si quieres más videos como este.")
+        lines.append("")
+        lines.append(line)
+        lines.append("📱 Síguenos:")
+        lines.append("Canal: @RelatosDeLuz")
+        lines.append(line)
+        lines.append("")
+        lines.append(" ".join(hashtags))
+    else:
+        # Legacy single description field
+        lines.append(legacy_desc)
+        lines.append("")
+        lines.append(" ".join(hashtags))
+
+    lines.append("")
+    lines.append(sep)
+    lines.append("TAGS (copiar y pegar en YouTube Studio):")
+    lines.append(sep)
+    lines.append(",".join(tags))
+
+    lines.append("")
+    lines.append(sep)
+    lines.append("HASHTAGS (ya incluidos en descripción):")
+    lines.append(sep)
+    lines.append(" ".join(hashtags))
+
+    lines.append("")
+    lines.append(sep)
+    lines.append("NOTAS SEO:")
+    lines.append(sep)
+    if "|" in title_youtube:
+        lines.append("- El título usa HOOK + contexto de búsqueda separado por '|'")
+    lines.append("- Tags incluyen variaciones con y sin acentos para capturar más búsquedas")
+    lines.append("- Las primeras 2 líneas de la descripción son visibles antes del 'mostrar más'")
+    lines.append("- Emojis en descripción mejoran CTR")
+
     with open(metadata_path, "w", encoding="utf-8") as f:
-        f.write(content)
+        f.write("\n".join(lines))
 
 
 def render_video(output_path: Path) -> None:

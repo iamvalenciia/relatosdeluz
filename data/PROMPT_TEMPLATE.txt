@@ -238,8 +238,11 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
       ]
     },
     "metadata": {
-      "description": "Descripción optimizada para SEO de YouTube (150-200 palabras). Incluye contexto del video, llamado a la acción, y enlaces relevantes.",
-      "tags": ["tag1", "tag2", "tag3", "...hasta 15 tags relevantes para SEO"],
+      "description_hook": "Pregunta intrigante o dato impactante en 1-2 líneas que aparece ANTES del 'mostrar más' de YouTube. Debe contener las palabras clave principales del video. Máximo 150 caracteres.",
+      "description_body": "Desarrollo del contenido del video en 3-5 líneas con palabras clave SEO naturales. Explica qué aprenderá el espectador y por qué importa.",
+      "description_bullets": ["📖 Punto clave 1 del video", "🙏 Punto clave 2 del video", "💡 Punto clave 3 del video", "🏔️ Punto clave 4 del video"],
+      "escrituras_mencionadas": ["Referencia 1 - Libro", "Referencia 2 - Libro"],
+      "tags": ["frase de búsqueda 1", "frase de búsqueda 2", "variación sin acento", "...hasta 30-40 tags de frases que la gente busca en YouTube"],
       "hashtags": ["#RelatosDeLuz", "#SUD", "#VenSigueme", "#IglesiaDeCristo", "#hashtag5"]
     }
   }
@@ -257,8 +260,12 @@ REGLAS DEL JSON:
 - title_youtube: Optimizado para CTR, puede ser intrigante (máximo 70 caracteres)
 - title_internal: Descriptivo y completo para quien solo ve el video (máximo 80 caracteres)
 - El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
-- metadata.description: SEO-friendly, 150-200 palabras
-- metadata.tags: 10-15 tags relevantes para YouTube SEO
+- title_youtube: DEBE tener un HOOK + contexto de búsqueda separado por " | ". Ejemplo: "Los ÚNICOS que NO perdieron su idioma en Babel | Torre de Babel Libro de Mormón". Usa MAYÚSCULAS estratégicas en 1-2 palabras clave para captar atención. El título debe hacer match con la imagen del thumbnail.
+- metadata.description_hook: Máximo 150 caracteres. Pregunta o dato impactante con palabras clave principales. Es lo que se ve ANTES del "mostrar más".
+- metadata.description_body: 3-5 líneas con contexto del video y palabras clave SEO integradas naturalmente.
+- metadata.description_bullets: 3-5 puntos con emoji al inicio. Resumen de lo que el espectador aprenderá. Estos mejoran CTR.
+- metadata.escrituras_mencionadas: Lista de escrituras referenciadas en el video (ej. "Éter 1 - Libro de Mormón").
+- metadata.tags: 30-40 FRASES de búsqueda (no palabras sueltas). Incluir variaciones con/sin acentos, sinónimos, búsquedas populares como "para niños", "significado", "historia", "biblia y libro de mormón". Ejemplo: "torre de babel biblia", "torre de babel historia", "por qué hay tantos idiomas", "origen de los idiomas biblia".
 - metadata.hashtags: 5 hashtags incluyendo siempre #RelatosDeLuz y #VenSigueme
 
 ========================================
@@ -278,10 +285,14 @@ ANTES de devolver el JSON, verifica CADA punto. Si alguno falla, CORRIGE antes d
 □ Todos los image_prompts terminan con "NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery"
 □ Hay entre 10 y 14 visual_assets
 □ Los word indices son consecutivos sin saltos ni huecos
-□ title_youtube es llamativo y optimizado para CTR (máximo 70 caracteres)
+□ title_youtube tiene formato "HOOK con MAYÚSCULAS | Contexto de Búsqueda" (máximo 70 caracteres)
+□ title_youtube hace match visual/temático con la imagen que se usará de thumbnail
 □ title_internal es descriptivo y entendible solo (máximo 80 caracteres)
-□ metadata.description tiene 150-200 palabras
-□ metadata.tags tiene 10-15 tags
+□ metadata.description_hook tiene máximo 150 caracteres y contiene palabras clave principales
+□ metadata.description_body tiene 3-5 líneas con palabras clave SEO naturales
+□ metadata.description_bullets tiene 3-5 puntos con emoji al inicio
+□ metadata.escrituras_mencionadas lista todas las escrituras del video
+□ metadata.tags tiene 30-40 FRASES de búsqueda (no palabras sueltas), con variaciones con/sin acentos
 □ metadata.hashtags incluye #RelatosDeLuz y #VenSigueme
 
 SI ALGUNO FALLA: No devuelvas el JSON. Corrige primero.
