@@ -28,6 +28,8 @@ import json
 import re
 import sys
 import os
+import hashlib
+import time
 from pathlib import Path
 from typing import Any
 
@@ -49,10 +51,74 @@ CONFIG_PATH = DATA_DIR / "config.json"
 THUMBNAIL_CONFIG_PATH = DATA_DIR / "thumbnail_config.json"
 PROMPT_TEMPLATE_PATH = DATA_DIR / "PROMPT_TEMPLATE.txt"
 PROMPT_IDEAS_PATH = DATA_DIR / "PROMPT_VIDEO_IDEAS.txt"
+LOCK_FILE = DATA_DIR / ".generation.lock"
 
 # Ensure directories exist
 for d in [SCRIPTS_DIR, IMAGES_DIR, AUDIO_DIR, OUTPUT_DIR, ARCHIVE_DIR]:
     d.mkdir(parents=True, exist_ok=True)
+
+
+# ─── Generation Lock ──────────────────────────────────────────────────
+# Prevents concurrent image/audio generation that wastes API credits.
+# Lock auto-expires after LOCK_TIMEOUT_SECONDS to handle crashed processes.
+
+LOCK_TIMEOUT_SECONDS = 600  # 10 minutes max for any generation
+
+
+def acquire_lock(operation: str) -> bool:
+    """
+    Try to acquire the generation lock.
+    Returns True if lock acquired, False if another operation is running.
+    Stale locks (older than LOCK_TIMEOUT_SECONDS) are auto-cleaned.
+    """
+    if LOCK_FILE.exists():
+        try:
+            lock_data = json.loads(LOCK_FILE.read_text(encoding="utf-8"))
+            lock_time = lock_data.get("timestamp", 0)
+            lock_op = lock_data.get("operation", "unknown")
+            elapsed = time.time() - lock_time
+
+            if elapsed < LOCK_TIMEOUT_SECONDS:
+                return False  # Lock is still valid
+            else:
+                # Stale lock - auto-clean
+                print(f"  WARNING: Stale lock from '{lock_op}' ({elapsed:.0f}s ago). Auto-cleaning.")
+                LOCK_FILE.unlink()
+        except (json.JSONDecodeError, OSError):
+            LOCK_FILE.unlink(missing_ok=True)
+
+    # Write new lock
+    lock_data = {
+        "operation": operation,
+        "timestamp": time.time(),
+        "pid": os.getpid()
+    }
+    LOCK_FILE.write_text(json.dumps(lock_data), encoding="utf-8")
+    return True
+
+
+def release_lock():
+    """Release the generation lock."""
+    LOCK_FILE.unlink(missing_ok=True)
+
+
+def get_lock_status() -> str | None:
+    """Return human-readable lock status, or None if no lock."""
+    if not LOCK_FILE.exists():
+        return None
+    try:
+        lock_data = json.loads(LOCK_FILE.read_text(encoding="utf-8"))
+        elapsed = time.time() - lock_data.get("timestamp", 0)
+        op = lock_data.get("operation", "unknown")
+        return f"'{op}' running for {elapsed:.0f}s"
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def get_narration_hash(script: dict) -> str:
+    """Generate a hash of the narration text for change detection."""
+    text = script.get("script", {}).get("narration", {}).get("full_text", "")
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 # ─── Helpers ───────────────────────────────────────────────────────────
 
@@ -616,6 +682,28 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
             except Exception:
                 status["script_info"] = "Error reading script"
 
+        # Lock status - shows if a generation is in progress
+        lock_info = get_lock_status()
+        if lock_info:
+            status["generation_lock"] = lock_info
+
+        # Render progress - shows real-time rendering status
+        render_progress_path = DATA_DIR / ".render_progress.json"
+        if render_progress_path.exists():
+            try:
+                progress = json.loads(render_progress_path.read_text(encoding="utf-8"))
+                elapsed = time.time() - progress.get("timestamp", 0)
+                phase = progress.get("phase", "unknown")
+                if elapsed < 120 and phase != "complete":
+                    status["render_progress"] = {
+                        "phase": phase,
+                        "percent": progress.get("percent", 0),
+                        "detail": progress.get("detail", ""),
+                        "last_update_seconds_ago": round(elapsed)
+                    }
+            except (json.JSONDecodeError, OSError):
+                pass
+
         # Next steps
         next_steps = {
             "empty": "Generate a script using get_prompt_template, then save with save_script",
@@ -708,22 +796,40 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
 
         force = args.get("force", False)
 
+        # GUARD 1: Check if all images already exist
         existing, missing = check_images_exist()
         if not missing and not force:
-            return f"All {len(existing)} images already exist: {', '.join(existing)}\nUse force=true to regenerate."
+            return (
+                f"ALL {len(existing)} IMAGES ALREADY EXIST: {', '.join(existing)}\n"
+                f"Use force=true to regenerate.\n\n"
+                f"⚠️  DO NOT call generate_images again — images are ready."
+            )
 
-        success, total = generate_all_images(force=force)
+        # GUARD 2: Acquire lock to prevent concurrent generation
+        lock_status = get_lock_status()
+        if not acquire_lock("generate_images"):
+            return (
+                f"🔒 BLOCKED: Another generation is already running ({lock_status}).\n"
+                f"Wait for it to finish. DO NOT call generate_images again.\n"
+                f"Use check_project_status to monitor progress.\n"
+                f"Lock auto-expires after {LOCK_TIMEOUT_SECONDS}s if process crashes."
+            )
 
-        # Check final state
-        existing_after, missing_after = check_images_exist()
+        try:
+            success, total = generate_all_images(force=force)
 
-        result = f"Image generation complete: {success}/{total} successful"
-        if existing_after:
-            result += f"\nExisting: {', '.join(existing_after)}"
-        if missing_after:
-            result += f"\nMISSING: {', '.join(missing_after)} - retry or generate manually"
+            # Check final state
+            existing_after, missing_after = check_images_exist()
 
-        return result
+            result = f"Image generation complete: {success}/{total} successful"
+            if existing_after:
+                result += f"\nExisting: {', '.join(existing_after)}"
+            if missing_after:
+                result += f"\nMISSING: {', '.join(missing_after)} - retry or generate manually"
+
+            return result
+        finally:
+            release_lock()
 
     # ── generate_audio ────────────────────────────────────────────
     elif name == "generate_audio":
@@ -740,25 +846,64 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
         text = sanitize_narration(text)
         voice_id = config.get("voice_id", "YqZLNYWZm98oKaaLZkUA")
 
-        # Save sanitized text for alignment reference
-        sanitized_path = AUDIO_DIR / "current_sanitized.txt"
-        with open(sanitized_path, "w", encoding="utf-8") as f:
-            f.write(text)
-
         audio_path = AUDIO_DIR / "current.mp3"
         timestamps_path = AUDIO_DIR / "current_timestamps.json"
+        hash_path = AUDIO_DIR / "current_narration.hash"
 
-        generate_audio(text, voice_id, audio_path)
-        timestamps = generate_timestamps(audio_path, timestamps_path)
+        # GUARD 1: Check if audio already exists for THIS exact narration
+        current_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+        if audio_path.exists() and timestamps_path.exists() and hash_path.exists():
+            stored_hash = hash_path.read_text(encoding="utf-8").strip()
+            if stored_hash == current_hash:
+                try:
+                    ts_data = json.loads(timestamps_path.read_text(encoding="utf-8"))
+                    duration = ts_data.get("duration", 0)
+                    word_count = len(ts_data.get("words", []))
+                    return (
+                        f"AUDIO ALREADY EXISTS for this exact narration (hash: {current_hash}).\n"
+                        f"  Audio: {audio_path}\n"
+                        f"  Duration: {duration:.1f} seconds\n"
+                        f"  Words: {word_count}\n"
+                        f"  Timestamps: {timestamps_path}\n\n"
+                        f"⚠️  DO NOT call generate_audio again — audio matches current script.\n"
+                        f"NEXT STEP: Run align_timestamps, then render_video."
+                    )
+                except (json.JSONDecodeError, OSError):
+                    pass  # Corrupted timestamps, regenerate
 
-        return (
-            f"Audio generated successfully!\n"
-            f"  Audio: {audio_path}\n"
-            f"  Duration: {timestamps['duration']:.1f} seconds\n"
-            f"  Words: {len(timestamps['words'])}\n"
-            f"  Timestamps: {timestamps_path}\n\n"
-            f"NEXT STEP: Run align_timestamps to verify word indices match before rendering."
-        )
+        # GUARD 2: Acquire lock to prevent concurrent generation
+        lock_status = get_lock_status()
+        if not acquire_lock("generate_audio"):
+            return (
+                f"🔒 BLOCKED: Another generation is already running ({lock_status}).\n"
+                f"Wait for it to finish. DO NOT call generate_audio again.\n"
+                f"Use check_project_status to monitor progress.\n"
+                f"Lock auto-expires after {LOCK_TIMEOUT_SECONDS}s if process crashes."
+            )
+
+        try:
+            # Save sanitized text for alignment reference
+            sanitized_path = AUDIO_DIR / "current_sanitized.txt"
+            with open(sanitized_path, "w", encoding="utf-8") as f:
+                f.write(text)
+
+            generate_audio(text, voice_id, audio_path)
+            timestamps = generate_timestamps(audio_path, timestamps_path)
+
+            # Save hash so we can detect if narration changed
+            hash_path.write_text(current_hash, encoding="utf-8")
+
+            return (
+                f"Audio generated successfully!\n"
+                f"  Audio: {audio_path}\n"
+                f"  Duration: {timestamps['duration']:.1f} seconds\n"
+                f"  Words: {len(timestamps['words'])}\n"
+                f"  Timestamps: {timestamps_path}\n"
+                f"  Narration hash: {current_hash}\n\n"
+                f"NEXT STEP: Run align_timestamps to verify word indices match before rendering."
+            )
+        finally:
+            release_lock()
 
     # ── align_timestamps ──────────────────────────────────────────
     elif name == "align_timestamps":
@@ -779,17 +924,63 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
         from src.video_renderer import render_video as do_render
 
         output_path = OUTPUT_DIR / "current.mp4"
-        do_render(output_path)
 
+        # GUARD 1: Check if video already exists
         if file_exists(output_path):
             size_mb = output_path.stat().st_size / (1024 * 1024)
             return (
-                f"Video rendered successfully!\n"
-                f"  Output: {output_path}\n"
-                f"  Size: {size_mb:.1f} MB\n"
-                f"  Metadata saved to: {OUTPUT_DIR / 'metadata.txt'}"
+                f"VIDEO ALREADY EXISTS: {output_path} ({size_mb:.1f} MB)\n"
+                f"⚠️  DO NOT call render_video again — video is ready.\n"
+                f"NEXT STEP: generate_thumbnail"
             )
-        return "ERROR: Video render completed but output file not found"
+
+        # GUARD 2: Check render progress file (still rendering from a previous call?)
+        render_progress_path = DATA_DIR / ".render_progress.json"
+        if render_progress_path.exists():
+            try:
+                progress = json.loads(render_progress_path.read_text(encoding="utf-8"))
+                elapsed = time.time() - progress.get("timestamp", 0)
+                phase = progress.get("phase", "unknown")
+                pct = progress.get("percent", 0)
+                detail = progress.get("detail", "")
+
+                # If progress was updated within the last 60s, render is still running
+                if elapsed < 60 and phase != "complete":
+                    return (
+                        f"🎬 RENDER IN PROGRESS — DO NOT call render_video again!\n"
+                        f"  Phase: {phase}\n"
+                        f"  Progress: {pct}%\n"
+                        f"  Detail: {detail}\n"
+                        f"  Last update: {elapsed:.0f}s ago\n\n"
+                        f"Use check_project_status to monitor progress."
+                    )
+            except (json.JSONDecodeError, OSError):
+                pass
+
+        # GUARD 3: Acquire lock to prevent concurrent renders
+        lock_status = get_lock_status()
+        if not acquire_lock("render_video"):
+            return (
+                f"🔒 BLOCKED: Another operation is already running ({lock_status}).\n"
+                f"Wait for it to finish. DO NOT call render_video again.\n"
+                f"Use check_project_status to monitor progress.\n"
+                f"Lock auto-expires after {LOCK_TIMEOUT_SECONDS}s if process crashes."
+            )
+
+        try:
+            do_render(output_path)
+
+            if file_exists(output_path):
+                size_mb = output_path.stat().st_size / (1024 * 1024)
+                return (
+                    f"Video rendered successfully!\n"
+                    f"  Output: {output_path}\n"
+                    f"  Size: {size_mb:.1f} MB\n"
+                    f"  Metadata saved to: {OUTPUT_DIR / 'metadata.txt'}"
+                )
+            return "ERROR: Video render completed but output file not found"
+        finally:
+            release_lock()
 
     # ── generate_thumbnail ────────────────────────────────────────
     elif name == "generate_thumbnail":

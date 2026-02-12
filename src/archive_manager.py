@@ -63,37 +63,49 @@ def clear_working_directories():
     """
     Clear working directories for a fresh start.
     Keeps directory structure but removes files.
+    Also cleans up lock files and narration hashes.
     """
     print("Clearing working directories...")
-    
+
     # Clear images (keep directory)
     if IMAGES_DIR.exists():
         for file in IMAGES_DIR.iterdir():
             if file.is_file():
                 file.unlink()
         print(f"  Cleared: {IMAGES_DIR}")
-    
+
     # Clear audio (keep directory)
     if AUDIO_DIR.exists():
         for file in AUDIO_DIR.iterdir():
             if file.is_file():
                 file.unlink()
         print(f"  Cleared: {AUDIO_DIR}")
-    
+
     # Clear scripts (keep directory)
     if SCRIPTS_DIR.exists():
         for file in SCRIPTS_DIR.iterdir():
             if file.is_file():
                 file.unlink()
         print(f"  Cleared: {SCRIPTS_DIR}")
-    
+
     # Clear output (keep directory)
     if OUTPUT_DIR.exists():
         for file in OUTPUT_DIR.iterdir():
             if file.is_file():
                 file.unlink()
         print(f"  Cleared: {OUTPUT_DIR}")
-    
+
+    # Clear generation lock file and render progress
+    lock_path = DATA_DIR / ".generation.lock"
+    if lock_path.exists():
+        lock_path.unlink()
+        print(f"  Cleared: generation lock")
+
+    render_progress_path = DATA_DIR / ".render_progress.json"
+    if render_progress_path.exists():
+        render_progress_path.unlink()
+        print(f"  Cleared: render progress")
+
     print("Working directories cleared.")
 
 

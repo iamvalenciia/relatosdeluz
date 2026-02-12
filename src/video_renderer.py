@@ -13,6 +13,7 @@ Features:
 import os
 import json
 import math
+import time as _time_module
 from pathlib import Path
 from typing import List, Tuple, Optional
 import numpy as np
@@ -29,6 +30,29 @@ MUSIC_DIR = DATA_DIR / "music"
 OUTPUT_DIR = DATA_DIR / "output"
 SCRIPTS_DIR = DATA_DIR / "scripts"
 CONFIG_PATH = DATA_DIR / "config.json"
+RENDER_PROGRESS_PATH = DATA_DIR / ".render_progress.json"
+
+
+def update_render_progress(phase: str, percent: float, detail: str = ""):
+    """Write render progress to a JSON file so MCP can report it."""
+    progress = {
+        "phase": phase,
+        "percent": round(percent, 1),
+        "detail": detail,
+        "timestamp": _time_module.time(),
+        "pid": os.getpid()
+    }
+    try:
+        RENDER_PROGRESS_PATH.write_text(
+            json.dumps(progress), encoding="utf-8"
+        )
+    except OSError:
+        pass  # Non-critical, don't crash render
+
+
+def clear_render_progress():
+    """Remove the progress file when render is done."""
+    RENDER_PROGRESS_PATH.unlink(missing_ok=True)
 
 # Video constants - HORIZONTAL 16:9 FORMAT
 FPS = 30
@@ -542,27 +566,29 @@ def save_metadata(script_data: dict, output_dir: Path) -> None:
 
 def render_video(output_path: Path) -> None:
     """Render the complete video with GPU acceleration."""
+    update_render_progress("loading", 0, "Loading configuration and assets...")
     print("Loading configuration and assets...")
-    
+
     config = load_config()
     script = load_script()
     timestamps = load_timestamps()
-    
+
     script_data = script.get("script", {})
     title = script_data.get("title_internal", script_data.get("topic", ""))
     narration = script_data.get("narration", {})
     visual_assets = narration.get("visual_assets", [])
-    
+
     images = load_images(visual_assets, timestamps.get("words", []))
     if not images:
+        clear_render_progress()
         raise ValueError("No images found.")
-    
+
     audio_path = AUDIO_DIR / "current.mp3"
     from moviepy.editor import AudioFileClip as TempAudioClip
     temp_audio = TempAudioClip(str(audio_path))
     audio_duration = temp_audio.duration
     temp_audio.close()
-    
+
     LOOP_TAIL_SECONDS = 5.0
     video_duration = audio_duration + LOOP_TAIL_SECONDS
     total_frames = int(video_duration * FPS)
@@ -570,6 +596,8 @@ def render_video(output_path: Path) -> None:
     print(f"Resolution: {VIDEO_WIDTH}x{VIDEO_HEIGHT} (16:9 Horizontal)")
     print(f"Duration: {video_duration:.1f}s | Frames: {total_frames} | FPS: {FPS}")
     print()
+
+    update_render_progress("encoding", 0, f"0/{total_frames} frames")
 
     temp_video_path = output_path.with_suffix(".temp.mp4")
     container = av.open(str(temp_video_path), mode='w')
@@ -587,8 +615,7 @@ def render_video(output_path: Path) -> None:
     stream.height = VIDEO_HEIGHT
     stream.pix_fmt = 'yuv420p'
 
-    import time as _time
-    render_start = _time.time()
+    render_start = _time_module.time()
 
     for frame_num in range(total_frames):
         frame_time = frame_num / FPS
@@ -605,50 +632,47 @@ def render_video(output_path: Path) -> None:
         # Progress indicator every 30 frames (1 second of video)
         if frame_num % 30 == 0 or frame_num == total_frames - 1:
             pct = (frame_num + 1) / total_frames * 100
-            elapsed = _time.time() - render_start
+            elapsed = _time_module.time() - render_start
             fps_real = (frame_num + 1) / elapsed if elapsed > 0 else 0
             eta = (total_frames - frame_num - 1) / fps_real if fps_real > 0 else 0
-            print(f"\r  Rendering: {pct:5.1f}% | Frame {frame_num+1}/{total_frames} | {fps_real:.1f} fps | ETA: {eta:.0f}s  ", end="", flush=True)
+            detail = f"Frame {frame_num+1}/{total_frames} | {fps_real:.1f} fps | ETA: {eta:.0f}s"
+            print(f"\r  Rendering: {pct:5.1f}% | {detail}  ", end="", flush=True)
+            update_render_progress("encoding", pct, detail)
 
     print()  # newline after progress
-    
+
     for packet in stream.encode():
         container.mux(packet)
     container.close()
-    
+
     # Merge audio
+    update_render_progress("mixing_audio", 95, "Merging narration + background music...")
     from moviepy.editor import VideoFileClip, AudioFileClip, CompositeAudioClip, afx
     video_clip = VideoFileClip(str(temp_video_path))
     narration_clip = AudioFileClip(str(audio_path))
-    
+
     music_filename = script_data.get("background_music", "Echoes_of_Starlight.mp3")
     music_path = MUSIC_DIR / music_filename
     if not music_path.exists(): music_path = MUSIC_DIR / "Echoes_of_Starlight.mp3"
-    
+
     if music_path.exists():
         music_clip = AudioFileClip(str(music_path))
         if music_clip.duration < video_clip.duration:
             music_clip = afx.audio_loop(music_clip, nloops=int(video_clip.duration / music_clip.duration) + 1)
         music_clip = music_clip.subclip(0, video_clip.duration)
 
-        # Volume calibration:
-        # - During narration: music at 15% (subtle background)
-        # - After narration ends: music rises to 40% then fades out
-        # - Narration boosted to 1.15x for clarity
         narration_boosted = narration_clip.volumex(1.15)
 
-        # Music: low during voice, rises after voice ends, fade out last 3 seconds
-        # Uses np.where because moviepy passes t as numpy arrays
         fade_start = video_duration - 3.0
 
         def music_volume(t):
             vol = np.where(
                 t < audio_duration,
-                0.15,                                         # During narration
+                0.15,
                 np.where(
                     t < fade_start,
-                    0.40,                                     # After narration, before fade
-                    0.40 * np.maximum(0, (video_duration - t) / 3.0)  # Fade out
+                    0.40,
+                    0.40 * np.maximum(0, (video_duration - t) / 3.0)
                 )
             )
             return vol
@@ -656,7 +680,6 @@ def render_video(output_path: Path) -> None:
         def apply_music_volume(gf, t):
             audio_data = gf(t)
             vol = music_volume(t)
-            # Reshape volume for broadcasting with stereo audio (N,2)
             if isinstance(vol, np.ndarray) and vol.ndim == 1 and audio_data.ndim == 2:
                 vol = vol[:, np.newaxis]
             return audio_data * vol
@@ -669,6 +692,7 @@ def render_video(output_path: Path) -> None:
 
     print("Merging audio...")
     final_clip = video_clip.set_audio(final_audio)
+    update_render_progress("writing_final", 98, "Writing final MP4 with audio...")
     final_clip.write_videofile(str(output_path), codec='libx264', audio_codec='aac', logger=None)
 
     video_clip.close()
@@ -676,6 +700,9 @@ def render_video(output_path: Path) -> None:
     if music_path.exists(): music_clip.close()
     temp_video_path.unlink(missing_ok=True)
     save_metadata(script_data, output_path.parent)
+
+    update_render_progress("complete", 100, "Render finished successfully")
+    clear_render_progress()
 
 def main():
     output_path = OUTPUT_DIR / "current.mp4"
