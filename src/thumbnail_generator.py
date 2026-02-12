@@ -112,10 +112,11 @@ def find_best_image(script: dict, thumb_config: dict) -> Optional[Path]:
     """
     Select the best image for the thumbnail.
 
-    Strategy:
-    - If asset_id is specified in config, use that image
-    - If custom_path is specified, use that
-    - If 'auto', pick the first image (usually the most dramatic/opening scene)
+    Strategy (in priority order):
+    1. If asset_id is specified in thumbnail_config, use that image
+    2. If custom_path is specified, use that
+    3. If script has thumbnail_asset_id, use that (designed for thumbnail at script creation)
+    4. If 'auto', pick the first image
     """
     image_cfg = thumb_config.get("image", {})
     source = image_cfg.get("source", "auto")
@@ -127,7 +128,7 @@ def find_best_image(script: dict, thumb_config: dict) -> Optional[Path]:
         if p.exists():
             return p
 
-    # Specific asset_id
+    # Specific asset_id from thumbnail config
     asset_id = image_cfg.get("asset_id")
     if asset_id and source == "asset":
         for ext in [".png", ".jpg", ".jpeg", ".webp"]:
@@ -135,8 +136,16 @@ def find_best_image(script: dict, thumb_config: dict) -> Optional[Path]:
             if p.exists():
                 return p
 
-    # Auto: pick the first available image from the script's visual assets
+    # Auto: use thumbnail_asset_id from script if available
     script_data = script.get("script", {})
+    thumb_asset_id = script_data.get("thumbnail_asset_id")
+    if thumb_asset_id:
+        for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+            p = IMAGES_DIR / f"{thumb_asset_id}{ext}"
+            if p.exists():
+                return p
+
+    # Fallback: first available image from visual assets
     narration = script_data.get("narration", {})
     visual_assets = narration.get("visual_assets", [])
 

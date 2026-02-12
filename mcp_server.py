@@ -130,6 +130,15 @@ def validate_script_data(script_json: dict) -> dict:
     elif len(title_int) > 80:
         errors.append(f"title_internal too long ({len(title_int)} chars, max 80)")
 
+    # Thumbnail asset
+    thumb_asset = script.get("thumbnail_asset_id", "")
+    if not thumb_asset:
+        warnings.append("Missing thumbnail_asset_id (recommended: '1a' - the image designed for thumbnail)")
+    else:
+        valid_ids = [f"1{chr(97+i)}" for i in range(14)]  # 1a through 1n
+        if thumb_asset not in valid_ids:
+            warnings.append(f"thumbnail_asset_id '{thumb_asset}' is not a valid asset ID")
+
     # Music
     music = script.get("background_music", "")
     if music not in VALID_MUSIC:

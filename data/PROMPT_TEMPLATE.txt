@@ -215,6 +215,19 @@ REGLAS PARA PROMPTS DE IMAGEN:
 7. TERMINA CADA PROMPT CON:
    "Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
 
+8. IMAGEN PARA THUMBNAIL (ASSET "1a") - CRÍTICO PARA CTR:
+   La PRIMERA imagen (visual_asset_id "1a") será usada como thumbnail del video en YouTube. Debe ser diseñada con composición de THUMBNAIL en mente:
+   - COMPOSICIÓN CINEMATOGRÁFICA: Sujeto principal centrado o en primer plano con profundidad de campo. Piensa en un póster de película épica, no en una ilustración plana.
+   - EFECTO "CANVAS 3D": Composición con múltiples capas de profundidad (foreground, middle ground, background). Personajes en primer plano con escenario detrás. Esto crea un efecto visual dramático cuando se usa como thumbnail.
+   - CONTRASTE ALTO: Colores vibrantes y alto contraste entre el sujeto y el fondo. El sujeto debe "saltar" visualmente.
+   - ROSTROS Y EMOCIONES: Si hay personajes, mostrar expresiones faciales claras y dramáticas (asombro, fe, determinación, angustia). Los rostros venden clics en YouTube.
+   - ESPACIO PARA TEXTO: Dejar espacio libre (sin elementos visuales importantes) en el lado izquierdo o superior para que el título del thumbnail pueda ir ahí sin tapar la imagen.
+   - ESCENA ICÓNICA: La imagen debe representar el MOMENTO MÁS IMPACTANTE o EMBLEMÁTICO de la historia. El espectador debe entender el tema solo con ver la imagen.
+   - MATCH CON TÍTULO: La imagen debe conectar visualmente con el title_youtube. Si el título dice "PLAN SECRETO", la imagen debe mostrar algo secreto/misterioso. Si dice "ORACIÓN que venció", debe mostrar a alguien orando.
+
+   EJEMPLO de prompt para thumbnail:
+   "A detailed oil painting in the style of Latter-day Saint sacred art, depicting a dramatic close-up scene of an ancient prophet raising his arms toward heaven in fervent prayer, positioned in the right side of the composition. Behind him, a massive tower rises against a turbulent sky with dramatic clouds. A crowd of confused people fills the middle ground, some clutching their heads in distress. Rich cinematic composition with strong depth layers: prophet in foreground, crowd in midground, tower in background. High contrast between warm golden light on the prophet and dark stormy atmosphere. Powerful emotional expressions on all faces. Space left clear on the upper-left for text overlay. Anatomically correct proportions, naturalistic facial features. Latter-day Saint sacred art style. Horizontal 16:9 landscape composition, family friendly. NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery."
+
 ========================================
 ESQUEMA JSON (ESTRICTO)
 ========================================
@@ -223,8 +236,9 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
 {
   "script": {
     "id": "current",
-    "title_youtube": "Título optimizado para CTR de YouTube (máximo 70 caracteres)",
+    "title_youtube": "HOOK con MAYÚSCULAS estratégicas | Contexto de Búsqueda (máximo 70 caracteres)",
     "title_internal": "Título descriptivo que aparece DENTRO del video (máximo 80 caracteres)",
+    "thumbnail_asset_id": "1a",
     "background_music": "divinity.mp3",
     "narration": {
       "full_text": "Afirmación poderosa que engancha inmediatamente. [pause] Desarrollo de la historia con tensión emocional real usando micro-hooks cada 10-15 segundos, escrituras y experiencias documentadas. [warmly] Clímax espiritual con conexión al espectador. [hopeful] Cierre reflexivo con frase completa que resuena.",
@@ -257,6 +271,7 @@ REGLAS DEL JSON:
 - Los word indices empiezan en 0 y cubren TODO el full_text sin huecos
 - visual_asset_id: "1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j", "1k", "1l", "1m", "1n"
 - background_music: Debe ser uno de los tres archivos disponibles
+- thumbnail_asset_id: Siempre "1a" (la primera imagen, diseñada para thumbnail). Si por alguna razón otra imagen es mejor para thumbnail, cambiar este valor.
 - title_youtube: Optimizado para CTR, puede ser intrigante (máximo 70 caracteres)
 - title_internal: Descriptivo y completo para quien solo ve el video (máximo 80 caracteres)
 - El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
@@ -285,8 +300,10 @@ ANTES de devolver el JSON, verifica CADA punto. Si alguno falla, CORRIGE antes d
 □ Todos los image_prompts terminan con "NO CROSSES, NO HALOS, NO WINGS on angels, NO Catholic imagery"
 □ Hay entre 10 y 14 visual_assets
 □ Los word indices son consecutivos sin saltos ni huecos
+□ El asset "1a" tiene un image_prompt diseñado para THUMBNAIL: composición cinematográfica con profundidad, contraste alto, espacio para texto, y match visual con el title_youtube
+□ thumbnail_asset_id está presente y apunta al asset diseñado para thumbnail (normalmente "1a")
 □ title_youtube tiene formato "HOOK con MAYÚSCULAS | Contexto de Búsqueda" (máximo 70 caracteres)
-□ title_youtube hace match visual/temático con la imagen que se usará de thumbnail
+□ title_youtube hace match visual/temático con la imagen del thumbnail_asset_id
 □ title_internal es descriptivo y entendible solo (máximo 80 caracteres)
 □ metadata.description_hook tiene máximo 150 caracteres y contiene palabras clave principales
 □ metadata.description_body tiene 3-5 líneas con palabras clave SEO naturales
