@@ -986,20 +986,32 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
     elif name == "generate_thumbnail":
         layout_name = args.get("layout")
 
-        # Start with existing config or empty
-        thumb_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
+        # Load existing config for image settings
+        existing_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
 
-        # If layout is specified, apply it as the base
+        # If layout is specified, start FRESH from layout (don't deep-merge old values)
         if layout_name:
+            import importlib
+            import src.thumbnail_layouts as _tl_mod
+            importlib.reload(_tl_mod)
             from src.thumbnail_layouts import get_layout_config, LAYOUTS
             if layout_name not in LAYOUTS:
                 available = ", ".join(LAYOUTS.keys())
                 return f"ERROR: Unknown layout '{layout_name}'. Available: {available}"
 
             layout_config = get_layout_config(layout_name)
+            # Start fresh with layout config, only preserve image settings from existing
+            thumb_cfg = {"thumbnail": {}}
             deep_merge(thumb_cfg, layout_config)
+            # Preserve image source settings from existing config
+            existing_image = existing_cfg.get("thumbnail", {}).get("image", {})
+            if existing_image:
+                thumb_cfg.setdefault("thumbnail", {}).setdefault("image", {})
+                deep_merge(thumb_cfg["thumbnail"]["image"], existing_image)
             # Store layout name for logging
-            thumb_cfg.setdefault("thumbnail", {})["_layout_name"] = layout_name
+            thumb_cfg["thumbnail"]["_layout_name"] = layout_name
+        else:
+            thumb_cfg = existing_cfg
 
         tc = thumb_cfg.get("thumbnail", {})
 
