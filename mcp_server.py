@@ -21,6 +21,19 @@ Tools:
   - get_prompt_template: Get the script generation prompt template
   - get_video_ideas_prompt: Get the video ideas generation prompt
 
+  AI Thumbnail Engine (advanced):
+  - thumbnail_workspace: Manage AI thumbnail workspace (init/status/finalize/cleanup)
+  - thumbnail_strategy: Generate AI thumbnail strategy with Gemini
+  - analyze_thumbnail: AI analysis with CTR prediction and improvements
+  - generate_thumbnail_background: Generate 16:9 cinematic background
+  - generate_thumbnail_element: Generate 1:1 element on white background
+  - generate_thumbnail_text_art: Generate stylized text as image
+  - remove_background: Remove background with AI (rembg)
+  - add_visual_effects: Apply effects pipeline (vignette, blur, color grade...)
+  - compose_thumbnail: Multi-layer composition engine
+  - add_text_overlay: Advanced text overlay with UPPERCASE highlighting
+  - refine_thumbnail: Targeted layer adjustments
+
 Run: python mcp_server.py
 """
 
@@ -615,6 +628,323 @@ async def list_tools() -> list[Tool]:
                 "required": [],
             },
         ),
+
+        # ── AI Thumbnail Engine Tools ──────────────────────────────
+        Tool(
+            name="thumbnail_workspace",
+            description=(
+                "Manage the AI thumbnail workspace. Actions: "
+                "'init' = create fresh workspace (clears previous), "
+                "'status' = list all generated assets and composition state, "
+                "'finalize' = copy composed thumbnail to data/output/thumbnail.png, "
+                "'cleanup' = remove all workspace files. "
+                "CALL init FIRST before generating any thumbnail assets."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action: init, status, finalize, cleanup",
+                        "enum": ["init", "status", "finalize", "cleanup"],
+                    }
+                },
+                "required": ["action"],
+            },
+        ),
+        Tool(
+            name="thumbnail_strategy",
+            description=(
+                "Generate a complete AI thumbnail strategy using Gemini. "
+                "Returns: curiosity gap analysis, text hook (2-4 words), "
+                "background description, element descriptions, composition plan, "
+                "color palette, and target emotion. Use BEFORE generating assets "
+                "to plan the perfect thumbnail."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "video_title": {
+                        "type": "string",
+                        "description": "YouTube video title",
+                    },
+                    "video_topic": {
+                        "type": "string",
+                        "description": "Brief topic/theme description",
+                    },
+                    "scripture": {
+                        "type": "string",
+                        "description": "Scripture reference (e.g. 'Alma 46:12-13')",
+                    },
+                    "mood": {
+                        "type": "string",
+                        "description": "Desired mood/feeling (e.g. 'dramatic', 'hopeful', 'mysterious')",
+                    },
+                },
+                "required": ["video_title", "video_topic"],
+            },
+        ),
+        Tool(
+            name="analyze_thumbnail",
+            description=(
+                "Analyze a thumbnail with Gemini AI vision. Returns: "
+                "CTR prediction (1-10), strengths, weaknesses, specific improvements, "
+                "title-thumbnail gap analysis, and mobile readability check. "
+                "Use on 'composed' for the current composition, or pass an asset_id."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "target": {
+                        "type": "string",
+                        "description": "Asset ID or 'composed' for the current composition",
+                        "default": "composed",
+                    },
+                    "video_title": {
+                        "type": "string",
+                        "description": "YouTube video title for context",
+                    },
+                },
+                "required": [],
+            },
+        ),
+        Tool(
+            name="generate_thumbnail_background",
+            description=(
+                "Generate a 16:9 cinematic background image for thumbnail composition. "
+                "Styles: cinematic, painterly, dramatic, ethereal, photorealistic. "
+                "Result saved to workspace as bg_01, bg_02, etc. "
+                "Requires GEMINI_API_KEY in .env."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Detailed scene description (mood, lighting, colors, environment)",
+                    },
+                    "style": {
+                        "type": "string",
+                        "description": "Art style: cinematic, painterly, dramatic, ethereal, photorealistic",
+                        "default": "cinematic",
+                    },
+                },
+                "required": ["prompt"],
+            },
+        ),
+        Tool(
+            name="generate_thumbnail_element",
+            description=(
+                "Generate a 1:1 element image (character, object, symbol) on white background "
+                "for cutout/extraction. Use remove_background afterward to isolate the subject. "
+                "Styles: painterly, realistic, sacred_art. "
+                "Result saved to workspace as el_01, el_02, etc."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Detailed subject description (pose, expression, clothing, angle)",
+                    },
+                    "style": {
+                        "type": "string",
+                        "description": "Art style: painterly, realistic, sacred_art",
+                        "default": "painterly",
+                    },
+                },
+                "required": ["prompt"],
+            },
+        ),
+        Tool(
+            name="generate_thumbnail_text_art",
+            description=(
+                "Generate stylized text as an image (3D gold, fire, glowing, carved stone, etc). "
+                "Styles: bold_gold, fire, glowing, ancient_carved, neon, ice, stone, blood. "
+                "Result saved to workspace as text_01, text_02, etc."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "The text to render (keep short: 2-4 words)",
+                    },
+                    "style": {
+                        "type": "string",
+                        "description": "Text style: bold_gold, fire, glowing, ancient_carved, neon, ice, stone, blood",
+                        "default": "bold_gold",
+                    },
+                },
+                "required": ["text"],
+            },
+        ),
+        Tool(
+            name="remove_background",
+            description=(
+                "Remove background from an image using AI (rembg/U2-Net, offline). "
+                "Creates a new asset with transparent background: {id}_nobg. "
+                "Use after generate_thumbnail_element to isolate subjects for composition."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "asset_id": {
+                        "type": "string",
+                        "description": "Asset ID to process (e.g. 'el_01')",
+                    },
+                },
+                "required": ["asset_id"],
+            },
+        ),
+        Tool(
+            name="add_visual_effects",
+            description=(
+                "Apply visual effects pipeline to an image. "
+                "Effects: vignette, blur, color_grade (warm/cool/dramatic/golden_hour/desaturated), "
+                "glow, border, brightness, contrast, saturation, gradient. "
+                "Apply to 'composed' for the current composition or any asset_id."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "target": {
+                        "type": "string",
+                        "description": "Asset ID or 'composed' for current composition",
+                        "default": "composed",
+                    },
+                    "effects": {
+                        "type": "array",
+                        "description": "List of effects to apply in order",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "description": "Effect type: vignette, blur, color_grade, glow, border, brightness, contrast, saturation, gradient",
+                                },
+                                "params": {
+                                    "type": "object",
+                                    "description": "Effect parameters (varies by type). vignette: {strength}, blur: {radius}, color_grade: {preset}, gradient: {direction, color, start_opacity, end_opacity}",
+                                },
+                            },
+                        },
+                    },
+                },
+                "required": ["effects"],
+            },
+        ),
+        Tool(
+            name="compose_thumbnail",
+            description=(
+                "Compose multiple image layers into a 1280x720 thumbnail. "
+                "Layers render bottom-to-top (first = background). "
+                "Each layer has: asset_id, x, y, scale, opacity (0-1), rotation (degrees), "
+                "flip_h (bool), anchor (top_left/center/bottom_center/top_center/bottom_left/bottom_right/top_right). "
+                "Result saved as composed.png in workspace."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "layers": {
+                        "type": "array",
+                        "description": "Layers to compose (bottom-to-top order)",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "asset_id": {
+                                    "type": "string",
+                                    "description": "Asset ID from workspace (e.g. 'bg_01', 'el_01_nobg')",
+                                },
+                                "path": {
+                                    "type": "string",
+                                    "description": "Alternative: absolute file path",
+                                },
+                                "x": {"type": "integer", "description": "X position (default 0)"},
+                                "y": {"type": "integer", "description": "Y position (default 0)"},
+                                "scale": {"type": "number", "description": "Scale factor (default 1.0)"},
+                                "opacity": {"type": "number", "description": "Opacity 0.0-1.0 (default 1.0)"},
+                                "rotation": {"type": "number", "description": "Rotation degrees (default 0)"},
+                                "flip_h": {"type": "boolean", "description": "Flip horizontally (default false)"},
+                                "anchor": {
+                                    "type": "string",
+                                    "description": "Anchor point: top_left, center, bottom_center, top_center",
+                                    "default": "top_left",
+                                },
+                            },
+                        },
+                    },
+                },
+                "required": ["layers"],
+            },
+        ),
+        Tool(
+            name="add_text_overlay",
+            description=(
+                "Add styled text overlay to the composed thumbnail. "
+                "UPPERCASE words are automatically highlighted in highlight_color (gold). "
+                "Supports stroke, shadow, word wrap, and alignment. "
+                "Example: 'La SEÑAL Olvidada' → 'SEÑAL' renders in gold, rest in white."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Text to render. Use UPPERCASE for highlighted words.",
+                    },
+                    "x": {"type": "integer", "description": "X position", "default": 60},
+                    "y": {"type": "integer", "description": "Y position", "default": 300},
+                    "target": {
+                        "type": "string",
+                        "description": "Target: 'composed' or asset_id",
+                        "default": "composed",
+                    },
+                    "font_name": {
+                        "type": "string",
+                        "description": "Font file name (default: Montserrat-ExtraBold.ttf)",
+                        "default": "Montserrat-ExtraBold.ttf",
+                    },
+                    "font_size": {"type": "integer", "description": "Font size in pixels", "default": 72},
+                    "color": {"type": "string", "description": "Text color hex", "default": "#FFFFFF"},
+                    "highlight_color": {"type": "string", "description": "UPPERCASE word color hex", "default": "#FFD700"},
+                    "stroke_width": {"type": "integer", "description": "Outline width", "default": 4},
+                    "stroke_color": {"type": "string", "description": "Outline color hex", "default": "#000000"},
+                    "shadow": {"type": "boolean", "description": "Enable drop shadow", "default": True},
+                    "max_width": {"type": "integer", "description": "Max text width for wrapping (0 = no wrap)", "default": 0},
+                    "align": {"type": "string", "description": "Text alignment: left, center, right", "default": "left"},
+                },
+                "required": ["text", "x", "y"],
+            },
+        ),
+        Tool(
+            name="refine_thumbnail",
+            description=(
+                "Make targeted adjustments to the composed thumbnail. "
+                "Actions: move_layer (x,y), scale_layer (scale), opacity_layer (opacity), "
+                "remove_layer, crop (x,y,w,h). "
+                "Re-renders the composition after changes."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action: move_layer, scale_layer, opacity_layer, remove_layer, crop",
+                    },
+                    "layer_index": {
+                        "type": "integer",
+                        "description": "Layer index (0-based, 0 = bottom/background)",
+                        "default": 0,
+                    },
+                    "params": {
+                        "type": "object",
+                        "description": "Action params: move_layer={x,y}, scale_layer={scale}, opacity_layer={opacity}, crop={x,y,w,h}",
+                    },
+                },
+                "required": ["action"],
+            },
+        ),
     ]
 
 
@@ -986,20 +1316,32 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
     elif name == "generate_thumbnail":
         layout_name = args.get("layout")
 
-        # Start with existing config or empty
-        thumb_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
+        # Load existing config for image settings
+        existing_cfg = load_json(THUMBNAIL_CONFIG_PATH) if file_exists(THUMBNAIL_CONFIG_PATH) else {"thumbnail": {}}
 
-        # If layout is specified, apply it as the base
+        # If layout is specified, start FRESH from layout (don't deep-merge old values)
         if layout_name:
+            import importlib
+            import src.thumbnail_layouts as _tl_mod
+            importlib.reload(_tl_mod)
             from src.thumbnail_layouts import get_layout_config, LAYOUTS
             if layout_name not in LAYOUTS:
                 available = ", ".join(LAYOUTS.keys())
                 return f"ERROR: Unknown layout '{layout_name}'. Available: {available}"
 
             layout_config = get_layout_config(layout_name)
+            # Start fresh with layout config, only preserve image settings from existing
+            thumb_cfg = {"thumbnail": {}}
             deep_merge(thumb_cfg, layout_config)
+            # Preserve image source settings from existing config
+            existing_image = existing_cfg.get("thumbnail", {}).get("image", {})
+            if existing_image:
+                thumb_cfg.setdefault("thumbnail", {}).setdefault("image", {})
+                deep_merge(thumb_cfg["thumbnail"]["image"], existing_image)
             # Store layout name for logging
-            thumb_cfg.setdefault("thumbnail", {})["_layout_name"] = layout_name
+            thumb_cfg["thumbnail"]["_layout_name"] = layout_name
+        else:
+            thumb_cfg = existing_cfg
 
         tc = thumb_cfg.get("thumbnail", {})
 
@@ -1202,6 +1544,300 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
             template += "\n" + ven_sigueme_text
 
         return template
+
+    # ── thumbnail_workspace ─────────────────────────────────────
+    elif name == "thumbnail_workspace":
+        from src.thumbnail_engine.workspace import (
+            init_workspace, list_assets, get_manifest,
+            finalize_thumbnail, cleanup_workspace,
+        )
+
+        action = args.get("action", "status")
+
+        if action == "init":
+            path = init_workspace()
+            return f"Thumbnail workspace initialized: {path}\nReady to generate assets."
+
+        elif action == "status":
+            assets = list_assets()
+            manifest = get_manifest()
+            comp = manifest.get("composition", {})
+            layers = comp.get("layers", [])
+
+            lines = ["THUMBNAIL WORKSPACE STATUS:", ""]
+            if assets:
+                lines.append(f"Assets ({len(assets)}):")
+                for a in assets:
+                    lines.append(f"  {a['id']} ({a['type']}): {a.get('path', '?')} [{a.get('width', 0)}x{a.get('height', 0)}]")
+            else:
+                lines.append("No assets generated yet. Use generate_thumbnail_background/element first.")
+
+            if layers:
+                lines.append(f"\nComposition: {len(layers)} layer(s)")
+            else:
+                lines.append("\nNo composition yet. Use compose_thumbnail after generating assets.")
+
+            composed = Path(manifest.get("composition", {}).get("layers", [{}])[0].get("path", "")) if layers else None
+            from src.thumbnail_engine.workspace import WORKSPACE_DIR
+            composed_path = WORKSPACE_DIR / "composed.png"
+            if composed_path.exists():
+                lines.append(f"\nComposed image: {composed_path}")
+
+            return "\n".join(lines)
+
+        elif action == "finalize":
+            try:
+                dest = finalize_thumbnail()
+                return f"Thumbnail finalized: {dest}\nReady for YouTube upload!"
+            except FileNotFoundError as e:
+                return f"ERROR: {e}. Compose a thumbnail first with compose_thumbnail."
+
+        elif action == "cleanup":
+            result = cleanup_workspace()
+            return result
+
+        return f"ERROR: Unknown workspace action '{action}'"
+
+    # ── thumbnail_strategy ────────────────────────────────────
+    elif name == "thumbnail_strategy":
+        from src.thumbnail_engine.strategist import generate_strategy
+
+        video_title = args.get("video_title", "")
+        video_topic = args.get("video_topic", "")
+        scripture = args.get("scripture", "")
+        mood = args.get("mood", "")
+
+        if not video_title or not video_topic:
+            return "ERROR: video_title and video_topic are required"
+
+        # Use lock to prevent concurrent Gemini calls
+        lock_status = get_lock_status()
+        if not acquire_lock("thumbnail_strategy"):
+            return f"🔒 BLOCKED: Another generation is running ({lock_status}). Wait and retry."
+
+        try:
+            strategy = generate_strategy(video_title, video_topic, scripture, mood)
+            return f"THUMBNAIL STRATEGY:\n\n{strategy}"
+        finally:
+            release_lock()
+
+    # ── analyze_thumbnail ─────────────────────────────────────
+    elif name == "analyze_thumbnail":
+        from src.thumbnail_engine.strategist import analyze_thumbnail as do_analyze
+        from src.thumbnail_engine.workspace import resolve_asset_path, WORKSPACE_DIR
+
+        target = args.get("target", "composed")
+        video_title = args.get("video_title", "")
+
+        if target in ("composed", "composed.png"):
+            img_path = WORKSPACE_DIR / "composed.png"
+        else:
+            img_path = resolve_asset_path(target)
+
+        if not img_path.exists():
+            return f"ERROR: Image not found: {img_path}. Compose a thumbnail first."
+
+        lock_status = get_lock_status()
+        if not acquire_lock("analyze_thumbnail"):
+            return f"🔒 BLOCKED: Another generation is running ({lock_status}). Wait and retry."
+
+        try:
+            analysis = do_analyze(img_path, video_title)
+            return f"THUMBNAIL ANALYSIS:\n\n{analysis}"
+        finally:
+            release_lock()
+
+    # ── generate_thumbnail_background ─────────────────────────
+    elif name == "generate_thumbnail_background":
+        from src.thumbnail_engine.generator import generate_background
+
+        prompt = args.get("prompt", "")
+        style = args.get("style", "cinematic")
+        if not prompt:
+            return "ERROR: prompt is required"
+
+        lock_status = get_lock_status()
+        if not acquire_lock("generate_thumbnail_background"):
+            return f"🔒 BLOCKED: Another generation is running ({lock_status}). Wait and retry."
+
+        try:
+            result = generate_background(prompt, style)
+            return (
+                f"Background generated!\n"
+                f"  Asset ID: {result['asset_id']}\n"
+                f"  Path: {result['path']}\n"
+                f"  Size: {result.get('width', '?')}x{result.get('height', '?')}\n"
+                f"  Style: {style}\n\n"
+                f"Next: generate_thumbnail_element for characters/objects, "
+                f"or compose_thumbnail to start building."
+            )
+        finally:
+            release_lock()
+
+    # ── generate_thumbnail_element ────────────────────────────
+    elif name == "generate_thumbnail_element":
+        from src.thumbnail_engine.generator import generate_element
+
+        prompt = args.get("prompt", "")
+        style = args.get("style", "painterly")
+        if not prompt:
+            return "ERROR: prompt is required"
+
+        lock_status = get_lock_status()
+        if not acquire_lock("generate_thumbnail_element"):
+            return f"🔒 BLOCKED: Another generation is running ({lock_status}). Wait and retry."
+
+        try:
+            result = generate_element(prompt, style)
+            return (
+                f"Element generated!\n"
+                f"  Asset ID: {result['asset_id']}\n"
+                f"  Path: {result['path']}\n"
+                f"  Size: {result.get('width', '?')}x{result.get('height', '?')}\n"
+                f"  Style: {style}\n\n"
+                f"Next: remove_background to isolate the subject, "
+                f"then compose_thumbnail to place it."
+            )
+        finally:
+            release_lock()
+
+    # ── generate_thumbnail_text_art ───────────────────────────
+    elif name == "generate_thumbnail_text_art":
+        from src.thumbnail_engine.generator import generate_text_art
+
+        text = args.get("text", "")
+        style = args.get("style", "bold_gold")
+        if not text:
+            return "ERROR: text is required"
+
+        lock_status = get_lock_status()
+        if not acquire_lock("generate_thumbnail_text_art"):
+            return f"🔒 BLOCKED: Another generation is running ({lock_status}). Wait and retry."
+
+        try:
+            result = generate_text_art(text, style)
+            return (
+                f"Text art generated!\n"
+                f"  Asset ID: {result['asset_id']}\n"
+                f"  Path: {result['path']}\n"
+                f"  Text: {text}\n"
+                f"  Style: {style}\n\n"
+                f"Next: remove_background if needed, then compose_thumbnail."
+            )
+        finally:
+            release_lock()
+
+    # ── remove_background ─────────────────────────────────────
+    elif name == "remove_background":
+        from src.thumbnail_engine.processor import remove_bg
+
+        asset_id = args.get("asset_id", "")
+        if not asset_id:
+            return "ERROR: asset_id is required"
+
+        result = remove_bg(asset_id)
+        return (
+            f"Background removed!\n"
+            f"  Original: {asset_id}\n"
+            f"  New asset: {result['asset_id']} (transparent background)\n"
+            f"  Path: {result['path']}\n\n"
+            f"Next: compose_thumbnail to place the cutout over a background."
+        )
+
+    # ── add_visual_effects ────────────────────────────────────
+    elif name == "add_visual_effects":
+        from src.thumbnail_engine.processor import apply_effects
+
+        target = args.get("target", "composed")
+        effects = args.get("effects", [])
+        if not effects:
+            return "ERROR: effects list is required. Example: [{\"type\": \"vignette\", \"params\": {\"strength\": 0.4}}]"
+
+        result = apply_effects(target, effects)
+        return (
+            f"Effects applied!\n"
+            f"  Target: {target}\n"
+            f"  Effects: {result['effects_applied']}\n"
+            f"  Saved: {result['path']}\n\n"
+            f"Next: add_text_overlay, analyze_thumbnail, or thumbnail_workspace(action='finalize')."
+        )
+
+    # ── compose_thumbnail ─────────────────────────────────────
+    elif name == "compose_thumbnail":
+        from src.thumbnail_engine.compositor import compose_layers
+
+        layers = args.get("layers", [])
+        if not layers:
+            return "ERROR: layers list is required. Example: [{\"asset_id\": \"bg_01\"}, {\"asset_id\": \"el_01_nobg\", \"x\": 640, \"y\": 360, \"anchor\": \"center\"}]"
+
+        result = compose_layers(layers)
+        return (
+            f"Thumbnail composed!\n"
+            f"  Layers: {result['layers']}\n"
+            f"  Size: {result['width']}x{result['height']}\n"
+            f"  Saved: {result['path']}\n\n"
+            f"Next: add_text_overlay for text, add_visual_effects for effects, "
+            f"or analyze_thumbnail for AI feedback."
+        )
+
+    # ── add_text_overlay ──────────────────────────────────────
+    elif name == "add_text_overlay":
+        from src.thumbnail_engine.compositor import add_text
+
+        text = args.get("text", "")
+        x = args.get("x", 60)
+        y = args.get("y", 300)
+        target = args.get("target", "composed")
+
+        if not text:
+            return "ERROR: text is required"
+
+        result = add_text(
+            target=target,
+            text=text,
+            x=x,
+            y=y,
+            font_name=args.get("font_name", "Montserrat-ExtraBold.ttf"),
+            font_size=args.get("font_size", 72),
+            color=args.get("color", "#FFFFFF"),
+            highlight_color=args.get("highlight_color", "#FFD700"),
+            highlight_uppercase=True,
+            stroke_width=args.get("stroke_width", 4),
+            stroke_color=args.get("stroke_color", "#000000"),
+            shadow=args.get("shadow", True),
+            shadow_color=args.get("shadow_color", "#00000080"),
+            shadow_offset=(3, 3),
+            max_width=args.get("max_width", 0),
+            align=args.get("align", "left"),
+        )
+        return (
+            f"Text overlay added!\n"
+            f"  Text: \"{text}\"\n"
+            f"  Position: ({x}, {y})\n"
+            f"  Saved: {result['path']}\n\n"
+            f"Next: add_visual_effects, analyze_thumbnail, or thumbnail_workspace(action='finalize')."
+        )
+
+    # ── refine_thumbnail ──────────────────────────────────────
+    elif name == "refine_thumbnail":
+        from src.thumbnail_engine.compositor import refine_layer
+
+        action = args.get("action", "")
+        layer_index = args.get("layer_index", 0)
+        params = args.get("params", {})
+
+        if not action:
+            return "ERROR: action is required (move_layer, scale_layer, opacity_layer, remove_layer, crop)"
+
+        result = refine_layer(action, layer_index, params)
+        if "error" in result:
+            return f"ERROR: {result['error']}"
+        return (
+            f"Thumbnail refined!\n"
+            f"  Action: {action}\n"
+            f"  Saved: {result.get('path', 'N/A')}\n\n"
+            f"Next: analyze_thumbnail for feedback or thumbnail_workspace(action='finalize')."
+        )
 
     else:
         return f"ERROR: Unknown tool '{name}'"

@@ -95,6 +95,13 @@ def clear_working_directories():
                 file.unlink()
         print(f"  Cleared: {OUTPUT_DIR}")
 
+    # Clear thumbnail workspace
+    thumb_workspace = DATA_DIR / "thumbnail_workspace"
+    if thumb_workspace.exists():
+        shutil.rmtree(thumb_workspace)
+        thumb_workspace.mkdir(parents=True, exist_ok=True)
+        print(f"  Cleared: {thumb_workspace}")
+
     # Clear generation lock file and render progress
     lock_path = DATA_DIR / ".generation.lock"
     if lock_path.exists():

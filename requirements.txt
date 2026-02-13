@@ -7,3 +7,4 @@ openai-whisper>=20231117
 python-dotenv>=1.0.0
 mcp>=1.0.0
 google-genai>=0.3.0
+rembg>=2.0.0

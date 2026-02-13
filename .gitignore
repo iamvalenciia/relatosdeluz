@@ -41,6 +41,9 @@ data/fonts/*.otf
 # Timestamps (se regeneran con el audio)
 data/audio/*_timestamps.json
 
+# AI Thumbnail workspace (generated assets, compositions)
+data/thumbnail_workspace/
+
 # ============================================
 # OTROS
 # ============================================
