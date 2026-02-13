@@ -41,6 +41,24 @@ BG_STYLES = {
         "Photorealistic high-resolution scene with natural lighting, "
         "accurate colors, sharp details, professional photography look. "
     ),
+    "dark_abstract": (
+        "Very DARK abstract background with minimal detail. Deep blacks, "
+        "subtle color gradients, wisps of smoke or mist. NO recognizable objects "
+        "or scenery. Pure atmospheric mood. Dark blue-black or dark red-black tones. "
+        "Suitable as a backdrop that does NOT compete with a foreground subject. "
+    ),
+    "moody_bokeh": (
+        "Extremely dark background with soft out-of-focus bokeh light points. "
+        "Deep shadows, very shallow depth of field effect. Warm or cool color cast. "
+        "The background should be 80%+ dark/black with subtle light accents. "
+        "NO recognizable objects. Pure atmosphere and mood. "
+    ),
+    "dark_gradient": (
+        "Solid dark gradient background transitioning from one dark color to another. "
+        "For example: dark navy to black, dark crimson to black, dark forest to black. "
+        "Minimal texture, clean and simple. NO objects, NO scenery, NO details. "
+        "Pure color gradient for thumbnail composition. "
+    ),
 }
 
 ELEMENT_STYLES = {
@@ -56,6 +74,15 @@ ELEMENT_STYLES = {
         "Latter-day Saint sacred art style (Greg Olsen, Del Parson, Walter Rane). "
         "Oil painting, golden lighting, reverent atmosphere. "
     ),
+    "close_up_portrait": (
+        "Dramatic CLOSE-UP portrait from chest up, face fills most of the frame. "
+        "Cinematic portrait photography framing. Strong directional lighting "
+        "(Rembrandt or split lighting) creating dramatic shadows on the face. "
+        "Rich oil painting style in the LDS sacred art tradition "
+        "(Greg Olsen, Walter Rane). The subject's expression must be INTENSE "
+        "and clearly readable - eyes are the focal point. "
+        "Detailed facial features, realistic skin texture, strong emotion. "
+    ),
 }
 
 TEXT_STYLES = {
@@ -70,16 +97,20 @@ TEXT_STYLES = {
 }
 
 THUMBNAIL_SUFFIX = (
-    " IMPORTANT: This image is for a YouTube thumbnail. "
-    "Make it visually STRIKING with HIGH CONTRAST and BOLD COLORS. "
+    " IMPORTANT: This image is for a YouTube thumbnail background. "
+    "Make it visually DARK and MOODY with deep shadows. "
+    "HIGH CONTRAST with minimal detail so a foreground subject can stand out. "
     "NO text, NO letters, NO numbers, NO watermarks in the image. "
-    "Clean composition suitable for overlay text."
+    "NO people or faces. Clean atmospheric background only."
 )
 
 ELEMENT_BG_SUFFIX = (
     " The subject must be on a PLAIN SOLID WHITE BACKGROUND with no other "
     "elements, objects, or scenery. Just the subject isolated on pure white. "
-    "This is for cutout/extraction purposes."
+    "This is for cutout/extraction purposes. "
+    "FRAMING: Show the subject from CHEST UP (bust/portrait framing). "
+    "The FACE must be clearly visible and take up a large portion of the image. "
+    "Strong facial expression. Eyes must be the focal point."
 )
 
 

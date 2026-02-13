@@ -24,37 +24,81 @@ def _get_client():
     return genai.Client(api_key=GEMINI_API_KEY)
 
 
-STRATEGY_PROMPT = """Eres un ESTRATEGA EXPERTO en thumbnails de YouTube con 10+ años de experiencia.
+STRATEGY_PROMPT = """Eres un ESTRATEGA EXPERTO en thumbnails de YouTube con 10+ años de experiencia en optimización de CTR.
 Tu audiencia: personas de 45-65+ años, hispanohablantes, miembros SUD (Santos de los Últimos Días).
 Canal: "Relatos de Luz" - Videos cortos sobre escrituras del programa Ven Sígueme.
 
-ANALIZA el video y crea una ESTRATEGIA COMPLETA de thumbnail:
+REGLA #1 - CLOSE-UP FACE DOMINANTE:
+Los thumbnails de alto CTR en YouTube tienen un ROSTRO EN PRIMER PLANO que ocupa 40-60% del frame.
+NO cuerpo completo. NO escena panorámica. Un ROSTRO con emoción fuerte es lo que genera clicks.
+El rostro debe ser del personaje bíblico/Libro de Mormón principal del video.
+
+REGLA #2 - TEXTO CORTO (2-3 PALABRAS MÁXIMO):
+El texto del thumbnail NO es el título del video. Son 2-3 palabras que crean TENSIÓN COGNITIVA.
+Una palabra debe ser el gancho emocional en color de acento. Ejemplos:
+  "¿POR QUÉ?" (POR QUÉ en acento)
+  "La SEÑAL" (SEÑAL en acento)
+  "TRAICIÓN Divina" (TRAICIÓN en acento)
+
+REGLA #3 - COMPOSICIÓN DIVIDIDA (SPLIT):
+Rostro en un lado (izquierda o derecha), texto en el lado opuesto.
+NUNCA texto centrado sobre una ilustración. Siempre separados.
+
+REGLA #4 - FONDO OSCURO/MOODY:
+El fondo debe ser OSCURO (negro, azul marino, rojo oscuro) y DESENFOCADO o ABSTRACTO.
+El fondo NO debe competir con el rostro. Es un soporte atmosférico, no una escena detallada.
+
+REGLA #5 - ALTO CONTRASTE:
+El rostro debe estar bien iluminado contra el fondo oscuro. El contraste atrae el ojo.
+
+REGLA #6 - SISTEMA DE 2 COLORES EN TEXTO:
+Blanco como base + UN color de acento (cian, amarillo, rojo, verde).
+La palabra de acento es el gancho emocional. NUNCA más de 2 colores en texto.
+
+ANALIZA el video y crea una ESTRATEGIA COMPLETA:
 
 VIDEO:
 - Título YouTube: {title}
 - Tema: {topic}
 - Escritura: {scripture}
 
-GENERA:
-1. **CURIOSITY GAP** (3-4 oraciones): ¿Qué pregunta debe crear el thumbnail que el título no responda completamente? ¿Qué tensión cognitiva genera el click?
+GENERA (responde en ESPAÑOL, sé específico y accionable):
 
-2. **TEXTO HOOK** (2-4 palabras): El texto que aparecerá EN el thumbnail. Debe ser provocativo, crear curiosidad, NO repetir el título. Usa MAYÚSCULAS para las palabras que deben destacar en color de acento. Ejemplos: "¿Y AHORA QUÉ?", "La SEÑAL Olvidada", "ARCO de GUERRA"
+1. **ROSTRO** (CRÍTICO - el elemento más importante):
+   - ¿Qué personaje bíblico/Libro de Mormón aparece?
+   - Expresión facial EXACTA (sorpresa, angustia, determinación, asombro, ira contenida, súplica, etc.)
+   - Ángulo de cámara (3/4, frontal ligeramente girado, perfil dramático)
+   - Iluminación (lateral dramática, contraluz, luz cenital, Rembrandt lighting)
+   - Encuadre: CLOSE-UP de busto/retrato. Desde el pecho hacia arriba. Rostro ocupa 50%+ del frame.
+   - Vestimenta visible en la porción de busto (túnica, armadura, manto, etc.)
+   - Escala recomendada: 0.7-1.0 relativo al canvas (GRANDE)
 
-3. **FONDO** (descripción detallada): Escena de fondo 16:9. Describe la atmósfera, iluminación, colores, ambiente. Debe ser dramático y visualmente impactante.
+2. **TEXTO HOOK** (2-3 palabras MÁXIMO):
+   - Las 2-3 palabras que aparecen en el thumbnail.
+   - Usa MAYÚSCULAS para la palabra que va en color de acento.
+   - El texto debe crear curiosidad SIN repetir el título del video.
+   - Debe provocar la pregunta: "¿qué pasó?" o "¿qué significa esto?"
 
-4. **ELEMENTOS** (1-2 elementos): Personajes u objetos que necesitan generarse por separado para componer sobre el fondo. Describe pose, expresión, vestimenta, ángulo.
+3. **FONDO** (soporte, NO protagonista):
+   - Descripción de fondo OSCURO y ABSTRACTO/DESENFOCADO.
+   - Puede ser: gradiente de color sólido, humo/niebla, paisaje muy desenfocado, textura abstracta.
+   - Color dominante del fondo (oscuro).
+   - El fondo NO debe tener detalles que compitan con el rostro.
 
-5. **COMPOSICIÓN**: Dónde va cada elemento en el canvas 1280x720:
-   - Posición del fondo
-   - Posición y escala de cada elemento
-   - Posición del texto
-   - Efectos visuales recomendados (vignette, gradient, glow)
+4. **COMPOSICIÓN** (layout exacto en canvas 1280x720):
+   - ¿Rostro a la IZQUIERDA o DERECHA?
+   - Posición exacta (x, y) del elemento rostro y su escala.
+   - Posición exacta del texto (lado opuesto al rostro).
+   - Alineación del texto (left/right) según posición.
 
-6. **PALETA DE COLORES**: 3-4 colores hex que dominan el thumbnail.
+5. **PALETA DE COLORES**:
+   - Color de texto base: siempre #FFFFFF (blanco).
+   - Color de acento para palabra destacada: UN color hex (cian, amarillo, rojo o verde).
+   - Color dominante del fondo: hex oscuro.
 
-7. **EMOCIÓN OBJETIVO**: ¿Qué debe sentir el espectador en los primeros 0.5 segundos?
+6. **EMOCIÓN OBJETIVO**: ¿Qué debe sentir el espectador en 0.5 segundos?
 
-Responde en ESPAÑOL. Sé específico y accionable."""
+7. **CURIOSITY GAP** (2-3 oraciones): ¿Qué pregunta implícita crea el thumbnail + título juntos?"""
 
 
 ANALYSIS_PROMPT = """Eres un ANALISTA EXPERTO en thumbnails de YouTube con enfoque en CTR (Click-Through Rate).
@@ -64,21 +108,42 @@ Audiencia: 45-65+ años, hispanohablantes, miembros SUD.
 
 {title_context}
 
-EVALÚA:
+EVALÚA cada criterio con puntuación individual (1-10):
 
-1. **PREDICCIÓN CTR** (1-10): Estimación de efectividad. 1-3 = bajo, 4-6 = promedio, 7-8 = bueno, 9-10 = excelente.
+1. **ROSTRO CLOSE-UP** (peso 30% en CTR): ¿Hay un rostro en primer plano que ocupe 40-60% del frame?
+   - Si no hay rostro close-up: máximo 4/10 en CTR total.
+   - ¿La expresión es fuerte y legible?
+   - ¿El rostro está bien iluminado contra fondo oscuro?
+   Puntuación: _/10
 
-2. **FORTALEZAS** (3-5 puntos): ¿Qué funciona bien? Contraste, composición, texto, colores, emoción.
+2. **TEXTO** (peso 20%): ¿El texto es de 2-3 palabras máximo? ¿Usa sistema de 2 colores (blanco + acento)?
+   - Si tiene más de 4 palabras: máximo 5/10.
+   - ¿La palabra de acento es el gancho emocional?
+   Puntuación: _/10
 
-3. **DEBILIDADES** (3-5 puntos): ¿Qué puede mejorar? Legibilidad, composición, impacto visual, curiosidad.
+3. **COMPOSICIÓN SPLIT** (peso 20%): ¿El rostro está en un lado y el texto en el otro?
+   - ¿Hay separación clara entre zona de rostro y zona de texto?
+   - ¿El layout es limpio y no abarrotado?
+   Puntuación: _/10
 
-4. **MEJORAS ESPECÍFICAS** (3-5 acciones concretas): Instrucciones exactas para mejorar.
-   Ejemplo: "Mover el personaje 100px a la derecha", "Aumentar el tamaño del texto a 84px",
-   "Agregar vignette con strength 0.3", "Cambiar color del texto a #FFE500".
+4. **CONTRASTE Y FONDO** (peso 15%): ¿El fondo es oscuro/moody?
+   - ¿El sujeto (rostro) resalta contra el fondo?
+   - ¿El fondo NO compite con el sujeto?
+   Puntuación: _/10
 
-5. **TITLE-THUMBNAIL GAP**: ¿El thumbnail complementa el título sin repetirlo? ¿Genera curiosidad adicional?
+5. **LEGIBILIDAD MÓVIL** (peso 15%): ¿Se lee todo bien en pantalla de celular?
+   - La audiencia 45-65+ usa mucho el celular con texto grande.
+   - ¿El texto es lo suficientemente grande?
+   - ¿El rostro es reconocible en tamaño pequeño?
+   Puntuación: _/10
 
-6. **LEGIBILIDAD MÓVIL**: ¿Se lee bien en pantalla pequeña de celular? (La audiencia 45-65+ usa mucho el celular)
+6. **PREDICCIÓN CTR TOTAL** (1-10): Promedio ponderado de los criterios anteriores.
+
+7. **MEJORAS ESPECÍFICAS** (3-5 acciones concretas con valores exactos):
+   Ejemplo: "Mover el rostro 100px a la izquierda", "Reducir texto a 2 palabras",
+   "Oscurecer fondo con brightness factor 0.7", "Agregar vignette strength 0.4"
+
+8. **TITLE-THUMBNAIL GAP**: ¿El thumbnail complementa el título sin repetirlo?
 
 Responde en ESPAÑOL. Sé específico y accionable."""
 

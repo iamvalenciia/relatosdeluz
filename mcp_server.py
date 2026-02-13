@@ -656,10 +656,11 @@ async def list_tools() -> list[Tool]:
             name="thumbnail_strategy",
             description=(
                 "Generate a complete AI thumbnail strategy using Gemini. "
-                "Returns: curiosity gap analysis, text hook (2-4 words), "
-                "background description, element descriptions, composition plan, "
-                "color palette, and target emotion. Use BEFORE generating assets "
-                "to plan the perfect thumbnail."
+                "Returns: CLOSE-UP FACE description (expression, angle, lighting, framing), "
+                "text hook (2-3 words max with accent word), DARK BACKGROUND description, "
+                "SPLIT COMPOSITION plan (face on one side, text on other), "
+                "2-color text system (white + accent), and target emotion. "
+                "Use BEFORE generating assets to plan a high-CTR thumbnail."
             ),
             inputSchema={
                 "type": "object",
@@ -711,8 +712,11 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="generate_thumbnail_background",
             description=(
-                "Generate a 16:9 cinematic background image for thumbnail composition. "
-                "Styles: cinematic, painterly, dramatic, ethereal, photorealistic. "
+                "Generate a 16:9 background image for thumbnail composition. "
+                "Styles: cinematic, painterly, dramatic, ethereal, photorealistic, "
+                "dark_abstract, moody_bokeh, dark_gradient. "
+                "RECOMMENDED for high-CTR: Use 'dark_abstract' or 'moody_bokeh' for dark backgrounds "
+                "that make a close-up face pop. "
                 "Result saved to workspace as bg_01, bg_02, etc. "
                 "Requires GEMINI_API_KEY in .env."
             ),
@@ -721,11 +725,17 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "prompt": {
                         "type": "string",
-                        "description": "Detailed scene description (mood, lighting, colors, environment)",
+                        "description": (
+                            "Scene description. For dark_abstract/moody_bokeh: describe color tones "
+                            "and mood only (e.g. 'deep navy to black gradient with subtle warm light wisps')"
+                        ),
                     },
                     "style": {
                         "type": "string",
-                        "description": "Art style: cinematic, painterly, dramatic, ethereal, photorealistic",
+                        "description": (
+                            "Art style: cinematic, painterly, dramatic, ethereal, photorealistic, "
+                            "dark_abstract, moody_bokeh, dark_gradient"
+                        ),
                         "default": "cinematic",
                     },
                 },
@@ -737,7 +747,8 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Generate a 1:1 element image (character, object, symbol) on white background "
                 "for cutout/extraction. Use remove_background afterward to isolate the subject. "
-                "Styles: painterly, realistic, sacred_art. "
+                "Styles: painterly, realistic, sacred_art, close_up_portrait. "
+                "RECOMMENDED: Use 'close_up_portrait' for face-dominant thumbnails (highest CTR). "
                 "Result saved to workspace as el_01, el_02, etc."
             ),
             inputSchema={
@@ -745,11 +756,19 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "prompt": {
                         "type": "string",
-                        "description": "Detailed subject description (pose, expression, clothing, angle)",
+                        "description": (
+                            "Detailed subject description. For close_up_portrait: describe expression, "
+                            "lighting angle, emotion, clothing visible at chest level. "
+                            "Example: 'Nephite warrior, intense determined gaze, Rembrandt lighting "
+                            "from left, bronze helmet, leather armor at chest, 3/4 angle'"
+                        ),
                     },
                     "style": {
                         "type": "string",
-                        "description": "Art style: painterly, realistic, sacred_art",
+                        "description": (
+                            "Art style: painterly, realistic, sacred_art, "
+                            "close_up_portrait (recommended for thumbnails)"
+                        ),
                         "default": "painterly",
                     },
                 },
@@ -883,8 +902,9 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Add styled text overlay to the composed thumbnail. "
                 "UPPERCASE words are automatically highlighted in highlight_color (gold). "
-                "Supports stroke, shadow, word wrap, and alignment. "
-                "Example: 'La SEÑAL Olvidada' → 'SEÑAL' renders in gold, rest in white."
+                "Supports stroke, shadow, word wrap, alignment, and background pill/highlight. "
+                "Example: 'La SEÑAL Olvidada' → 'SEÑAL' renders in gold, rest in white. "
+                "Use highlight_bg_color for a colored pill behind UPPERCASE words (like high-CTR thumbnails)."
             ),
             inputSchema={
                 "type": "object",
@@ -913,6 +933,21 @@ async def list_tools() -> list[Tool]:
                     "shadow": {"type": "boolean", "description": "Enable drop shadow", "default": True},
                     "max_width": {"type": "integer", "description": "Max text width for wrapping (0 = no wrap)", "default": 0},
                     "align": {"type": "string", "description": "Text alignment: left, center, right", "default": "left"},
+                    "highlight_bg_color": {
+                        "type": "string",
+                        "description": "Background pill color for UPPERCASE words (e.g. '#00BCD4' for cyan). Empty = no pill.",
+                        "default": "",
+                    },
+                    "highlight_bg_padding": {
+                        "type": "integer",
+                        "description": "Padding inside the background pill around the word",
+                        "default": 8,
+                    },
+                    "highlight_bg_radius": {
+                        "type": "integer",
+                        "description": "Corner radius of the background pill",
+                        "default": 4,
+                    },
                 },
                 "required": ["text", "x", "y"],
             },
@@ -1809,6 +1844,9 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
             shadow_offset=(3, 3),
             max_width=args.get("max_width", 0),
             align=args.get("align", "left"),
+            highlight_bg_color=args.get("highlight_bg_color", ""),
+            highlight_bg_padding=args.get("highlight_bg_padding", 8),
+            highlight_bg_radius=args.get("highlight_bg_radius", 4),
         )
         return (
             f"Text overlay added!\n"

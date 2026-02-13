@@ -143,6 +143,9 @@ def add_text(
     shadow_offset: tuple = (3, 3),
     max_width: int = 0,
     align: str = "left",
+    highlight_bg_color: str = "",
+    highlight_bg_padding: int = 8,
+    highlight_bg_radius: int = 4,
 ) -> dict:
     """
     Add text overlay with advanced styling.
@@ -200,6 +203,17 @@ def add_text(
         for word in words:
             is_upper = word.isupper() and highlight_uppercase and len(word) > 1
             word_color = hl_rgba[:3] if is_upper else text_rgba[:3]
+
+            # Background pill for highlighted words
+            if is_upper and highlight_bg_color:
+                hbg_rgba = hex_to_rgba(highlight_bg_color)
+                word_bbox = draw.textbbox((word_x, current_y), word, font=font)
+                pill_x1 = word_bbox[0] - highlight_bg_padding
+                pill_y1 = word_bbox[1] - highlight_bg_padding
+                pill_x2 = word_bbox[2] + highlight_bg_padding
+                pill_y2 = word_bbox[3] + highlight_bg_padding
+                _draw_rounded_rect(draw, pill_x1, pill_y1, pill_x2, pill_y2,
+                                   fill=hbg_rgba, radius=highlight_bg_radius)
 
             # Shadow
             if shadow:
@@ -326,3 +340,22 @@ def _wrap_text(text: str, font, max_width: int, draw) -> List[str]:
         if current:
             lines.append(" ".join(current))
     return lines
+
+
+def _draw_rounded_rect(
+    draw: ImageDraw.Draw,
+    x1: int, y1: int, x2: int, y2: int,
+    fill: tuple,
+    radius: int = 4,
+) -> None:
+    """Draw a rectangle with rounded corners on the given draw context."""
+    r = min(radius, (x2 - x1) // 2, (y2 - y1) // 2)
+    if r <= 0:
+        draw.rectangle([x1, y1, x2, y2], fill=fill)
+        return
+    draw.rectangle([x1 + r, y1, x2 - r, y2], fill=fill)
+    draw.rectangle([x1, y1 + r, x2, y2 - r], fill=fill)
+    draw.pieslice([x1, y1, x1 + 2*r, y1 + 2*r], 180, 270, fill=fill)
+    draw.pieslice([x2 - 2*r, y1, x2, y1 + 2*r], 270, 360, fill=fill)
+    draw.pieslice([x1, y2 - 2*r, x1 + 2*r, y2], 90, 180, fill=fill)
+    draw.pieslice([x2 - 2*r, y2 - 2*r, x2, y2], 0, 90, fill=fill)
