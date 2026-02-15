@@ -13,15 +13,21 @@ Las imágenes son CUADRADAS (1:1) y se centran sobre un fondo decorativo con efe
 El público "televisor" ve el video sin leer el título de YouTube.
 Duración objetivo: 2-3 MINUTOS (350-450 palabras de narración)
 
-El video tendrá DOS TÍTULOS:
+El video tendrá DOS TÍTULOS + una versión resaltada:
 1. `title_youtube`: El título externo que aparece en YouTube. Optimizado para CTR (Click-Through Rate). Puede ser más llamativo/intrigante.
 2. `title_internal`: El título que aparece DENTRO del video como animación. Debe ser entendible por sí solo para quien solo ve el video. Más descriptivo y completo.
+3. `title_internal_highlighted`: IGUAL que title_internal pero con las PALABRAS CLAVE en MAYÚSCULAS. Las palabras en MAYÚSCULAS se renderizan en color celeste/sky-blue en el video vertical, las demás en blanco. Alterna colores para crear impacto visual. Elige 2-4 palabras clave para resaltar (sustantivos, verbos importantes, nombres propios).
 
 Ambos títulos deben COMPLEMENTARSE pero el `title_internal` debe poder entenderse sin ver el `title_youtube`.
 
 EJEMPLO:
 - title_youtube: "El SECRETO que José Smith nunca contó públicamente"
 - title_internal: "La Noche que José Smith Recibió las Llaves del Sacerdocio"
+- title_internal_highlighted: "La Noche que JOSÉ SMITH Recibió las LLAVES del Sacerdocio"
+
+OTRO EJEMPLO:
+- title_internal: "¿Qué escuchó Enoc cuando la Tierra comenzó a hablar?"
+- title_internal_highlighted: "¿Qué escuchó ENOC cuando la TIERRA comenzó a HABLAR?"
 
 ========================================
 TÉCNICA DE STORYTELLING DE ALTO ENGANCHE
@@ -241,8 +247,10 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
     "id": "current",
     "title_youtube": "HOOK con MAYÚSCULAS estratégicas | Contexto de Búsqueda (máximo 70 caracteres)",
     "title_internal": "Título descriptivo que aparece DENTRO del video (máximo 80 caracteres)",
+    "title_internal_highlighted": "Título con PALABRAS CLAVE en MAYÚSCULAS para resaltar en celeste",
     "thumbnail_asset_id": "1a",
     "background_music": "divinity.mp3",
+    "escritura_short": "Génesis 11:1-9",
     "background_prompt": "Atmospheric scene for decorative blurred background: a vast starry night sky with subtle nebula colors, deep blues and purples blending into darkness. NO people, NO text, NO faces. Pure environmental atmosphere.",
     "narration": {
       "full_text": "Afirmación poderosa que engancha inmediatamente. [pause] Desarrollo de la historia con tensión emocional real usando micro-hooks cada 10-15 segundos, escrituras y experiencias documentadas. [warmly] Clímax espiritual con conexión al espectador. [hopeful] Cierre reflexivo con frase completa que resuena.",
@@ -281,6 +289,8 @@ REGLAS DEL JSON:
 - title_internal: Descriptivo y completo para quien solo ve el video (máximo 80 caracteres)
 - El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
 - title_youtube: DEBE tener un HOOK + contexto de búsqueda separado por " | ". Ejemplo: "Los ÚNICOS que NO perdieron su idioma en Babel | Torre de Babel Libro de Mormón". Usa MAYÚSCULAS estratégicas en 1-2 palabras clave para captar atención. El título debe hacer match con la imagen del thumbnail.
+- title_internal_highlighted: DEBE ser idéntico a title_internal pero con 2-4 PALABRAS CLAVE en MAYÚSCULAS. Estas palabras se renderizan en color celeste en el video vertical/reel. Ejemplo: title_internal="¿Qué escuchó Enoc cuando la Tierra comenzó a hablar?" → title_internal_highlighted="¿Qué escuchó ENOC cuando la TIERRA comenzó a HABLAR?"
+- escritura_short: La referencia de escritura PRINCIPAL del video, corta y clara. Se muestra en el tag inferior del reel/short junto a "Ven Sígueme". Ejemplo: "Moisés 7:48-49", "Génesis 11:1-9", "Alma 46:12-13"
 - metadata.description_hook: Máximo 150 caracteres. Pregunta o dato impactante con palabras clave principales. Es lo que se ve ANTES del "mostrar más".
 - metadata.description_body: 3-5 líneas con contexto del video y palabras clave SEO integradas naturalmente.
 - metadata.description_bullets: 3-5 puntos con emoji al inicio. Resumen de lo que el espectador aprenderá. Estos mejoran CTR.
@@ -311,6 +321,8 @@ ANTES de devolver el JSON, verifica CADA punto. Si alguno falla, CORRIGE antes d
 □ title_youtube tiene formato "HOOK con MAYÚSCULAS | Contexto de Búsqueda" (máximo 70 caracteres)
 □ title_youtube hace match visual/temático con la imagen del thumbnail_asset_id
 □ title_internal es descriptivo y entendible solo (máximo 80 caracteres)
+□ title_internal_highlighted es idéntico a title_internal pero con 2-4 PALABRAS en MAYÚSCULAS
+□ escritura_short contiene la referencia de escritura principal del video (corta y clara)
 □ metadata.description_hook tiene máximo 150 caracteres y contiene palabras clave principales
 □ metadata.description_body tiene 3-5 líneas con palabras clave SEO naturales
 □ metadata.description_bullets tiene 3-5 puntos con emoji al inicio

@@ -209,6 +209,24 @@ def validate_script_data(script_json: dict) -> dict:
     elif len(title_int) > 80:
         errors.append(f"title_internal too long ({len(title_int)} chars, max 80)")
 
+    # Title internal highlighted (for vertical reel title with celeste keywords)
+    title_highlighted = script.get("title_internal_highlighted", "")
+    if not title_highlighted:
+        warnings.append("Missing title_internal_highlighted (title with UPPERCASE keywords for celeste color in vertical reels)")
+    elif title_highlighted and title_int:
+        # Validate that highlighted version matches internal title when lowered
+        if title_highlighted.lower() != title_int.lower():
+            warnings.append("title_internal_highlighted lowercase doesn't match title_internal - they should be identical except for casing")
+        # Check that at least some words are UPPERCASE
+        uppercase_words = [w for w in title_highlighted.split() if w.isupper() and len(w) > 1]
+        if len(uppercase_words) < 1:
+            warnings.append("title_internal_highlighted has no UPPERCASE keywords - put 2-4 key words in ALL CAPS for celeste highlighting")
+
+    # Escritura short (scripture reference for reel bottom tag)
+    escritura_short = script.get("escritura_short", "")
+    if not escritura_short:
+        warnings.append("Missing escritura_short (scripture reference for reel/short bottom tag, e.g. 'Moisés 7:48-49')")
+
     # Thumbnail asset
     thumb_asset = script.get("thumbnail_asset_id", "")
     if not thumb_asset:

@@ -165,25 +165,49 @@ def load_images(
     return images
 
 
-def load_background_image(canvas_width: int, canvas_height: int) -> Optional[Image.Image]:
+def load_background_image(
+    canvas_width: int,
+    canvas_height: int,
+    visual_assets: List[dict] = None
+) -> Optional[Image.Image]:
     """
-    Load the decorative background image (bg.png), resize to cover the canvas,
+    Load a decorative background image, resize to cover the canvas,
     and apply a strong Gaussian blur + slight darkening.
-    Falls back to solid black if bg.png is not found.
+
+    Priority:
+    1. bg.png (dedicated background image)
+    2. First content image from visual_assets (fallback)
+    3. None (solid black fallback)
     """
+    bg_source = None
+    source_label = "none"
+
+    # Try dedicated bg.png first
     bg_path = find_image("bg")
-    if bg_path is None:
-        print("WARNING: No background image (bg.png) found. Using solid black.")
+    if bg_path is not None:
+        bg_source = Image.open(bg_path).convert("RGB")
+        source_label = "bg.png"
+    elif visual_assets:
+        # Fallback: use the first available content image
+        for asset in visual_assets:
+            asset_id = asset.get("visual_asset_id", "")
+            img_path = find_image(asset_id)
+            if img_path:
+                bg_source = Image.open(img_path).convert("RGB")
+                source_label = f"content image {asset_id}"
+                break
+
+    if bg_source is None:
+        print("WARNING: No background image found. Using solid black.")
         return None
 
-    bg = Image.open(bg_path).convert("RGB")
     # Resize to cover the entire canvas (crop if needed)
-    bg = resize_cover(bg, canvas_width, canvas_height)
+    bg = resize_cover(bg_source, canvas_width, canvas_height)
     # Apply strong Gaussian blur for the decorative background effect
     bg = bg.filter(ImageFilter.GaussianBlur(radius=30))
     # Slightly darken to ensure content images pop
     bg = ImageEnhance.Brightness(bg).enhance(0.6)
-    print(f"Background loaded and blurred: {canvas_width}x{canvas_height}")
+    print(f"Background loaded from {source_label} and blurred: {canvas_width}x{canvas_height}")
     return bg
 
 
@@ -284,12 +308,16 @@ def calculate_image_placement(
     Returns (x, y, target_width, target_height) for where to paste the image.
     """
     if video_format == "vertical":
-        # Vertical (1080x1920): image fills width, positioned in center-lower area
-        # Leave space above for title text
+        # Vertical (1080x1920): image fills width, centered vertically
+        # Layout: [title above] [image] [tags below]
+        # Title area: ~220px top, Tags area: ~120px bottom
+        TITLE_AREA = 220
+        TAGS_AREA = 120
         target_size = canvas_width  # 1080px wide = full width
         x = 0
-        # Center vertically but shift slightly down to leave room for title
-        y = (canvas_height - target_size) // 2 + 80
+        # Center the image in the remaining space between title and tags
+        available_height = canvas_height - TITLE_AREA - TAGS_AREA
+        y = TITLE_AREA + (available_height - target_size) // 2
         return x, y, target_size, target_size
     else:
         # Horizontal (1920x1080): image fits height, centered horizontally
@@ -481,58 +509,70 @@ def draw_professional_lower_third(
 def draw_vertical_title(
     draw: ImageDraw.Draw,
     frame: Image.Image,
-    title: str,
+    title_highlighted: str,
     canvas_width: int,
     image_y: int,
     frame_num: int
 ) -> None:
     """
-    Draw the title_internal above the content image in vertical format.
-    Text is centered horizontally, positioned just above the image.
+    Draw the title above the content image in vertical format with alternating colors.
+
+    Words that are ALL UPPERCASE in title_highlighted render in CELESTE (sky blue).
+    Other words render in WHITE. This creates the visual alternation seen in reels.
+
+    The title is centered horizontally, positioned close above the image.
     Features a fade-in animation and word wrapping.
     """
-    TITLE_COLOR = (255, 255, 255)
+    COLOR_WHITE = (255, 255, 255)
+    COLOR_CELESTE = (100, 200, 240)  # Sky blue / celeste
     SHADOW_COLOR = (0, 0, 0)
 
-    # Auto-scale font and wrap text to fit width
-    max_width = canvas_width - 100  # 50px margin each side
-    font_size = 48
-    font = get_font(font_size, "extrabold")
+    # Parse words with their color based on casing
+    raw_words = title_highlighted.split()
 
-    # Try to fit in 1-2 lines, scaling down if needed
+    # Auto-scale font to fit width
+    max_width = canvas_width - 120  # 60px margin each side
+    font_size = 48
+
+    # Find best font size by checking total text width
+    plain_title = title_highlighted  # Use full text for sizing
     for try_size in range(48, 26, -2):
         font = get_font(try_size, "extrabold")
-        # Check if it fits on one line
-        bbox = draw.textbbox((0, 0), title, font=font)
+        bbox = draw.textbbox((0, 0), plain_title, font=font)
         text_width = bbox[2] - bbox[0]
         if text_width <= max_width:
             font_size = try_size
             break
         font_size = try_size
 
-    # Word wrapping for longer titles
-    words = title.split()
-    lines = []
-    current_line = ""
-    for word in words:
-        test_line = f"{current_line} {word}".strip()
-        bbox = draw.textbbox((0, 0), test_line, font=font)
+    font = get_font(font_size, "extrabold")
+
+    # Word wrapping — build lines of (word, is_highlight) tuples
+    lines: list[list[tuple]] = []
+    current_line_words = []
+    current_line_text = ""
+
+    for word in raw_words:
+        test_text = f"{current_line_text} {word}".strip()
+        bbox = draw.textbbox((0, 0), test_text, font=font)
         if bbox[2] - bbox[0] <= max_width:
-            current_line = test_line
+            current_line_words.append(word)
+            current_line_text = test_text
         else:
-            if current_line:
-                lines.append(current_line)
-            current_line = word
-    if current_line:
-        lines.append(current_line)
+            if current_line_words:
+                lines.append(current_line_words)
+            current_line_words = [word]
+            current_line_text = word
+    if current_line_words:
+        lines.append(current_line_words)
 
     # Calculate total text block height
-    line_height = font_size + 8
+    line_height = font_size + 12
     total_text_height = len(lines) * line_height
 
-    # Position: centered horizontally, above the image with padding
-    start_y = image_y - total_text_height - 30  # 30px above the image
-    start_y = max(20, start_y)  # Don't go above screen
+    # Position: centered, close above the image
+    start_y = image_y - total_text_height - 25
+    start_y = max(30, start_y)
 
     # Fade-in animation (first 30 frames = 1 second)
     if frame_num < 30:
@@ -540,23 +580,123 @@ def draw_vertical_title(
     else:
         alpha = 255
 
-    for i, line_text in enumerate(lines):
+    for i, line_words in enumerate(lines):
+        # Calculate total line width for centering
+        line_text = " ".join(line_words)
         bbox = draw.textbbox((0, 0), line_text, font=font)
-        text_width = bbox[2] - bbox[0]
-        x = (canvas_width - text_width) // 2
+        total_line_width = bbox[2] - bbox[0]
+        start_x = (canvas_width - total_line_width) // 2
         y = start_y + i * line_height
 
-        # Shadow (slightly offset)
-        shadow_alpha = int(alpha * 0.7)
-        draw.text((x + 3, y + 3), line_text, font=font, fill=(*SHADOW_COLOR, shadow_alpha))
-        # Stroke outline for readability
-        for dx in [-2, -1, 0, 1, 2]:
-            for dy in [-2, -1, 0, 1, 2]:
-                if dx == 0 and dy == 0:
-                    continue
-                draw.text((x + dx, y + dy), line_text, font=font, fill=(*SHADOW_COLOR, int(alpha * 0.5)))
-        # Main text
-        draw.text((x, y), line_text, font=font, fill=(*TITLE_COLOR, alpha))
+        # Draw each word individually with the right color
+        cursor_x = start_x
+        for word_idx, word in enumerate(line_words):
+            # Determine if this word is highlighted (ALL UPPERCASE, >1 char)
+            is_highlight = word.isupper() and len(word) > 1
+            color = COLOR_CELESTE if is_highlight else COLOR_WHITE
+
+            # Stroke outline for readability
+            stroke_alpha = int(alpha * 0.6)
+            for dx in [-2, -1, 1, 2]:
+                for dy in [-2, -1, 1, 2]:
+                    draw.text((cursor_x + dx, y + dy), word, font=font, fill=(*SHADOW_COLOR, stroke_alpha))
+            # Shadow
+            draw.text((cursor_x + 2, y + 2), word, font=font, fill=(*SHADOW_COLOR, int(alpha * 0.5)))
+            # Main text with color
+            draw.text((cursor_x, y), word, font=font, fill=(*color, alpha))
+
+            # Advance cursor
+            word_bbox = draw.textbbox((0, 0), word + " ", font=font)
+            cursor_x += word_bbox[2] - word_bbox[0]
+
+
+def draw_vertical_bottom_tags(
+    draw: ImageDraw.Draw,
+    frame: Image.Image,
+    programa: str,
+    escritura_short: str,
+    canvas_width: int,
+    canvas_height: int,
+    image_y: int,
+    image_size: int,
+    frame_num: int
+) -> None:
+    """
+    Draw the bottom tags below the image in vertical format.
+    Two rounded-rectangle pills side by side: "Ven Sígueme" and the scripture reference.
+    Both use celeste/sky-blue background color matching the highlighted title words.
+    """
+    COLOR_CELESTE = (100, 200, 240)  # Same as title highlights
+    TEXT_COLOR_DARK = (15, 25, 45)   # Dark navy text on celeste bg
+
+    # Position: centered below the image
+    tag_y = image_y + image_size + 20
+    if tag_y > canvas_height - 70:
+        tag_y = canvas_height - 70  # Don't go below screen
+
+    # Fade-in animation (delayed, starts after title at frame 20)
+    if frame_num < 20:
+        alpha_f = 0.0
+    elif frame_num < 50:
+        alpha_f = (frame_num - 20) / 30.0
+    else:
+        alpha_f = 1.0
+
+    if alpha_f <= 0:
+        return
+
+    tag_font = get_font(24, "bold")
+    tag_height = 44
+    padding_h = 24  # Horizontal padding inside each tag
+    gap = 20        # Gap between the two tags
+    corner_radius = 10
+
+    # Calculate tag widths
+    prog_text = programa
+    esc_text = escritura_short
+
+    prog_bbox = draw.textbbox((0, 0), prog_text, font=tag_font)
+    prog_w = (prog_bbox[2] - prog_bbox[0]) + padding_h * 2
+
+    esc_bbox = draw.textbbox((0, 0), esc_text, font=tag_font)
+    esc_w = (esc_bbox[2] - esc_bbox[0]) + padding_h * 2
+
+    total_width = prog_w + gap + esc_w
+    start_x = (canvas_width - total_width) // 2
+
+    alpha = int(255 * alpha_f)
+
+    # Draw "Ven Sígueme" tag
+    tag1_img = Image.new("RGBA", (prog_w, tag_height), (0, 0, 0, 0))
+    tag1_draw = ImageDraw.Draw(tag1_img)
+    tag1_draw.rounded_rectangle(
+        [(0, 0), (prog_w - 1, tag_height - 1)],
+        radius=corner_radius,
+        fill=(*COLOR_CELESTE, alpha)
+    )
+    # Center text in tag
+    prog_text_w = prog_bbox[2] - prog_bbox[0]
+    prog_text_h = prog_bbox[3] - prog_bbox[1]
+    prog_tx = (prog_w - prog_text_w) // 2
+    prog_ty = (tag_height - prog_text_h) // 2 - 2
+    tag1_draw.text((prog_tx, prog_ty), prog_text, font=tag_font, fill=(*TEXT_COLOR_DARK, alpha))
+    frame.paste(tag1_img, (start_x, tag_y), tag1_img)
+
+    # Draw scripture tag
+    tag2_x = start_x + prog_w + gap
+    tag2_img = Image.new("RGBA", (esc_w, tag_height), (0, 0, 0, 0))
+    tag2_draw = ImageDraw.Draw(tag2_img)
+    tag2_draw.rounded_rectangle(
+        [(0, 0), (esc_w - 1, tag_height - 1)],
+        radius=corner_radius,
+        fill=(*COLOR_CELESTE, alpha)
+    )
+    esc_text_w = esc_bbox[2] - esc_bbox[0]
+    esc_text_h = esc_bbox[3] - esc_bbox[1]
+    esc_tx = (esc_w - esc_text_w) // 2
+    esc_ty = (tag_height - esc_text_h) // 2 - 2
+    tag2_draw.text((esc_tx, esc_ty), esc_text, font=tag_font, fill=(*TEXT_COLOR_DARK, alpha))
+    frame.paste(tag2_img, (tag2_x, tag_y), tag2_img)
 
 
 def create_frame(
@@ -569,13 +709,15 @@ def create_frame(
     background: Optional[Image.Image],
     image_progress: float = 0.5,
     frame_num: int = 0,
-    total_frames: int = 1
+    total_frames: int = 1,
+    title_highlighted: str = "",
+    escritura_short: str = "",
 ) -> np.ndarray:
     """
     Create a single video frame with:
     1. Blurred decorative background
     2. Centered square content image with Ken Burns
-    3. Lower third (horizontal) or title text above (vertical)
+    3. Lower third (horizontal) or title + bottom tags (vertical)
     """
     # Start with background
     if background is not None:
@@ -597,8 +739,19 @@ def create_frame(
     draw = ImageDraw.Draw(frame)
 
     if video_format == "vertical":
-        # Draw title_internal text above the image
-        draw_vertical_title(draw, frame, title, canvas_width, y, frame_num)
+        # Use highlighted title for celeste/white alternation, fallback to plain title
+        display_title = title_highlighted if title_highlighted else title
+        draw_vertical_title(draw, frame, display_title, canvas_width, y, frame_num)
+
+        # Draw bottom tags: "Ven Sígueme" + scripture reference
+        metadata = config.get("video_metadata", {})
+        programa = metadata.get("programa", "Ven Sígueme")
+        esc = escritura_short if escritura_short else metadata.get("escritura", "")
+        if esc:
+            draw_vertical_bottom_tags(
+                draw, frame, programa, esc,
+                canvas_width, canvas_height, y, target_w, frame_num
+            )
     else:
         # Draw professional lower third at bottom left (existing)
         draw_professional_lower_third(
@@ -751,6 +904,8 @@ def render_video(output_path: Path, video_format: str = "horizontal") -> None:
 
     script_data = script.get("script", {})
     title = script_data.get("title_internal", script_data.get("topic", ""))
+    title_highlighted = script_data.get("title_internal_highlighted", "")
+    escritura_short = script_data.get("escritura_short", "")
     narration = script_data.get("narration", {})
     visual_assets = narration.get("visual_assets", [])
 
@@ -760,7 +915,8 @@ def render_video(output_path: Path, video_format: str = "horizontal") -> None:
         raise ValueError("No images found.")
 
     # Load and prepare the blurred decorative background
-    background = load_background_image(canvas_width, canvas_height)
+    # Pass visual_assets so it can fallback to a content image if bg.png is missing
+    background = load_background_image(canvas_width, canvas_height, visual_assets)
 
     audio_path = AUDIO_DIR / "current.mp3"
     from moviepy.editor import AudioFileClip as TempAudioClip
@@ -804,7 +960,9 @@ def render_video(output_path: Path, video_format: str = "horizontal") -> None:
         frame_array = create_frame(
             current_image, config, title, video_format,
             canvas_width, canvas_height, background,
-            img_progress, frame_num, total_frames
+            img_progress, frame_num, total_frames,
+            title_highlighted=title_highlighted,
+            escritura_short=escritura_short,
         )
         video_frame = av.VideoFrame.from_ndarray(frame_array, format='rgb24')
         video_frame = video_frame.reformat(format='yuv420p')
