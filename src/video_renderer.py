@@ -4,8 +4,10 @@ Uses NVIDIA GPU acceleration (hevc_nvenc) for RTX 3060 TI.
 
 Features:
 - Ken Burns effect (zoom + pan)
-- Horizontal 1920x1080 (16:9) format for YouTube
-- Professional TV news lower third overlay
+- Dual format: Horizontal 1920x1080 (16:9) + Vertical 1080x1920 (9:16)
+- 1:1 square content images centered over blurred decorative background
+- Professional TV news lower third overlay (horizontal)
+- Title text above images (vertical)
 - Opening sweep animation
 - Image sync with audio timestamps
 """
@@ -17,7 +19,7 @@ import time as _time_module
 from pathlib import Path
 from typing import List, Tuple, Optional
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 import av
 from moviepy.editor import AudioFileClip
 
@@ -54,10 +56,18 @@ def clear_render_progress():
     """Remove the progress file when render is done."""
     RENDER_PROGRESS_PATH.unlink(missing_ok=True)
 
-# Video constants - HORIZONTAL 16:9 FORMAT
+# Video constants
 FPS = 30
-VIDEO_WIDTH = 1920
-VIDEO_HEIGHT = 1080
+
+# Format dimensions
+HORIZONTAL_WIDTH = 1920
+HORIZONTAL_HEIGHT = 1080
+VERTICAL_WIDTH = 1080
+VERTICAL_HEIGHT = 1920
+
+# Legacy aliases for backward compatibility
+VIDEO_WIDTH = HORIZONTAL_WIDTH
+VIDEO_HEIGHT = HORIZONTAL_HEIGHT
 
 
 def load_config() -> dict:
@@ -72,15 +82,15 @@ def load_script() -> dict:
     # Read with utf-8-sig to automatically handle BOM
     with open(script_path, "r", encoding="utf-8-sig") as f:
         content = f.read().strip()
-    
+
     # Handle case where Claude CLI adds extra text before/after JSON
     # Find the JSON object boundaries
     start_idx = content.find('{')
     end_idx = content.rfind('}')
-    
+
     if start_idx == -1 or end_idx == -1:
         raise ValueError("No valid JSON object found in script file")
-    
+
     json_content = content[start_idx:end_idx + 1]
     return json.loads(json_content)
 
@@ -120,13 +130,11 @@ def load_images(
 ) -> List[Tuple[str, Image.Image, float, float]]:
     """
     Load all images referenced in visual_assets.
-    Images are resized to 1920x1080 (16:9) for horizontal video.
+    Images are loaded at their native resolution (1:1 square).
+    Placement on the video canvas is handled by create_frame().
 
     Returns:
         List of (asset_id, PIL Image, start_time, end_time)
-
-    If assets have start_time/end_time (set by align_timestamps), uses those directly.
-    Otherwise falls back to computing time from start_word_index/end_word_index + Whisper.
     """
     images = []
     for asset in visual_assets:
@@ -135,9 +143,7 @@ def load_images(
 
         if img_path:
             img = Image.open(img_path).convert("RGB")
-            # Resize to 1920x1080 (16:9) if needed
-            if img.size != (VIDEO_WIDTH, VIDEO_HEIGHT):
-                img = resize_cover(img, VIDEO_WIDTH, VIDEO_HEIGHT)
+            # Images stay at native size — resizing to canvas happens in create_frame()
 
             # Prefer direct time ranges (set by content-based aligner)
             if "start_time" in asset and "end_time" in asset:
@@ -152,11 +158,33 @@ def load_images(
                 end_t = 0.0
 
             images.append((asset_id, img, start_t, end_t))
-            print(f"Loaded image: {asset_id} ({img_path.name}) [{start_t:.1f}s - {end_t:.1f}s]")
+            print(f"Loaded image: {asset_id} ({img_path.name}) {img.size[0]}x{img.size[1]} [{start_t:.1f}s - {end_t:.1f}s]")
         else:
             print(f"WARNING: Image not found for asset_id: {asset_id}")
 
     return images
+
+
+def load_background_image(canvas_width: int, canvas_height: int) -> Optional[Image.Image]:
+    """
+    Load the decorative background image (bg.png), resize to cover the canvas,
+    and apply a strong Gaussian blur + slight darkening.
+    Falls back to solid black if bg.png is not found.
+    """
+    bg_path = find_image("bg")
+    if bg_path is None:
+        print("WARNING: No background image (bg.png) found. Using solid black.")
+        return None
+
+    bg = Image.open(bg_path).convert("RGB")
+    # Resize to cover the entire canvas (crop if needed)
+    bg = resize_cover(bg, canvas_width, canvas_height)
+    # Apply strong Gaussian blur for the decorative background effect
+    bg = bg.filter(ImageFilter.GaussianBlur(radius=30))
+    # Slightly darken to ensure content images pop
+    bg = ImageEnhance.Brightness(bg).enhance(0.6)
+    print(f"Background loaded and blurred: {canvas_width}x{canvas_height}")
+    return bg
 
 
 def resize_cover(image: Image.Image, target_width: int, target_height: int) -> Image.Image:
@@ -167,7 +195,7 @@ def resize_cover(image: Image.Image, target_width: int, target_height: int) -> I
     img_w, img_h = image.size
     target_ratio = target_width / target_height
     img_ratio = img_w / img_h
-    
+
     if img_ratio > target_ratio:
         # Image is wider, fit to height and crop width
         new_height = target_height
@@ -176,15 +204,15 @@ def resize_cover(image: Image.Image, target_width: int, target_height: int) -> I
         # Image is taller, fit to width and crop height
         new_width = target_width
         new_height = int(img_h * (target_width / img_w))
-    
+
     # Resize
     resized = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-    
+
     # Center crop
     left = (new_width - target_width) // 2
     top = (new_height - target_height) // 2
     cropped = resized.crop((left, top, left + target_width, top + target_height))
-    
+
     return cropped
 
 
@@ -194,11 +222,16 @@ def get_font(size: int, weight: str = "bold") -> ImageFont.FreeTypeFont:
 
     Args:
         size: Font size in pixels
-        weight: 'bold', 'semibold', or 'medium'
+        weight: 'bold', 'semibold', 'medium', or 'extrabold'
     """
     fonts_dir = DATA_DIR / "fonts"
 
     weight_map = {
+        "extrabold": [
+            fonts_dir / "Montserrat-ExtraBold.ttf",
+            fonts_dir / "Montserrat-Bold.ttf",
+            "C:/Windows/Fonts/arialbd.ttf",
+        ],
         "bold": [
             fonts_dir / "Montserrat-Bold.ttf",
             fonts_dir / "EBGaramond-Bold.ttf",
@@ -240,9 +273,37 @@ def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
+def calculate_image_placement(
+    canvas_width: int,
+    canvas_height: int,
+    video_format: str
+) -> Tuple[int, int, int, int]:
+    """
+    Calculate the position and size of the square content image on the canvas.
+
+    Returns (x, y, target_width, target_height) for where to paste the image.
+    """
+    if video_format == "vertical":
+        # Vertical (1080x1920): image fills width, positioned in center-lower area
+        # Leave space above for title text
+        target_size = canvas_width  # 1080px wide = full width
+        x = 0
+        # Center vertically but shift slightly down to leave room for title
+        y = (canvas_height - target_size) // 2 + 80
+        return x, y, target_size, target_size
+    else:
+        # Horizontal (1920x1080): image fits height, centered horizontally
+        target_size = canvas_height  # 1080px tall = full height
+        x = (canvas_width - target_size) // 2  # Center horizontally (~420px from each side)
+        y = 0
+        return x, y, target_size, target_size
+
+
 def apply_ken_burns(
     image: Image.Image,
     progress: float,
+    target_w: int,
+    target_h: int,
     zoom_start: float = 1.0,
     zoom_end: float = 1.08,
     pan_direction: str = "center"
@@ -255,14 +316,16 @@ def apply_ken_burns(
     until the final bicubic interpolation handles sub-pixel positioning natively.
 
     Args:
-        image: Source image (1920x1080)
+        image: Source image (any size, typically 1:1 square)
         progress: Animation progress (0.0 to 1.0)
+        target_w: Output width
+        target_h: Output height
         zoom_start: Initial zoom level
         zoom_end: Final zoom level
         pan_direction: Direction of pan ("center", "left", "right")
 
     Returns:
-        Transformed image at 1920x1080
+        Transformed image at target_w x target_h
     """
     # Smooth easing function (ease-in-out cosine)
     ease_progress = 0.5 - 0.5 * math.cos(progress * math.pi)
@@ -270,7 +333,6 @@ def apply_ken_burns(
     # Current zoom level (fully floating-point, no rounding)
     current_zoom = zoom_start + (zoom_end - zoom_start) * ease_progress
 
-    target_w, target_h = VIDEO_WIDTH, VIDEO_HEIGHT
     img_w, img_h = image.size
 
     # The visible region in source-image coordinates:
@@ -289,7 +351,7 @@ def apply_ken_burns(
     elif pan_direction == "right":
         cx -= max_pan_x * (1.0 - ease_progress)
 
-    # Build affine transform coefficients for 16:9
+    # Build affine transform coefficients
     scale_x = crop_w / target_w
     scale_y = crop_h / target_h
 
@@ -319,14 +381,15 @@ def draw_professional_lower_third(
     title: str,
     frame_num: int,
     total_frames: int,
-    config: dict
+    config: dict,
+    canvas_width: int = 1920,
+    canvas_height: int = 1080
 ) -> None:
     """
     Draw a professional news-style lower third at the bottom left.
     Features an opening animation and smart text truncation.
     """
     # Colors (LDS Branding)
-    CHURCH_BLUE = (0, 46, 93, 255)         # LDS Navy Blue
     BADGE_BG = (242, 169, 0, 255)           # Orange/Gold for badge
     TITLE_BG = (255, 255, 255, 230)        # Semi-transparent white
     SCRIPTURE_BG = (0, 46, 93, 240)        # Deep navy blue for scriptures
@@ -351,7 +414,7 @@ def draw_professional_lower_third(
 
     # Dimensions
     MARGIN_LEFT = 80
-    BASE_Y = VIDEO_HEIGHT - 220
+    BASE_Y = canvas_height - 220
 
     BADGE_W, BADGE_H = 200, 46
     TITLE_W, TITLE_H = 1600, 70
@@ -379,13 +442,11 @@ def draw_professional_lower_third(
     # Auto-scale font to fit title — try sizes from 40 down to 28
     display_title = title
     max_w = TITLE_W - 40
-    t_font_size = 40
 
     for try_size in range(40, 27, -2):
         t_font = get_font(try_size, "bold")
         bbox = draw.textbbox((0, 0), display_title, font=t_font)
         if bbox[2] - bbox[0] <= max_w:
-            t_font_size = try_size
             break
 
     # If still too wide after scaling down, truncate as last resort
@@ -416,36 +477,135 @@ def draw_professional_lower_third(
         badge_text, font=l_font, fill=(20, 20, 20, 255)
     )
 
-    # (Sweep animation square removed — served no purpose)
+
+def draw_vertical_title(
+    draw: ImageDraw.Draw,
+    frame: Image.Image,
+    title: str,
+    canvas_width: int,
+    image_y: int,
+    frame_num: int
+) -> None:
+    """
+    Draw the title_internal above the content image in vertical format.
+    Text is centered horizontally, positioned just above the image.
+    Features a fade-in animation and word wrapping.
+    """
+    TITLE_COLOR = (255, 255, 255)
+    SHADOW_COLOR = (0, 0, 0)
+
+    # Auto-scale font and wrap text to fit width
+    max_width = canvas_width - 100  # 50px margin each side
+    font_size = 48
+    font = get_font(font_size, "extrabold")
+
+    # Try to fit in 1-2 lines, scaling down if needed
+    for try_size in range(48, 26, -2):
+        font = get_font(try_size, "extrabold")
+        # Check if it fits on one line
+        bbox = draw.textbbox((0, 0), title, font=font)
+        text_width = bbox[2] - bbox[0]
+        if text_width <= max_width:
+            font_size = try_size
+            break
+        font_size = try_size
+
+    # Word wrapping for longer titles
+    words = title.split()
+    lines = []
+    current_line = ""
+    for word in words:
+        test_line = f"{current_line} {word}".strip()
+        bbox = draw.textbbox((0, 0), test_line, font=font)
+        if bbox[2] - bbox[0] <= max_width:
+            current_line = test_line
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = word
+    if current_line:
+        lines.append(current_line)
+
+    # Calculate total text block height
+    line_height = font_size + 8
+    total_text_height = len(lines) * line_height
+
+    # Position: centered horizontally, above the image with padding
+    start_y = image_y - total_text_height - 30  # 30px above the image
+    start_y = max(20, start_y)  # Don't go above screen
+
+    # Fade-in animation (first 30 frames = 1 second)
+    if frame_num < 30:
+        alpha = int(255 * (frame_num / 30.0))
+    else:
+        alpha = 255
+
+    for i, line_text in enumerate(lines):
+        bbox = draw.textbbox((0, 0), line_text, font=font)
+        text_width = bbox[2] - bbox[0]
+        x = (canvas_width - text_width) // 2
+        y = start_y + i * line_height
+
+        # Shadow (slightly offset)
+        shadow_alpha = int(alpha * 0.7)
+        draw.text((x + 3, y + 3), line_text, font=font, fill=(*SHADOW_COLOR, shadow_alpha))
+        # Stroke outline for readability
+        for dx in [-2, -1, 0, 1, 2]:
+            for dy in [-2, -1, 0, 1, 2]:
+                if dx == 0 and dy == 0:
+                    continue
+                draw.text((x + dx, y + dy), line_text, font=font, fill=(*SHADOW_COLOR, int(alpha * 0.5)))
+        # Main text
+        draw.text((x, y), line_text, font=font, fill=(*TITLE_COLOR, alpha))
 
 
 def create_frame(
     image: Image.Image,
     config: dict,
     title: str,
+    video_format: str,
+    canvas_width: int,
+    canvas_height: int,
+    background: Optional[Image.Image],
     image_progress: float = 0.5,
-    crossfade_alpha: float = 1.0,
-    next_image: Optional[Image.Image] = None,
     frame_num: int = 0,
     total_frames: int = 1
 ) -> np.ndarray:
     """
-    Create a single video frame with Ken Burns effect and professional lower third.
+    Create a single video frame with:
+    1. Blurred decorative background
+    2. Centered square content image with Ken Burns
+    3. Lower third (horizontal) or title text above (vertical)
     """
-    # Create base frame (pure black background)
-    frame = Image.new("RGBA", (VIDEO_WIDTH, VIDEO_HEIGHT), (0, 0, 0, 255))
-    
-    # Apply Ken Burns to current image
-    ken_burns_image = apply_ken_burns(image, image_progress)
-    
-    # Paste the image
-    frame.paste(ken_burns_image.convert("RGB"), (0, 0))
-    
+    # Start with background
+    if background is not None:
+        frame = background.copy().convert("RGBA")
+    else:
+        frame = Image.new("RGBA", (canvas_width, canvas_height), (0, 0, 0, 255))
+
+    # Calculate image placement on canvas
+    x, y, target_w, target_h = calculate_image_placement(
+        canvas_width, canvas_height, video_format
+    )
+
+    # Apply Ken Burns to the content image, output at target size
+    ken_burns_image = apply_ken_burns(image, image_progress, target_w, target_h)
+
+    # Paste content image onto the background
+    frame.paste(ken_burns_image.convert("RGB"), (x, y))
+
     draw = ImageDraw.Draw(frame)
-    
-    # Draw professional lower third at bottom left
-    draw_professional_lower_third(draw, frame, title, frame_num, total_frames, config)
-    
+
+    if video_format == "vertical":
+        # Draw title_internal text above the image
+        draw_vertical_title(draw, frame, title, canvas_width, y, frame_num)
+    else:
+        # Draw professional lower third at bottom left (existing)
+        draw_professional_lower_third(
+            draw, frame, title, frame_num, total_frames, config,
+            canvas_width, canvas_height
+        )
+
     return np.array(frame.convert("RGB"))
 
 
@@ -564,9 +724,25 @@ def save_metadata(script_data: dict, output_dir: Path) -> None:
         f.write("\n".join(lines))
 
 
-def render_video(output_path: Path) -> None:
-    """Render the complete video with GPU acceleration."""
-    update_render_progress("loading", 0, "Loading configuration and assets...")
+def render_video(output_path: Path, video_format: str = "horizontal") -> None:
+    """
+    Render the complete video with GPU acceleration.
+
+    Args:
+        output_path: Path for the output MP4
+        video_format: "horizontal" (1920x1080) or "vertical" (1080x1920)
+    """
+    # Determine canvas dimensions
+    if video_format == "vertical":
+        canvas_width = VERTICAL_WIDTH    # 1080
+        canvas_height = VERTICAL_HEIGHT  # 1920
+    else:
+        canvas_width = HORIZONTAL_WIDTH  # 1920
+        canvas_height = HORIZONTAL_HEIGHT  # 1080
+
+    format_label = f"{canvas_width}x{canvas_height} ({'9:16 Vertical' if video_format == 'vertical' else '16:9 Horizontal'})"
+
+    update_render_progress("loading", 0, f"Loading configuration and assets ({format_label})...")
     print("Loading configuration and assets...")
 
     config = load_config()
@@ -583,6 +759,9 @@ def render_video(output_path: Path) -> None:
         clear_render_progress()
         raise ValueError("No images found.")
 
+    # Load and prepare the blurred decorative background
+    background = load_background_image(canvas_width, canvas_height)
+
     audio_path = AUDIO_DIR / "current.mp3"
     from moviepy.editor import AudioFileClip as TempAudioClip
     temp_audio = TempAudioClip(str(audio_path))
@@ -593,7 +772,7 @@ def render_video(output_path: Path) -> None:
     video_duration = audio_duration + LOOP_TAIL_SECONDS
     total_frames = int(video_duration * FPS)
 
-    print(f"Resolution: {VIDEO_WIDTH}x{VIDEO_HEIGHT} (16:9 Horizontal)")
+    print(f"Resolution: {format_label}")
     print(f"Duration: {video_duration:.1f}s | Frames: {total_frames} | FPS: {FPS}")
     print()
 
@@ -611,8 +790,8 @@ def render_video(output_path: Path) -> None:
         stream.options = {'preset': 'medium', 'crf': '23'}
         print("Encoder: libx264 (CPU)")
 
-    stream.width = VIDEO_WIDTH
-    stream.height = VIDEO_HEIGHT
+    stream.width = canvas_width
+    stream.height = canvas_height
     stream.pix_fmt = 'yuv420p'
 
     render_start = _time_module.time()
@@ -622,7 +801,11 @@ def render_video(output_path: Path) -> None:
         img_idx, img_progress = get_current_image_index(frame_time, images, timestamps)
         current_image = images[img_idx][1]
 
-        frame_array = create_frame(current_image, config, title, img_progress, 1.0, None, frame_num, total_frames)
+        frame_array = create_frame(
+            current_image, config, title, video_format,
+            canvas_width, canvas_height, background,
+            img_progress, frame_num, total_frames
+        )
         video_frame = av.VideoFrame.from_ndarray(frame_array, format='rgb24')
         video_frame = video_frame.reformat(format='yuv420p')
 
@@ -701,12 +884,22 @@ def render_video(output_path: Path) -> None:
     temp_video_path.unlink(missing_ok=True)
     save_metadata(script_data, output_path.parent)
 
-    update_render_progress("complete", 100, "Render finished successfully")
+    update_render_progress("complete", 100, f"Render finished ({format_label})")
     clear_render_progress()
 
 def main():
-    output_path = OUTPUT_DIR / "current.mp4"
-    render_video(output_path)
+    import sys
+    # Support command-line format argument: python video_renderer.py [horizontal|vertical]
+    video_format = "horizontal"
+    if len(sys.argv) > 1 and sys.argv[1] in ("horizontal", "vertical"):
+        video_format = sys.argv[1]
+
+    if video_format == "vertical":
+        output_path = OUTPUT_DIR / "current_vertical.mp4"
+    else:
+        output_path = OUTPUT_DIR / "current_horizontal.mp4"
+
+    render_video(output_path, video_format=video_format)
 
 if __name__ == "__main__":
     main()

@@ -45,12 +45,12 @@ def load_script() -> dict:
 def generate_image(prompt: str, asset_id: str, retry_count: int = 3) -> bool:
     """
     Generate an image using Gemini 2.0 Flash.
-    Images are generated in 16:9 horizontal format for YouTube videos.
+    Images are generated in 1:1 square format.
     """
     formatted_prompt = (
-        f"Generate an oil painting style image in 16:9 horizontal landscape aspect ratio: {prompt}. "
+        f"Generate an oil painting style image in 1:1 square aspect ratio: {prompt}. "
         f"Family friendly, spiritual, inspirational. High quality artwork. "
-        f"The image MUST be in wide horizontal 16:9 format, NOT square, NOT vertical."
+        f"The image MUST be in square 1:1 format, centered on the main subject."
     )
 
     for attempt in range(retry_count):
@@ -63,7 +63,7 @@ def generate_image(prompt: str, asset_id: str, retry_count: int = 3) -> bool:
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE"],
                     image_config=types.ImageConfig(
-                        aspect_ratio="16:9"
+                        aspect_ratio="1:1"
                     )
                 )
             )

@@ -317,8 +317,15 @@ def validate_script_data(script_json: dict) -> dict:
                     errors.append(f"Asset '{asset_id}' says 'ANGELS WITHOUT WINGS' (must say 'NO WINGS on angels')")
                 if "NO CROSSES" not in prompt or "NO HALOS" not in prompt:
                     warnings.append(f"Asset '{asset_id}' image_prompt missing 'NO CROSSES, NO HALOS' ending")
-                if "16:9" not in prompt:
-                    warnings.append(f"Asset '{asset_id}' image_prompt missing '16:9' specification")
+                if "1:1" not in prompt and "Square" not in prompt:
+                    warnings.append(f"Asset '{asset_id}' image_prompt missing '1:1' or 'Square' composition specification")
+
+    # Background prompt
+    background_prompt = script.get("background_prompt", "")
+    if not background_prompt:
+        warnings.append("Missing background_prompt (decorative background for video canvas)")
+    elif len(background_prompt) < 20:
+        warnings.append(f"background_prompt is very short ({len(background_prompt)} chars) - should describe an atmospheric scene")
 
     # Metadata
     metadata = script.get("metadata", {})
@@ -441,7 +448,8 @@ async def list_tools() -> list[Tool]:
             name="generate_images",
             description=(
                 "Generate all images for the current script using Gemini 2.5 Flash Image. "
-                "Images are 16:9 horizontal format with LDS sacred art styling enforced. "
+                "Images are 1:1 square format with LDS sacred art styling enforced. "
+                "Also generates the decorative background image (bg.png) from the script's background_prompt. "
                 "Skips images that already exist unless force=true. "
                 "Requires: data/scripts/current.json + GEMINI_API_KEY in .env"
             ),
@@ -491,12 +499,30 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="render_video",
             description=(
-                "Render the final video (1920x1080 H.264 MP4) with Ken Burns effect, "
-                "professional lower third overlay, and mixed audio (narration + background music). "
+                "Render the final video from the current script, images, and audio. "
+                "Specify format: 'horizontal' (1920x1080 16:9 for YouTube) or "
+                "'vertical' (1080x1920 9:16 for Shorts/Reels). "
+                "Both formats use 1:1 square images composited over a blurred "
+                "decorative background. Ken Burns effect, professional overlays, "
+                "and mixed audio (narration + background music). "
                 "Uses NVIDIA NVENC GPU acceleration or falls back to libx264 CPU. "
                 "Requires: script + images + audio + aligned timestamps all ready first."
             ),
-            inputSchema={"type": "object", "properties": {}, "required": []},
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "format": {
+                        "type": "string",
+                        "description": (
+                            "Video format: 'horizontal' (1920x1080 for YouTube) or "
+                            "'vertical' (1080x1920 for Shorts/Reels). Default: horizontal."
+                        ),
+                        "enum": ["horizontal", "vertical"],
+                        "default": "horizontal",
+                    }
+                },
+                "required": [],
+            },
         ),
         Tool(
             name="generate_thumbnail",
@@ -1013,16 +1039,28 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
         status["files"]["audio"] = str(AUDIO_DIR / "current.mp3") if has_audio else None
         status["files"]["timestamps"] = str(AUDIO_DIR / "current_timestamps.json") if has_timestamps else None
 
-        # Output
-        has_video = file_exists(OUTPUT_DIR / "current.mp4")
+        # Output — check both video formats
+        has_horizontal = file_exists(OUTPUT_DIR / "current_horizontal.mp4")
+        has_vertical = file_exists(OUTPUT_DIR / "current_vertical.mp4")
+        has_legacy_video = file_exists(OUTPUT_DIR / "current.mp4")
+        has_video = has_horizontal or has_vertical or has_legacy_video
         has_thumbnail = file_exists(OUTPUT_DIR / "thumbnail.png")
         has_metadata = file_exists(OUTPUT_DIR / "metadata.txt")
-        status["files"]["video"] = str(OUTPUT_DIR / "current.mp4") if has_video else None
+        status["files"]["video_horizontal"] = str(OUTPUT_DIR / "current_horizontal.mp4") if has_horizontal else None
+        status["files"]["video_vertical"] = str(OUTPUT_DIR / "current_vertical.mp4") if has_vertical else None
+        if has_legacy_video:
+            status["files"]["video_legacy"] = str(OUTPUT_DIR / "current.mp4")
         status["files"]["thumbnail"] = str(OUTPUT_DIR / "thumbnail.png") if has_thumbnail else None
         status["files"]["metadata"] = str(OUTPUT_DIR / "metadata.txt") if has_metadata else None
 
+        # Check background image
+        has_bg = any((IMAGES_DIR / f"bg{ext}").exists() for ext in [".png", ".jpg", ".jpeg", ".webp"])
+        status["files"]["background_image"] = "present" if has_bg else None
+
         # Determine phase
-        if has_video and has_thumbnail:
+        if has_horizontal and has_vertical and has_thumbnail:
+            status["phase"] = "complete"
+        elif has_video and has_thumbnail:
             status["phase"] = "complete"
         elif has_video:
             status["phase"] = "rendered"
@@ -1070,12 +1108,19 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
                 pass
 
         # Next steps
+        # Build dynamic next step for rendered phase
+        rendered_tip = "Generate thumbnail with generate_thumbnail"
+        if has_video and not has_horizontal:
+            rendered_tip = "Render horizontal version: render_video(format='horizontal'). Or generate_thumbnail"
+        elif has_video and not has_vertical:
+            rendered_tip = "Render vertical version: render_video(format='vertical'). Or generate_thumbnail"
+
         next_steps = {
             "empty": "Generate a script using get_prompt_template, then save with save_script",
             "script_ready": "Generate images with generate_images",
             "images_ready": "Generate audio with generate_audio",
-            "audio_ready": "IMPORTANT: Run align_timestamps to verify/fix word indices BEFORE rendering",
-            "rendered": "Generate thumbnail with generate_thumbnail",
+            "audio_ready": "IMPORTANT: Run align_timestamps to verify/fix word indices BEFORE rendering. Then render_video(format='horizontal') and render_video(format='vertical')",
+            "rendered": rendered_tip,
             "complete": "Project is complete! Archive with archive_project before starting new one",
         }
         status["next_step"] = next_steps.get(status["phase"], "")
@@ -1288,15 +1333,31 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
     elif name == "render_video":
         from src.video_renderer import render_video as do_render
 
-        output_path = OUTPUT_DIR / "current.mp4"
+        video_format = args.get("format", "horizontal")
+        if video_format not in ("horizontal", "vertical"):
+            return f"ERROR: format must be 'horizontal' or 'vertical', got '{video_format}'"
+
+        # Determine output filename based on format
+        if video_format == "vertical":
+            output_path = OUTPUT_DIR / "current_vertical.mp4"
+        else:
+            output_path = OUTPUT_DIR / "current_horizontal.mp4"
+
+        format_label = "9:16 Vertical (Shorts/Reels)" if video_format == "vertical" else "16:9 Horizontal (YouTube)"
 
         # GUARD 1: Check if video already exists
         if file_exists(output_path):
             size_mb = output_path.stat().st_size / (1024 * 1024)
+            other_format = "horizontal" if video_format == "vertical" else "vertical"
+            other_path = OUTPUT_DIR / f"current_{other_format}.mp4"
+            other_msg = ""
+            if not file_exists(other_path):
+                other_msg = f"\nTIP: Render the {other_format} version with render_video(format='{other_format}')"
             return (
                 f"VIDEO ALREADY EXISTS: {output_path} ({size_mb:.1f} MB)\n"
-                f"⚠️  DO NOT call render_video again — video is ready.\n"
-                f"NEXT STEP: generate_thumbnail"
+                f"Format: {format_label}\n"
+                f"Delete the file to re-render, or render the other format."
+                f"{other_msg}"
             )
 
         # GUARD 2: Check render progress file (still rendering from a previous call?)
@@ -1333,15 +1394,22 @@ async def _handle_tool(name: str, args: dict[str, Any]) -> str:
             )
 
         try:
-            do_render(output_path)
+            do_render(output_path, video_format=video_format)
 
             if file_exists(output_path):
                 size_mb = output_path.stat().st_size / (1024 * 1024)
+                other_format = "horizontal" if video_format == "vertical" else "vertical"
+                other_path = OUTPUT_DIR / f"current_{other_format}.mp4"
+                other_msg = ""
+                if not file_exists(other_path):
+                    other_msg = f"\n\nTIP: Also render the {other_format} version with render_video(format='{other_format}')"
                 return (
                     f"Video rendered successfully!\n"
                     f"  Output: {output_path}\n"
+                    f"  Format: {format_label}\n"
                     f"  Size: {size_mb:.1f} MB\n"
                     f"  Metadata saved to: {OUTPUT_DIR / 'metadata.txt'}"
+                    f"{other_msg}"
                 )
             return "ERROR: Video render completed but output file not found"
         finally:

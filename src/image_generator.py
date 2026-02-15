@@ -58,7 +58,7 @@ def format_image_prompt(original_prompt: str) -> str:
         f"NO glowing eyes, NO golden tears, NO fantasy elements, "
         f"NO text, NO letters, NO numbers visible in the image. "
         f"Family friendly, Latter-day Saint reverent atmosphere. "
-        f"Horizontal 16:9 aspect ratio. Ultra-detailed, high resolution artwork."
+        f"Square 1:1 composition centered on the main subject. Ultra-detailed, high resolution artwork."
     )
 
 
@@ -104,7 +104,7 @@ def generate_image_with_gemini(prompt: str, asset_id: str, retry_count: int = 3)
                 config=types.GenerateContentConfig(
                     response_modalities=['IMAGE'],
                     image_config=types.ImageConfig(
-                        aspect_ratio="16:9",
+                        aspect_ratio="1:1",
                     )
                 )
             )
@@ -134,6 +134,33 @@ def generate_image_with_gemini(prompt: str, asset_id: str, retry_count: int = 3)
                 time.sleep(5)
 
     return False
+
+
+def format_background_prompt(original_prompt: str) -> str:
+    """Format a decorative background prompt for the video background."""
+    return (
+        f"Create a beautiful, atmospheric scene: {original_prompt}. "
+        f"STYLE: Soft, dreamlike, ambient, with rich colors and gentle gradients. "
+        f"This image will be heavily blurred and used as a decorative background, "
+        f"so focus on overall color palette, mood, and atmosphere rather than fine details. "
+        f"NO text, NO letters, NO numbers, NO people, NO faces. "
+        f"Pure environmental/atmospheric scene. "
+        f"Square 1:1 composition. High resolution."
+    )
+
+
+def generate_background_image(background_prompt: str, force: bool = False) -> bool:
+    """
+    Generate the decorative background image from script.background_prompt.
+    Saved as data/images/bg.png.
+    """
+    bg_path = IMAGES_DIR / "bg.png"
+    if bg_path.exists() and not force:
+        print("  SKIP: Background image already exists (bg.png)")
+        return True
+
+    formatted_prompt = format_background_prompt(background_prompt)
+    return generate_image_with_gemini(formatted_prompt, "bg")
 
 
 def generate_all_images(force: bool = False) -> tuple:
@@ -179,11 +206,23 @@ def generate_all_images(force: bool = False) -> tuple:
         if i < total_count:
             time.sleep(3)
 
+    # Generate background image from script.background_prompt
+    background_prompt = script.get("script", {}).get("background_prompt", "")
+    if background_prompt:
+        print(f"\n[BG] Background image")
+        print("-" * 40)
+        if generate_background_image(background_prompt, force=force):
+            print("  Background image ready.")
+        else:
+            print("  WARNING: Background image generation failed.")
+    else:
+        print("\n  WARNING: No background_prompt in script. Background image skipped.")
+
     return success_count, total_count
 
 
 def check_images_exist() -> tuple:
-    """Check which images exist and which are missing."""
+    """Check which images exist and which are missing (includes bg.png)."""
     script = load_script()
     visual_assets = get_visual_assets(script)
 
@@ -201,6 +240,15 @@ def check_images_exist() -> tuple:
         if not found:
             missing.append(asset_id)
 
+    # Check background image
+    bg_prompt = script.get("script", {}).get("background_prompt", "")
+    if bg_prompt:
+        bg_found = any((IMAGES_DIR / f"bg{ext}").exists() for ext in [".png", ".jpg", ".jpeg", ".webp"])
+        if bg_found:
+            existing.append("bg")
+        else:
+            missing.append("bg")
+
     return existing, missing
 
 
@@ -210,7 +258,7 @@ def print_generation_instructions():
     print("MANUAL IMAGE GENERATION INSTRUCTIONS")
     print("=" * 60)
     print("\nIf automatic generation fails, generate images manually:")
-    print("Format: 1:1 (square, 1080x1080)")
+    print("Format: 1:1 (square)")
     print("Style: Oil painting")
     print("\n" + "-" * 60)
 
