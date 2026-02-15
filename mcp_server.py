@@ -197,17 +197,25 @@ def validate_script_data(script_json: dict) -> dict:
     if script.get("id") != "current":
         errors.append("script.id must be 'current'")
 
-    # Titles
+    # Titles — must be searchable questions
     title_yt = script.get("title_youtube", "")
     title_int = script.get("title_internal", "")
     if not title_yt:
         errors.append("Missing title_youtube")
-    elif len(title_yt) > 70:
-        errors.append(f"title_youtube too long ({len(title_yt)} chars, max 70)")
+    else:
+        if len(title_yt) > 70:
+            errors.append(f"title_youtube too long ({len(title_yt)} chars, max 70)")
+        # Validate it's a question (must contain ¿ or start with a question word)
+        title_yt_clean = title_yt.split("|")[0].strip()  # Check only before the " | " SEO context
+        if "¿" not in title_yt_clean:
+            warnings.append("title_youtube should be a searchable QUESTION (¿Qué...? ¿Por qué...? ¿Cómo...?) for YouTube SEO discoverability")
     if not title_int:
         errors.append("Missing title_internal")
-    elif len(title_int) > 80:
-        errors.append(f"title_internal too long ({len(title_int)} chars, max 80)")
+    else:
+        if len(title_int) > 80:
+            errors.append(f"title_internal too long ({len(title_int)} chars, max 80)")
+        if "¿" not in title_int:
+            warnings.append("title_internal should be a searchable QUESTION for better engagement in reels/shorts")
 
     # Title internal highlighted (for vertical reel title with celeste keywords)
     title_highlighted = script.get("title_internal_highlighted", "")

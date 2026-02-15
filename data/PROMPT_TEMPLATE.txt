@@ -14,20 +14,61 @@ El público "televisor" ve el video sin leer el título de YouTube.
 Duración objetivo: 2-3 MINUTOS (350-450 palabras de narración)
 
 El video tendrá DOS TÍTULOS + una versión resaltada:
-1. `title_youtube`: El título externo que aparece en YouTube. Optimizado para CTR (Click-Through Rate). Puede ser más llamativo/intrigante.
-2. `title_internal`: El título que aparece DENTRO del video como animación. Debe ser entendible por sí solo para quien solo ve el video. Más descriptivo y completo.
-3. `title_internal_highlighted`: IGUAL que title_internal pero con las PALABRAS CLAVE en MAYÚSCULAS. Las palabras en MAYÚSCULAS se renderizan en color celeste/sky-blue en el video vertical, las demás en blanco. Alterna colores para crear impacto visual. Elige 2-4 palabras clave para resaltar (sustantivos, verbos importantes, nombres propios).
+1. `title_youtube`: El título externo que aparece en YouTube. DEBE SER UNA PREGUNTA BUSCABLE EN YOUTUBE.
+2. `title_internal`: El título que aparece DENTRO del video. TAMBIÉN DEBE SER UNA PREGUNTA. Puede ser la misma que title_youtube (sin el contexto SEO después del "|") o una variación.
+3. `title_internal_highlighted`: IGUAL que title_internal pero con las PALABRAS CLAVE en MAYÚSCULAS. Las palabras en MAYÚSCULAS se renderizan en color celeste/sky-blue en el video vertical, las demás en blanco. Alterna colores para crear impacto visual. Elige 2-4 palabras clave para resaltar.
 
-Ambos títulos deben COMPLEMENTARSE pero el `title_internal` debe poder entenderse sin ver el `title_youtube`.
+========================================
+TÍTULOS = PREGUNTAS BUSCABLES (CRÍTICO PARA SEO)
+========================================
+REGLA #1 MÁS IMPORTANTE: Los títulos DEBEN ser PREGUNTAS que la gente REALMENTE BUSCA en YouTube.
 
-EJEMPLO:
-- title_youtube: "El SECRETO que José Smith nunca contó públicamente"
-- title_internal: "La Noche que José Smith Recibió las Llaves del Sacerdocio"
-- title_internal_highlighted: "La Noche que JOSÉ SMITH Recibió las LLAVES del Sacerdocio"
+Si el título NO es una pregunta buscable, el video MORIRÁ sin vistas. YouTube recomienda videos que responden preguntas que la gente escribe en el buscador.
 
-OTRO EJEMPLO:
+FORMATO OBLIGATORIO de title_youtube:
+"¿[Pregunta buscable con palabras clave]? | [Contexto de búsqueda adicional]"
+
+PALABRAS CLAVE DE BÚSQUEDA que SIEMPRE debes usar al inicio:
+- "¿Qué..." (¿Qué dice la Biblia sobre...? ¿Qué pasó cuando...?)
+- "¿Por qué..." (¿Por qué Dios...? ¿Por qué la Iglesia...?)
+- "¿Cómo..." (¿Cómo fue que...? ¿Cómo se cumplió...?)
+- "¿Quién..." (¿Quién fue realmente...? ¿Quién era...?)
+- "¿Cuándo..." (¿Cuándo sucedió...?)
+- "¿Dónde..." (¿Dónde está...?)
+- "¿Cuál..." (¿Cuál es el verdadero significado de...?)
+
+PROCESO PARA CREAR EL TÍTULO:
+1. Identifica el TEMA CENTRAL de la historia
+2. Pregúntate: "¿Qué buscaría alguien en YouTube sobre este tema?"
+3. Formula UNA PREGUNTA clara usando las palabras clave de arriba
+4. Añade MAYÚSCULAS estratégicas en 1-2 palabras para captar atención
+5. Añade " | " + contexto de búsqueda SEO al final
+
+EJEMPLOS DE BUENOS TÍTULOS (preguntas buscables):
+- title_youtube: "¿Qué escuchó ENOC cuando la Tierra comenzó a HABLAR? | Moisés 7 Libro de Mormón"
+- title_youtube: "¿Por qué DIOS confundió las LENGUAS en la Torre de Babel? | Génesis 11 explicado"
+- title_youtube: "¿Quién fue REALMENTE Melquisedec? | El sacerdote más MISTERIOSO de la Biblia"
+- title_youtube: "¿Qué SECRETO esconde el Templo que SATANÁS intentó imitar? | Torre de Babel SUD"
+- title_youtube: "¿Cómo SOBREVIVIÓ la familia de Jared al diluvio de lenguas? | Éter Libro de Mormón"
+- title_youtube: "¿Por qué José Smith NUNCA contó esto públicamente? | Historia de la Iglesia SUD"
+- title_youtube: "¿Cuál es el VERDADERO significado de la Liahona? | 1 Nefi explicado"
+
+TÍTULOS PROHIBIDOS (NO buscables, el video morirá):
+- "El SECRETO detrás de la Torre de Babel" ← NO ES PREGUNTA, nadie busca esto
+- "La verdad sobre Melquisedec" ← NO ES PREGUNTA
+- "Lo que no sabías de Nefi" ← NO ES PREGUNTA, clickbait genérico
+- "El plan secreto de Satanás" ← NO ES PREGUNTA, sensacionalista
+
+El title_internal sigue la MISMA REGLA: debe ser una pregunta. Puede ser idéntica a la parte de pregunta del title_youtube o una variación más descriptiva.
+
+EJEMPLOS COMPLETOS:
+- title_youtube: "¿Qué escuchó ENOC cuando la Tierra comenzó a HABLAR? | Moisés 7 Perla de Gran Precio"
 - title_internal: "¿Qué escuchó Enoc cuando la Tierra comenzó a hablar?"
 - title_internal_highlighted: "¿Qué escuchó ENOC cuando la TIERRA comenzó a HABLAR?"
+
+- title_youtube: "¿Por qué DIOS confundió las LENGUAS en Babel? | Génesis 11 y Libro de Mormón"
+- title_internal: "¿Por qué Dios confundió las lenguas en la Torre de Babel?"
+- title_internal_highlighted: "¿Por qué DIOS confundió las LENGUAS en la Torre de BABEL?"
 
 ========================================
 TÉCNICA DE STORYTELLING DE ALTO ENGANCHE
@@ -245,9 +286,9 @@ Devuelve SOLO JSON válido. Sin markdown. Sin comentarios. Sin texto antes o des
 {
   "script": {
     "id": "current",
-    "title_youtube": "HOOK con MAYÚSCULAS estratégicas | Contexto de Búsqueda (máximo 70 caracteres)",
-    "title_internal": "Título descriptivo que aparece DENTRO del video (máximo 80 caracteres)",
-    "title_internal_highlighted": "Título con PALABRAS CLAVE en MAYÚSCULAS para resaltar en celeste",
+    "title_youtube": "¿PREGUNTA buscable con MAYÚSCULAS estratégicas? | Contexto SEO (máx 70 chars)",
+    "title_internal": "¿Pregunta descriptiva que aparece DENTRO del video? (máximo 80 caracteres)",
+    "title_internal_highlighted": "¿Pregunta con PALABRAS CLAVE en MAYÚSCULAS para celeste?",
     "thumbnail_asset_id": "1a",
     "background_music": "divinity.mp3",
     "escritura_short": "Génesis 11:1-9",
@@ -285,10 +326,9 @@ REGLAS DEL JSON:
 - background_music: Debe ser uno de los tres archivos disponibles
 - background_prompt: Descripción en inglés de una escena atmosférica/decorativa para el fondo del video (cielo estrellado, océano, montañas, espacio, desierto, etc.). Esta imagen se blureará y usará como canvas detrás de las imágenes cuadradas. NO incluir personas, rostros ni texto. Debe complementar el tono emocional de la historia.
 - thumbnail_asset_id: Siempre "1a" (la primera imagen, diseñada para thumbnail). Si por alguna razón otra imagen es mejor para thumbnail, cambiar este valor.
-- title_youtube: Optimizado para CTR, puede ser intrigante (máximo 70 caracteres)
-- title_internal: Descriptivo y completo para quien solo ve el video (máximo 80 caracteres)
+- title_youtube: OBLIGATORIAMENTE una PREGUNTA buscable en YouTube (¿Qué...? ¿Por qué...? ¿Cómo...? ¿Quién...?) + " | " + contexto SEO. Máximo 70 caracteres. Con MAYÚSCULAS estratégicas en 1-2 palabras clave. Debe hacer match con la imagen del thumbnail.
+- title_internal: OBLIGATORIAMENTE una PREGUNTA (misma que title_youtube sin el contexto SEO, o variación). Máximo 80 caracteres.
 - El full_text NO empieza con "..." y NO termina con "...". Frases COMPLETAS.
-- title_youtube: DEBE tener un HOOK + contexto de búsqueda separado por " | ". Ejemplo: "Los ÚNICOS que NO perdieron su idioma en Babel | Torre de Babel Libro de Mormón". Usa MAYÚSCULAS estratégicas en 1-2 palabras clave para captar atención. El título debe hacer match con la imagen del thumbnail.
 - title_internal_highlighted: DEBE ser idéntico a title_internal pero con 2-4 PALABRAS CLAVE en MAYÚSCULAS. Estas palabras se renderizan en color celeste en el video vertical/reel. Ejemplo: title_internal="¿Qué escuchó Enoc cuando la Tierra comenzó a hablar?" → title_internal_highlighted="¿Qué escuchó ENOC cuando la TIERRA comenzó a HABLAR?"
 - escritura_short: La referencia de escritura PRINCIPAL del video, corta y clara. Se muestra en el tag inferior del reel/short junto a "Ven Sígueme". Ejemplo: "Moisés 7:48-49", "Génesis 11:1-9", "Alma 46:12-13"
 - metadata.description_hook: Máximo 150 caracteres. Pregunta o dato impactante con palabras clave principales. Es lo que se ve ANTES del "mostrar más".
@@ -318,9 +358,10 @@ ANTES de devolver el JSON, verifica CADA punto. Si alguno falla, CORRIGE antes d
 □ Los word indices son consecutivos sin saltos ni huecos
 □ El asset "1a" tiene un image_prompt diseñado para THUMBNAIL: composición cinematográfica con profundidad, contraste alto, espacio para texto, y match visual con el title_youtube
 □ thumbnail_asset_id está presente y apunta al asset diseñado para thumbnail (normalmente "1a")
-□ title_youtube tiene formato "HOOK con MAYÚSCULAS | Contexto de Búsqueda" (máximo 70 caracteres)
+□ title_youtube ES UNA PREGUNTA buscable (¿Qué...? ¿Por qué...? ¿Cómo...? ¿Quién...?) + " | " + contexto SEO (máximo 70 chars)
+□ title_youtube NO es una afirmación ni clickbait genérico — DEBE ser pregunta que la gente busca en YouTube
 □ title_youtube hace match visual/temático con la imagen del thumbnail_asset_id
-□ title_internal es descriptivo y entendible solo (máximo 80 caracteres)
+□ title_internal ES UNA PREGUNTA descriptiva y entendible solo (máximo 80 caracteres)
 □ title_internal_highlighted es idéntico a title_internal pero con 2-4 PALABRAS en MAYÚSCULAS
 □ escritura_short contiene la referencia de escritura principal del video (corta y clara)
 □ metadata.description_hook tiene máximo 150 caracteres y contiene palabras clave principales
