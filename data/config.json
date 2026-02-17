@@ -1,12 +1,18 @@
 {
   "video_metadata": {
     "programa": "Ven Sígueme",
-    "escritura": "Génesis 11; Helamán 6:28"
+    "escritura": "Abraham 1:5-7"
   },
   "voice_id": "YqZLNYWZm98oKaaLZkUA",
   "output_formats": {
-    "horizontal": {"width": 1920, "height": 1080},
-    "vertical": {"width": 1080, "height": 1920}
+    "horizontal": {
+      "width": 1920,
+      "height": 1080
+    },
+    "vertical": {
+      "width": 1080,
+      "height": 1920
+    }
   },
   "style": {
     "title_color": "#FFFFFF",

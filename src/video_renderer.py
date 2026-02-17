@@ -162,6 +162,16 @@ def load_images(
         else:
             print(f"WARNING: Image not found for asset_id: {asset_id}")
 
+    # STITCHING: Fill gaps between images to prevent "fall through" to last image
+    # If image[i] ends at 10.0 and image[i+1] starts at 11.0, extend image[i] to 11.0
+    for i in range(len(images) - 1):
+        curr_id, curr_img, curr_start, curr_end = images[i]
+        next_id, next_img, next_start, next_end = images[i+1]
+        
+        if curr_end < next_start:
+            print(f"  -> Gap detected between {curr_id} and {next_id}. Extending {curr_id} end from {curr_start:.2f} to {next_start:.2f}")
+            images[i] = (curr_id, curr_img, curr_start, next_start)
+
     return images
 
 
@@ -524,7 +534,7 @@ def draw_vertical_title(
     Features a fade-in animation and word wrapping.
     """
     COLOR_WHITE = (255, 255, 255)
-    COLOR_CELESTE = (100, 200, 240)  # Sky blue / celeste
+    COLOR_ORANGE = (255, 165, 0)  # Ven Sígueme orange
     SHADOW_COLOR = (0, 0, 0)
 
     # Parse words with their color based on casing
@@ -532,11 +542,11 @@ def draw_vertical_title(
 
     # Auto-scale font to fit width
     max_width = canvas_width - 120  # 60px margin each side
-    font_size = 48
+    font_size = 80  # 30% larger than original 62
 
     # Find best font size by checking total text width
     plain_title = title_highlighted  # Use full text for sizing
-    for try_size in range(48, 26, -2):
+    for try_size in range(80, 44, -2):
         font = get_font(try_size, "extrabold")
         bbox = draw.textbbox((0, 0), plain_title, font=font)
         text_width = bbox[2] - bbox[0]
@@ -593,15 +603,10 @@ def draw_vertical_title(
         for word_idx, word in enumerate(line_words):
             # Determine if this word is highlighted (ALL UPPERCASE, >1 char)
             is_highlight = word.isupper() and len(word) > 1
-            color = COLOR_CELESTE if is_highlight else COLOR_WHITE
+            color = COLOR_ORANGE if is_highlight else COLOR_WHITE
 
-            # Stroke outline for readability
-            stroke_alpha = int(alpha * 0.6)
-            for dx in [-2, -1, 1, 2]:
-                for dy in [-2, -1, 1, 2]:
-                    draw.text((cursor_x + dx, y + dy), word, font=font, fill=(*SHADOW_COLOR, stroke_alpha))
-            # Shadow
-            draw.text((cursor_x + 2, y + 2), word, font=font, fill=(*SHADOW_COLOR, int(alpha * 0.5)))
+            # Subtle shadow only (no black stroke/border)
+            draw.text((cursor_x + 2, y + 2), word, font=font, fill=(*SHADOW_COLOR, int(alpha * 0.4)))
             # Main text with color
             draw.text((cursor_x, y), word, font=font, fill=(*color, alpha))
 
@@ -623,16 +628,18 @@ def draw_vertical_bottom_tags(
 ) -> None:
     """
     Draw the bottom tags below the image in vertical format.
-    Two rounded-rectangle pills side by side: "Ven Sígueme" and the scripture reference.
-    Both use celeste/sky-blue background color matching the highlighted title words.
+    Single navy blue rectangle from left edge extending past center,
+    with a tapered/angled right edge for a polished design.
+    Contains "Ven Sígueme" and scripture separated by a divider.
     """
-    COLOR_CELESTE = (100, 200, 240)  # Same as title highlights
-    TEXT_COLOR_DARK = (15, 25, 45)   # Dark navy text on celeste bg
+    COLOR_NAVY = (20, 40, 80)  # Navy blue / azul marino
+    TEXT_COLOR_WHITE = (255, 255, 255)  # White text
+    DIVIDER_COLOR = (255, 255, 255)  # White thin divider
 
-    # Position: centered below the image
-    tag_y = image_y + image_size + 20
-    if tag_y > canvas_height - 70:
-        tag_y = canvas_height - 70  # Don't go below screen
+    # Position: flush against the bottom edge of the image (no gap)
+    tag_y = image_y + image_size
+    if tag_y > canvas_height - 80:
+        tag_y = canvas_height - 80  # Don't go below screen
 
     # Fade-in animation (delayed, starts after title at frame 20)
     if frame_num < 20:
@@ -645,13 +652,13 @@ def draw_vertical_bottom_tags(
     if alpha_f <= 0:
         return
 
-    tag_font = get_font(24, "bold")
-    tag_height = 44
-    padding_h = 24  # Horizontal padding inside each tag
-    gap = 20        # Gap between the two tags
-    corner_radius = 10
+    tag_font = get_font(42, "bold")  # 40% larger than 30
+    tag_height = 70  # 40% larger than 50
+    padding_h = 34  # 40% larger than 24
+    divider_width = 3  # Thin divider between sections
+    taper_width = 42  # 40% larger than 30
 
-    # Calculate tag widths
+    # Calculate text widths
     prog_text = programa
     esc_text = escritura_short
 
@@ -661,42 +668,58 @@ def draw_vertical_bottom_tags(
     esc_bbox = draw.textbbox((0, 0), esc_text, font=tag_font)
     esc_w = (esc_bbox[2] - esc_bbox[0]) + padding_h * 2
 
-    total_width = prog_w + gap + esc_w
-    start_x = (canvas_width - total_width) // 2
+    content_width = prog_w + divider_width + esc_w
+    total_width = content_width + taper_width
+    start_x = 0  # Flush with left edge of screen
 
     alpha = int(255 * alpha_f)
 
-    # Draw "Ven Sígueme" tag
-    tag1_img = Image.new("RGBA", (prog_w, tag_height), (0, 0, 0, 0))
-    tag1_draw = ImageDraw.Draw(tag1_img)
-    tag1_draw.rounded_rectangle(
-        [(0, 0), (prog_w - 1, tag_height - 1)],
-        radius=corner_radius,
-        fill=(*COLOR_CELESTE, alpha)
+    # Draw single rectangle with tapered right edge
+    tag_img = Image.new("RGBA", (total_width + taper_width, tag_height), (0, 0, 0, 0))
+    tag_draw = ImageDraw.Draw(tag_img)
+
+    # Main rectangle body
+    tag_draw.rectangle(
+        [(0, 0), (content_width - 1, tag_height - 1)],
+        fill=(*COLOR_NAVY, alpha)
     )
-    # Center text in tag
+
+    # Tapered/angled right edge (polygon: parallelogram taper)
+    tag_draw.polygon(
+        [  # Angled cut on the right edge
+            (content_width, 0),
+            (content_width + taper_width, 0),
+            (content_width + taper_width - 20, tag_height),
+            (content_width, tag_height),
+        ],
+        fill=(*COLOR_NAVY, alpha)
+    )
+
+    # Thin white divider between "Ven Sígueme" and scripture
+    divider_x = prog_w
+    tag_draw.rectangle(
+        [(divider_x, 10), (divider_x + divider_width - 1, tag_height - 10)],
+        fill=(*DIVIDER_COLOR, int(alpha * 0.6))
+    )
+
+    # Draw "Ven Sígueme" text (left section)
     prog_text_w = prog_bbox[2] - prog_bbox[0]
     prog_text_h = prog_bbox[3] - prog_bbox[1]
     prog_tx = (prog_w - prog_text_w) // 2
-    prog_ty = (tag_height - prog_text_h) // 2 - 2
-    tag1_draw.text((prog_tx, prog_ty), prog_text, font=tag_font, fill=(*TEXT_COLOR_DARK, alpha))
-    frame.paste(tag1_img, (start_x, tag_y), tag1_img)
+    # True vertical centering using ascent metrics
+    ascent, descent = tag_font.getmetrics()
+    prog_ty = (tag_height - ascent) // 2
+    tag_draw.text((prog_tx, prog_ty), prog_text, font=tag_font, fill=(*TEXT_COLOR_WHITE, alpha))
 
-    # Draw scripture tag
-    tag2_x = start_x + prog_w + gap
-    tag2_img = Image.new("RGBA", (esc_w, tag_height), (0, 0, 0, 0))
-    tag2_draw = ImageDraw.Draw(tag2_img)
-    tag2_draw.rounded_rectangle(
-        [(0, 0), (esc_w - 1, tag_height - 1)],
-        radius=corner_radius,
-        fill=(*COLOR_CELESTE, alpha)
-    )
+    # Draw scripture text (right section)
+    esc_x = prog_w + divider_width
     esc_text_w = esc_bbox[2] - esc_bbox[0]
     esc_text_h = esc_bbox[3] - esc_bbox[1]
-    esc_tx = (esc_w - esc_text_w) // 2
-    esc_ty = (tag_height - esc_text_h) // 2 - 2
-    tag2_draw.text((esc_tx, esc_ty), esc_text, font=tag_font, fill=(*TEXT_COLOR_DARK, alpha))
-    frame.paste(tag2_img, (tag2_x, tag_y), tag2_img)
+    esc_tx = esc_x + (esc_w - esc_text_w) // 2
+    esc_ty = (tag_height - ascent) // 2  # Same vertical centering
+    tag_draw.text((esc_tx, esc_ty), esc_text, font=tag_font, fill=(*TEXT_COLOR_WHITE, alpha))
+
+    frame.paste(tag_img, (start_x, tag_y), tag_img)
 
 
 def create_frame(
@@ -776,6 +799,10 @@ def get_current_image_index(
     """
     if not images:
         return 0, 0.5
+
+    # Case: Before first image starts -> hold first image
+    if frame_time < images[0][2]:
+        return 0, 0.0
 
     for i, (asset_id, img, start_time, end_time) in enumerate(images):
         if start_time <= frame_time <= end_time:
@@ -1007,15 +1034,37 @@ def render_video(output_path: Path, video_format: str = "horizontal") -> None:
         fade_start = video_duration - 3.0
 
         def music_volume(t):
-            vol = np.where(
-                t < audio_duration,
-                0.15,
-                np.where(
-                    t < fade_start,
-                    0.40,
-                    0.40 * np.maximum(0, (video_duration - t) / 3.0)
-                )
-            )
+            # Smooth audio transition settings
+            VOL_LOW = 0.15    # Volume during narration
+            VOL_HIGH = 0.40   # Volume after narration
+            RAMP_DURATION = 2.0  # Seconds to ramp up from Low to High
+            
+            # Create output array with same shape as t
+            vol = np.full_like(t, VOL_LOW)
+            
+            # 1. Ramp UP phase (after narration finishes)
+            # t can be a scalar or an array, np.less/greater handles both via standard operators
+            
+            # Mask for the ramp-up period
+            ramp_mask = (t >= audio_duration) & (t < audio_duration + RAMP_DURATION)
+            if np.any(ramp_mask):
+                # Linear interpolation: 0.0 to 1.0
+                progress = (t[ramp_mask] - audio_duration) / RAMP_DURATION
+                vol[ramp_mask] = VOL_LOW + (VOL_HIGH - VOL_LOW) * progress
+                
+            # 2. High volume phase
+            high_mask = (t >= audio_duration + RAMP_DURATION) & (t < fade_start)
+            vol[high_mask] = VOL_HIGH
+            
+            # 3. Fade OUT phase (end of video)
+            fade_out_mask = t >= fade_start
+            if np.any(fade_out_mask):
+                # Fade out from HIGH to 0 over 3 seconds
+                # Note: This assumes fade_start is after the ramp-up. 
+                # If video is extremely short, this logic might need adjustment, but standard videos are fine.
+                remaining = np.maximum(0, video_duration - t[fade_out_mask])
+                vol[fade_out_mask] = VOL_HIGH * (remaining / 3.0)
+                
             return vol
 
         def apply_music_volume(gf, t):
@@ -1027,7 +1076,27 @@ def render_video(output_path: Path, video_format: str = "horizontal") -> None:
 
         music_dynamic = music_clip.fl(apply_music_volume, keep_duration=True)
 
-        final_audio = CompositeAudioClip([music_dynamic, narration_boosted]).set_duration(video_clip.duration)
+        # START FIX: Prevent narration looping by explicitly padding with silence
+        # Calculate silence needed to fill the rest of the video
+        padding_duration = video_clip.duration - narration_boosted.duration
+        if padding_duration > 0:
+            from moviepy.audio.AudioClip import AudioArrayClip
+            # Create a silent clip using raw array to avoid lambda shape issues
+            # 44100 Hz, stereo (2 channels)
+            silence_samples = int(padding_duration * 44100)
+            if silence_samples > 0:
+                silence_array = np.zeros((silence_samples, 2))
+                silence = AudioArrayClip(silence_array, fps=44100)
+                
+                from moviepy.editor import concatenate_audioclips
+                narration_track = concatenate_audioclips([narration_boosted, silence])
+            else:
+                narration_track = narration_boosted
+        else:
+            narration_track = narration_boosted
+        # END FIX
+
+        final_audio = CompositeAudioClip([music_dynamic, narration_track]).set_duration(video_clip.duration)
     else:
         final_audio = narration_clip
 

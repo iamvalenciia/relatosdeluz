@@ -1,0 +1,54 @@
+﻿TIMESTAMP ALIGNER (Content-Based)
+==================================================
+Mode: DRY-RUN (use --fix to save changes)
+
+======================================================================
+TIMESTAMP ALIGNMENT REPORT (Content-Based)
+======================================================================
+
+Script words: 297 (after stripping audio tags)
+Whisper words: 299
+Audio duration: 112.2s
+
+ASSET TIMING:
+  1a: 0.000s - 10.440s (10.4s) [confidence: 0.95]
+      Script:  "Todos conocemos a Abraham como el padre de los fieles, el gran patriarca. Pero l..."
+      Whisper: "Todos conocemos a Abraham como el padre de los fieles,..."
+  1b: 10.440s - 22.800s (12.4s) [confidence: 0.96]
+      Script:  "gran Abraham se arrodill≤ ante Θl para pagarle diezmos. Ese hombre fue Melquised..."
+      Whisper: "Abraham se arrodill≤ ante Θl para pagarle diezmos. Ese hombre..."
+  1c: 22.800s - 36.480s (13.7s) [confidence: 0.95]
+      Script:  "para nosotros. En la Biblia tradicional, este rey aparece y desaparece como un f..."
+      Whisper: "para nosotros. En la Viblea tradicional, este rey aparece y..."
+  1d: 36.480s - 50.140s (13.7s) [confidence: 0.95]
+      Script:  "vivi≤ en una Θpoca de terror y guerras, muy similar a la nuestra. Sin embargo, s..."
+      Whisper: "en una Θpoca de terror y guerras muy similar a..."
+  1e: 50.140s - 60.560s (10.4s) [confidence: 0.96]
+      Script:  "los rφos. Pero su milagro mßs grande no fue controlar la naturaleza. Fue cambiar..."
+      Whisper: "los rφos. Pero su milagro mßs grande no fue controlar..."
+  1f: 60.560s - 69.620s (9.1s) [confidence: 0.95]
+      Script:  "iniquidad y estableci≤ Salem, la ciudad de paz. Logr≤ tal nivel de rectitud que ..."
+      Whisper: "iniquidad y estableci≤ Salem, la ciudad de Paz. Logr≤ tal..."
+  1g: 69.620s - 81.880s (12.3s) [confidence: 0.95]
+      Script:  "dan cuenta de lo que esto significa para nosotros hoy? El sacerdocio que llevamo..."
+      Whisper: "dan cuenta de lo que esto significa para nosotros hoy?..."
+  1h: 81.880s - 93.080s (11.2s) [confidence: 0.96]
+      Script:  "del nombre de Dios, pero tambiΘn para ense±arnos que es posible construir Si≤n e..."
+      Whisper: "del nombre de Dios, pero tambiΘn para ense±arnos que es..."
+  1i: 93.080s - 104.600s (11.5s) [confidence: 0.97]
+      Script:  "mismo poder que cerr≤ la boca de leones. Es el poder real para sellar familias p..."
+      Whisper: "poder que se rola boca de leones. Es el poder..."
+  1j: 104.600s - 112.160s (7.6s) [confidence: 0.96]
+      Script:  "el caos del mundo. Estamos aquφ, con la misma autoridad de Melquisedec, para pre..."
+      Whisper: "caos del mundo. Estamos aquφ con la misma autoridad de..."
+
+WARNINGS: None
+
+CONTINUITY CHECK:
+  All assets are contiguous - perfect timing coverage!
+
+DURATION SANITY CHECK:
+  Shortest: 1j at 7.6s (OK)
+  Longest: 1c at 13.7s (OK)
+
+======================================================================
